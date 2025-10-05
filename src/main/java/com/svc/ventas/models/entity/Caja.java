@@ -1,0 +1,57 @@
+package com.svc.ventas.models.entity;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Entity
+@Table(name = "tb_cajas")
+public class Caja implements Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_caja")
+    private Long idCaja;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "COD_USUARIO", foreignKey = @ForeignKey(name = "FK_CAJA_USUARIO"), nullable = false)
+    private Usuario usuario;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "caja", cascade = CascadeType.ALL)
+    private List<CajaMovimiento> movimientos;
+
+    private String fecha;
+
+    private String horaApertura;
+
+    private BigDecimal montoApertura;
+
+    private String horaCierre;
+
+    private BigDecimal montoCierre;
+
+    private BigDecimal montoCalculado;
+
+    private BigDecimal diferencia;
+
+    private String estado; //abierto cerrado
+
+    @Column(name = "fec_add")
+    private LocalDateTime fecAdd;
+
+    @PrePersist
+    protected void onCreate() {
+        this.fecAdd = LocalDateTime.now();
+    }
+}

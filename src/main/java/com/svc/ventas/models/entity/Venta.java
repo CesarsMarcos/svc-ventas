@@ -1,0 +1,93 @@
+package com.svc.ventas.models.entity;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Set;
+
+import jakarta.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "tb_ventas")
+public class Venta implements Serializable {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_venta")
+	private Long idVenta;
+
+	@JsonIgnore
+	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "id_cliente", foreignKey = @ForeignKey(name = "fk_venta_cliente"))
+	private Cliente cliente;
+	
+	@JsonIgnore
+	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "id_tipo_documento", foreignKey = @ForeignKey(name = "fk_venta_tipo_documento"))
+	private TipoDocumento tipoDocumento;
+
+	@JsonManagedReference
+	@OneToMany(mappedBy = "venta", cascade = CascadeType.ALL)
+	private Set<ProductoVendido> productos;
+
+	private String serie;
+
+	private Integer correlativo;
+
+	@Column(name = "igv")
+	private BigDecimal igv;
+
+	private LocalDate fecha;
+
+	@Column(name = "sub_total")
+	private BigDecimal subTotal;
+
+	@Column(name = "total")
+	private BigDecimal total;
+
+	@Column(name = "estado", nullable = false)
+	private String estado;
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "COD_USUARIO_REGISTRO", foreignKey = @ForeignKey(name = "FK_VENTA_USUARIO_REG"), nullable = false)
+	private Usuario usuRegistro;
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "COD_USUARIO_MOD", foreignKey = @ForeignKey(name = "FK_VENTA_USUARIO_MOD"), nullable = true)
+	private Usuario usuActualizacion;
+
+	@Column(name = "fec_add")
+	private LocalDateTime fecAdd;
+
+	@Column(name = "fec_update")
+	private LocalDateTime fecUpdate;
+
+	@PrePersist
+	protected void onCreate() {
+		this.fecAdd = LocalDateTime.now();
+	}
+
+	@PreUpdate
+	protected void onUpdate() {
+		this.fecUpdate = LocalDateTime.now();
+	}
+
+}

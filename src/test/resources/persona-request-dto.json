@@ -1,0 +1,21 @@
+{
+  "persona": {
+    "nombre": "ARTURO",
+    "apeMaterno": "DAVILA",
+    "apePaterno": "BRAVO",
+    "correo": "cesar@GMAIL.COM",
+    "direccion": "SAN JUAN",
+    "telefono": "123456",
+    "celular": "123456",
+    "fechaNacimiento": "22/11/1989",
+    "foto": "foto",
+    "tipoPersona": {
+      "idTipoPersona": 2
+    },
+    "tipoDocumento": {
+      "idTipoDocumento": 1
+    },
+    "numDocumento": "12345678"
+  },
+  "indEstado": true
+}

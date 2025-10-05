@@ -1,0 +1,17 @@
+{
+  "persona": {
+    "idPersona": 1,
+    "nombre": "FLOR",
+    "apeMaterno": "PORTILLO",
+    "apePaterno": "PARILLO",
+    "correo": "LIZ@GMAIL.COM",
+    "direccion": "CHORRILLOS",
+    "telefono": "123456",
+    "celular": "123456",
+    "fechaNacimiento": "12/11/1994",
+    "foto": null,
+    "tipoPersona": null,
+    "indEstado": true
+  },
+  "indEstado": true
+}

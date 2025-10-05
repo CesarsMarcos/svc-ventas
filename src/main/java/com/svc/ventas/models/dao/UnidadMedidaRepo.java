@@ -1,0 +1,15 @@
+package com.svc.ventas.models.dao;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import com.svc.ventas.models.entity.UnidadMedida;
+
+public interface UnidadMedidaRepo extends JpaRepository<UnidadMedida, Integer> {
+
+	@Query("SELECT u FROM UnidadMedida u WHERE u.indEstado = true")
+	List<UnidadMedida> unidades();
+	
+}
