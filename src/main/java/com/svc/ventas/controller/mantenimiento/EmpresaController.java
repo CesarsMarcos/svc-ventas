@@ -1,6 +1,6 @@
 package com.svc.ventas.controller.mantenimiento;
 
-import com.svc.ventas.models.mapstruct.dto.EmpresaPostDto;
+import com.svc.ventas.models.mapstruct.dto.EmpresaDto;
 import com.svc.ventas.service.IEmpresaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,9 +20,8 @@ public class EmpresaController {
   }
 
   @PostMapping
-  public ResponseEntity guardar(@RequestBody EmpresaPostDto empresa){
+  public ResponseEntity guardar(@RequestBody EmpresaDto empresa){
       return ResponseEntity.status(HttpStatus.CREATED).body(empresaService.guardar(empresa));
   }
-
 
 }

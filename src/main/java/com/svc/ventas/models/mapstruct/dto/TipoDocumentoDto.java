@@ -1,9 +1,9 @@
 package com.svc.ventas.models.mapstruct.dto;
 
-
-import jakarta.validation.constraints.NotBlank;
-
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -13,9 +13,6 @@ public class TipoDocumentoDto {
 
 	private Integer idTipoDocumento;
 
-	@NotBlank
 	private String descripcion;
-
-	private Boolean indEstado;
 
 }

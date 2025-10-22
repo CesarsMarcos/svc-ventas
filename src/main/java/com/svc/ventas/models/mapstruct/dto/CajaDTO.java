@@ -14,7 +14,7 @@ public class CajaDTO {
 
     private Long idCash;
 
-    private UsuarioGetDto usuario;
+    private UsuarioDto usuario;
 
     @Min(0)
     @NonNull

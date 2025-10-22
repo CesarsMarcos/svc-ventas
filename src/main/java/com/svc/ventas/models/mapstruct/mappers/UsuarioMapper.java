@@ -1,22 +1,21 @@
 package com.svc.ventas.models.mapstruct.mappers;
 
-import com.svc.ventas.models.mapstruct.dto.UsuarioPostDto;
 import org.mapstruct.Mapper;
 
 import com.svc.ventas.models.entity.Usuario;
-import com.svc.ventas.models.mapstruct.dto.UsuarioGetDto;
+import com.svc.ventas.models.mapstruct.dto.UsuarioDto;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UsuarioMapper {
 
+	@Mapping(target = "idUsuario", ignore = true)
 	@Mapping(target = "indEstado", constant = "true")
-	Usuario mapToUsuario (UsuarioPostDto usuarioDto);
+	Usuario mapToUsuario (UsuarioDto usuarioDto);
 
-	Usuario mapToUsuarioGet (UsuarioGetDto usuarioDto);
-	
-	UsuarioPostDto mapToUsuarioDto (Usuario usuario);
+	Usuario mapToUsuarioGet (UsuarioDto usuarioDto);
 
-	UsuarioGetDto map (Usuario usuario);
+	@Mapping(target = "clave", ignore = true)
+	UsuarioDto map (Usuario usuario);
 	
 }

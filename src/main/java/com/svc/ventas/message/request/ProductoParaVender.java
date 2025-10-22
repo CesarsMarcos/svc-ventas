@@ -15,19 +15,19 @@ import java.math.BigDecimal;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductoParaVender extends ProductoPostDTO {
+public class ProductoParaVender extends ProductoDTO {
 
 	private Integer cantidad;
 
 	public ProductoParaVender(Long idProducto,
-							  @NotNull CategoriaGetDto categoria, @NotNull MarcaGetDto marca,
-							  @NotNull UnidadMedidaGetDto unidadMedida, @NotBlank String descripcion,
-							  @NotBlank String nombre, @NotBlank String imagen, @NotNull BigDecimal precio,
-							  @NotNull BigDecimal precioDescuento, @NotNull BigDecimal precioProveedor,
-							  @NotNull Integer maxCantidad, @NotNull Integer minCantidad,
-							  @NotNull Integer stock, @NotNull Integer cantidad) {
+														@NotNull CategoriaDto categoria, @NotNull MarcaDto marca,
+														@NotNull UnidadMedidaDto unidadMedida, @NotBlank String descripcion,
+														@NotBlank String nombre, @NotBlank String imagen, @NotNull BigDecimal precio,
+														@NotNull BigDecimal precioDescuento, @NotNull BigDecimal precioProveedor,
+														@NotNull Integer maxCantidad, @NotNull Integer minCantidad,
+														@NotNull Integer stock, @NotNull Integer cantidad, Boolean indEstado) {
 		super(idProducto, categoria, marca, unidadMedida, descripcion, nombre, imagen, precio, precioDescuento,
-				precioProveedor, maxCantidad, minCantidad, stock);
+				precioProveedor, maxCantidad, minCantidad, stock, indEstado);
 		this.cantidad = cantidad;
 	}
 

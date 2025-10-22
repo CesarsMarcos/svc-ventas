@@ -1,8 +1,8 @@
 package com.svc.ventas.controller.mantenimiento;
 
+import com.svc.ventas.models.mapstruct.dto.EmpleadoDto;
 import jakarta.validation.Valid;
 
-import com.svc.ventas.models.mapstruct.dto.EmpleadoPostDto;
 import com.svc.ventas.service.IEmpleadoService;
 import com.svc.ventas.util.Constantes;
 import org.springframework.http.HttpStatus;
@@ -25,7 +25,7 @@ public class EmpleadoController {
 	}
 	
 	@PostMapping
-	public ResponseEntity<Response> agregar(@Valid @RequestBody EmpleadoPostDto empleado) {
+	public ResponseEntity<Response> agregar(@Valid @RequestBody EmpleadoDto empleado) {
 
 		if(empleadoService.isSaved(empleado.getPersona().getNumDocumento())){
 			return ResponseEntity.status(409).body(Response.builder().mensaje(String.format(Constantes.CONFLICTO_REGISTRO, "Empleado")).build());
@@ -36,7 +36,7 @@ public class EmpleadoController {
 	}
 	
 	@PutMapping("{id}")
-	public ResponseEntity<Response> agregar(@PathVariable Integer id,@RequestBody @Valid EmpleadoPostDto empleado) {
+	public ResponseEntity<Response> agregar(@PathVariable Integer id,@RequestBody @Valid EmpleadoDto empleado) {
 		Response response = empleadoService.modificar(id,empleado);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}

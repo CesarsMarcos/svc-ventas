@@ -3,19 +3,18 @@ package com.svc.ventas.service;
 import java.util.List;
 
 import com.svc.ventas.message.response.Response;
-import com.svc.ventas.models.mapstruct.dto.CategoriaGetDto;
-import com.svc.ventas.models.mapstruct.dto.CategoriaPostDto;
+import com.svc.ventas.models.mapstruct.dto.CategoriaDto;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface ICategoriaService {
 
-	List<CategoriaGetDto> lista();
+	List<CategoriaDto> lista();
 
 	@Transactional
-	Response guardar(CategoriaPostDto categoria);
+	Response guardar(CategoriaDto categoria);
 
 	@Transactional
-	Response modificar(int id, CategoriaPostDto categoria);
+	Response modificar(int id, CategoriaDto categoria);
 
-	CategoriaGetDto obtener(int id);
+	CategoriaDto obtener(int id);
 }

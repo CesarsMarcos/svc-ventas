@@ -3,8 +3,7 @@ package com.svc.ventas.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.svc.ventas.models.mapstruct.dto.ClienteGetDto;
-import com.svc.ventas.models.mapstruct.dto.ClientePostDto;
+import com.svc.ventas.models.mapstruct.dto.ClienteDto;
 import com.svc.ventas.models.mapstruct.mappers.PersonaMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +32,7 @@ public class ClienteServiceImpl implements IClienteService {
 	private final PersonaMapper personaMapper;
 
 	@Override
-	public List<ClienteGetDto> clientes() {
+	public List<ClienteDto> clientes() {
 		return clienteRepo.clientesactivos()
 				.stream()
 				.map(clienteMapper::mapClienteDto)
@@ -41,7 +40,7 @@ public class ClienteServiceImpl implements IClienteService {
 	}
 
 	@Override
-	public Response agregar(ClientePostDto clienteDto) {
+	public Response agregar(ClienteDto clienteDto) {
 		clienteRepo.save(clienteMapper.mapCliente(clienteDto));
 		return Response
 				.builder()
@@ -50,7 +49,7 @@ public class ClienteServiceImpl implements IClienteService {
 	}
 
 	@Override
-	public Response modificar(Integer id, ClientePostDto clienteDto) {
+	public Response modificar(Integer id, ClienteDto clienteDto) {
 		clienteRepo.findById(id)
 				.map(cliente -> {
 					cliente.setPersona(personaMapper.mapToPersona(clienteDto.getPersona()));
@@ -64,7 +63,7 @@ public class ClienteServiceImpl implements IClienteService {
 	}
 
 	@Override
-	public ClienteGetDto obtener(Integer id) {
+	public ClienteDto obtener(Integer id) {
 		return clienteRepo.findById(id)
 				.map(clienteMapper::mapClienteDto)
 				.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Cliente", id)));

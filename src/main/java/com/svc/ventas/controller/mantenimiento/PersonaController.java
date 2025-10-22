@@ -2,8 +2,7 @@ package com.svc.ventas.controller.mantenimiento;
 
 import java.util.List;
 import jakarta.validation.Valid;
-import com.svc.ventas.models.mapstruct.dto.PersonaGetDto;
-import com.svc.ventas.models.mapstruct.dto.PersonaPostDto;
+import com.svc.ventas.models.mapstruct.dto.PersonaDto;
 import com.svc.ventas.service.IPersonaService;
 import com.svc.ventas.util.Constantes;
 import org.springframework.http.HttpStatus;
@@ -27,7 +26,7 @@ public class PersonaController {
 	}
 
 	@PostMapping
-	public ResponseEntity<Response> guardar(@Valid @RequestBody PersonaPostDto persona) {
+	public ResponseEntity<Response> guardar(@Valid @RequestBody PersonaDto persona) {
 		if (personaService.isSaved(persona.getNumDocumento())) {
 			return ResponseEntity.status(409).body(Response.builder().mensaje(String.format(Constantes.CONFLICTO_REGISTRO, "Persona")).build());
 		}
@@ -35,21 +34,15 @@ public class PersonaController {
 	}
 	
 	@PutMapping("{id}")
-	public ResponseEntity<Response> modificar(@PathVariable Integer id,@Valid @RequestBody PersonaPostDto persona) {
+	public ResponseEntity<Response> modificar(@PathVariable Integer id,@Valid @RequestBody PersonaDto persona) {
 		Response response = personaService.modificar(id, persona);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("{id}")
-	public ResponseEntity<PersonaGetDto> obtener(@PathVariable Integer id) {
-		PersonaGetDto personaSave = personaService.obtener(id);
+	public ResponseEntity<PersonaDto> obtener(@PathVariable Integer id) {
+		PersonaDto personaSave = personaService.obtener(id);
 		return new ResponseEntity<>(personaSave, HttpStatus.OK);
-	}
-
-	@GetMapping("tipo/{tipo}")
-	public ResponseEntity<List<PersonaGetDto>> personasPorTipo(@PathVariable String  tipo) {
-		List<PersonaGetDto> personas = personaService.personasPorTipo(tipo);
-		return new ResponseEntity<>(personas, HttpStatus.OK);
 	}
 
 }

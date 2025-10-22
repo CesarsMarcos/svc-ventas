@@ -52,7 +52,7 @@ public class Sucursal implements Serializable {
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "COD_USUARIO_MOD", foreignKey = @ForeignKey(name = "FK_SUCURSAL_USUARIO_MOD"))
-	private Usuario usuActualizacion;
+	private Usuario usuMod;
 
 	@Column(name="fec_add")
 	private LocalDateTime fecAdd;

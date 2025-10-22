@@ -1,7 +1,6 @@
 package com.svc.ventas.controller.almacen;
 
-import com.svc.ventas.models.mapstruct.dto.CategoriaGetDto;
-import com.svc.ventas.models.mapstruct.dto.CategoriaPostDto;
+import com.svc.ventas.models.mapstruct.dto.CategoriaDto;
 import com.svc.ventas.service.ICategoriaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,8 +18,8 @@ public class CategoriaController {
     private final ICategoriaService categoriaService;
 
     @GetMapping()
-    public ResponseEntity<List<CategoriaGetDto>> categorias() {
-		List<CategoriaGetDto> categorias = categoriaService.lista();
+    public ResponseEntity<List<CategoriaDto>> categorias() {
+		List<CategoriaDto> categorias = categoriaService.lista();
         if (categorias.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
@@ -29,7 +28,7 @@ public class CategoriaController {
     }
 
     @PostMapping
-    public ResponseEntity<Response> guardar(@RequestBody CategoriaPostDto categoria) {
+    public ResponseEntity<Response> guardar(@RequestBody CategoriaDto categoria) {
         Response response = categoriaService.guardar(categoria);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -40,7 +39,7 @@ public class CategoriaController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<?> modificar(@PathVariable int id, @RequestBody CategoriaPostDto categoria) {
+    public ResponseEntity<?> modificar(@PathVariable int id, @RequestBody CategoriaDto categoria) {
         Response response = categoriaService.modificar(id, categoria);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

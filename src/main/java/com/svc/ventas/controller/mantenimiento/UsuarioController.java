@@ -2,13 +2,12 @@ package com.svc.ventas.controller.mantenimiento;
 
 import java.util.List;
 import jakarta.validation.Valid;
-import com.svc.ventas.models.mapstruct.dto.UsuarioPostDto;
 import com.svc.ventas.util.Constantes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.svc.ventas.message.response.Response;
-import com.svc.ventas.models.mapstruct.dto.UsuarioGetDto;
+import com.svc.ventas.models.mapstruct.dto.UsuarioDto;
 import com.svc.ventas.service.IUsuarioService;
 
 import lombok.RequiredArgsConstructor;
@@ -22,16 +21,16 @@ public class UsuarioController {
 
 	@GetMapping
 	public ResponseEntity<?> usuarios() {
-		return new ResponseEntity<List<UsuarioGetDto>>(usuarioService.lista(), HttpStatus.OK);
+		return new ResponseEntity<>(usuarioService.lista(), HttpStatus.OK);
 	}
 
 	@GetMapping("{id}")
 	public ResponseEntity<?> obtener(@PathVariable("id") int id) {
-		return new ResponseEntity<UsuarioGetDto>(usuarioService.obtener(id), HttpStatus.OK);
+		return new ResponseEntity<UsuarioDto>(usuarioService.obtener(id), HttpStatus.OK);
 	}
 
 	@PostMapping
-	public ResponseEntity<Response> crear(@Valid @RequestBody UsuarioPostDto usuario) {
+	public ResponseEntity<Response> crear(@Valid @RequestBody UsuarioDto usuario) {
 		if(usuarioService.isSaved(usuario.getEmpleado().getIdEmpleado())){
 			return ResponseEntity.status(409).body(Response.builder().mensaje(String.format(Constantes.CONFLICTO_REGISTRO, "Usuario")).build());
 		}
@@ -39,7 +38,7 @@ public class UsuarioController {
 	}
 
 	@PutMapping()
-	public ResponseEntity<?> editar(@PathVariable("id") int id, @Valid @RequestBody UsuarioPostDto usuario) {
+	public ResponseEntity<?> editar(@PathVariable("id") int id, @Valid @RequestBody UsuarioDto usuario) {
 		Response response = usuarioService.modificar(id, usuario);
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}

@@ -26,7 +26,7 @@ public class VentaGetDto {
 	private ClienteGetVentaDto cliente;
 
 	@NotNull
-	private TipoDocumentoGetDto tipoDocumento;
+	private TipoDocumentoDto tipoDocumento;
 
 	@NotNull
 	private List<ProductoDetalleDto> productos;

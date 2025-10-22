@@ -2,7 +2,7 @@ package com.svc.ventas.service.impl;
 
 import java.util.List;
 
-import com.svc.ventas.models.mapstruct.dto.UnidadMedidaGetDto;
+import com.svc.ventas.models.mapstruct.dto.UnidadMedidaDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,9 +45,9 @@ public class UnidadMedidaServiceImpl implements IUnidadMedidaService {
 				.build();
 	}
 
-	public UnidadMedidaGetDto obtener(int id) {
+	public UnidadMedidaDto obtener(int id) {
 		return unidadRepositorio.findById(id)
-				.map(unidadMedida -> UnidadMedidaGetDto
+				.map(unidadMedida -> UnidadMedidaDto
                         .builder()
                         .prefijo(unidadMedida.getPrefijo())
                         .build())

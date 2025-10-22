@@ -9,8 +9,8 @@ import com.svc.ventas.models.entity.ProductoComprado;
 import com.svc.ventas.models.entity.Proveedor;
 import com.svc.ventas.models.mapstruct.dto.CompraDto;
 import com.svc.ventas.models.mapstruct.dto.CompraGetDto;
-import com.svc.ventas.models.mapstruct.dto.ProductoGetDTO;
-import com.svc.ventas.models.mapstruct.dto.UsuarioGetDto;
+import com.svc.ventas.models.mapstruct.dto.ProductoDTO;
+import com.svc.ventas.models.mapstruct.dto.UsuarioDto;
 import com.svc.ventas.models.mapstruct.mappers.*;
 import com.svc.ventas.service.IProductoService;
 import com.svc.ventas.service.ITipoDocumentoService;
@@ -63,7 +63,7 @@ public class CompraServiceImpl implements ICompraService {
 		tipoDocumentoService.obtener(compra.getTipoDocumento().getIdTipoDocumento());
 
 		log.info("Obtiene usuario logueado :: ");
-		UsuarioGetDto usuarioLogueado = usuarioService.obtener(2);
+		UsuarioDto usuarioLogueado = usuarioService.obtener(2);
 
 		log.info("Registra los datos del comprobante :: ");
 		Compra compraNew = Compra.builder()
@@ -83,8 +83,8 @@ public class CompraServiceImpl implements ICompraService {
 		compra.getProductos()
 				.forEach(ppc -> {
 					log.info("Busca producto y actualiza el stock del producto ::");
-					ProductoGetDTO productoBD = productoService.obtener(ppc.getIdProducto());
-					productoBD.sumarStock(ppc.getCantidad());
+					ProductoDTO productoBD = productoService.obtener(ppc.getIdProducto());
+					//productoBD.sumarStock(ppc.getCantidad());
 
 					productoService.modificar(productoBD.getIdProducto(), productoMapper.mapToGet(productoBD));
 

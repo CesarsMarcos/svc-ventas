@@ -74,7 +74,7 @@ public class Producto implements Serializable {
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "COD_USUARIO_MOD", foreignKey = @ForeignKey(name = "FK_PRODUCTO_USUARIO_MOD"))
-	private Usuario usuActualizacion;
+	private Usuario usuMod;
 
 	@Column(name = "fec_add")
 	private LocalDateTime fecAdd;
@@ -90,6 +90,18 @@ public class Producto implements Serializable {
 	@PreUpdate
 	protected void onUpdate() {
 		this.fecUpdate = LocalDateTime.now();
+	}
+
+	public boolean sinStock() {
+		return this.stock <= 0;
+	}
+
+	public void restarStock(Integer stock) {
+		this.stock -= stock;
+	}
+
+	public void sumarStock(Integer stock) {
+		this.stock += stock;
 	}
 
 }

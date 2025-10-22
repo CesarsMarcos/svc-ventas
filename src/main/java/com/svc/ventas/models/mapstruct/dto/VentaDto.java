@@ -18,7 +18,7 @@ public class VentaDto {
 	private String fecha;
 
 	@NotNull
-	private ClienteGetDto cliente;
+	private ClienteDto cliente;
 
 	@NotNull
 	private TipoDocumentoDto tipoDocumento;

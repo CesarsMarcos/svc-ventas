@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.svc.ventas.exception.EntityNotFoundException;
+import com.svc.ventas.models.mapstruct.dto.ProductoDTO;
 import com.svc.ventas.util.AppUtils;
 import jakarta.transaction.Transactional;
 
 import com.svc.ventas.models.entity.Serie;
-import com.svc.ventas.models.mapstruct.dto.ProductoGetDTO;
-import com.svc.ventas.models.mapstruct.dto.UsuarioGetDto;
+import com.svc.ventas.models.mapstruct.dto.UsuarioDto;
 import com.svc.ventas.models.mapstruct.dto.VentaGetDto;
 import com.svc.ventas.models.mapstruct.mappers.*;
 import com.svc.ventas.service.*;
@@ -67,7 +67,7 @@ public class VentaServiceImpl implements IVentaService {
 		tipoDocumentoService.obtener(ventaDto.getTipoDocumento().getIdTipoDocumento());
 
 		log.info("Obtiene usuario logueado ::");
-		UsuarioGetDto usuarioLogueado = usuarioService.obtener(2);
+		UsuarioDto usuarioLogueado = usuarioService.obtener(2);
 
 		log.info("Validar correlativo ::");
 		Serie serieBD = serieService.getByIdDocumentType(ventaDto.getTipoDocumento().getIdTipoDocumento());
@@ -92,8 +92,8 @@ public class VentaServiceImpl implements IVentaService {
 		ventaDto.getProductos()
 				.forEach(ppv -> {
 					log.info("Busca producto y actualiza el stock del producto ::");
-					ProductoGetDTO productoBD = productoService.obtener(ppv.getIdProducto());
-					productoBD.restarStock(ppv.getCantidad());
+					ProductoDTO productoBD = productoService.obtener(ppv.getIdProducto());
+					//productoBD.restarStock(ppv.getCantidad());
 
 					productoService.modificar(productoBD.getIdProducto(), productoMapper.mapToGet(productoBD));
 

@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ProductoVendidoRepository extends JpaRepository<ProductoVendido, Integer> {
 
-  @Query("SELECT new com.svc.venta.models.mapstruct.dto.ProductoMasVendidoDTO(" +
+  @Query("SELECT new com.svc.ventas.models.mapstruct.dto.ProductoMasVendidoDTO(" +
           "pv.nombre, " +
           "SUM(pv.cantidad), " +
           "SUM(pv.cantidad * pv.precio),  " +

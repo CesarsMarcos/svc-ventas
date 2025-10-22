@@ -7,6 +7,7 @@ import com.svc.ventas.models.dao.CajaRepo;
 import com.svc.ventas.models.dao.MovimientoRepo;
 import com.svc.ventas.models.entity.Caja;
 import com.svc.ventas.models.entity.CajaMovimiento;
+import com.svc.ventas.models.enums.EstadoCaja;
 import com.svc.ventas.models.enums.TipoMovimiento;
 import com.svc.ventas.models.enums.TipoPago;
 import com.svc.ventas.models.mapstruct.dto.*;
@@ -43,7 +44,7 @@ public class CajaServiceImpl implements ICajaService {
     @Override
     public CajaDetalleDTO findByFechaAndUsuario() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        UsuarioGetDto currentUsuario = obtenerUsuarioLogueado();
+        UsuarioDto currentUsuario = obtenerUsuarioLogueado();
         log.info(currentUsuario.getSucursal().getDireccion());
         log.info(auth.getName());
         String username = "cmarcos";
@@ -56,7 +57,7 @@ public class CajaServiceImpl implements ICajaService {
     @Override
     public Response aperturaCaja(CajaDTO caja) {
 
-        UsuarioGetDto currentUsuario = obtenerUsuarioLogueado();
+        UsuarioDto currentUsuario = obtenerUsuarioLogueado();
         String fechaActual = AppUtils.obtenerFechaActual();
 
         validarCajaExistenteParaUsuario(fechaActual,"cmarcos");
@@ -72,7 +73,7 @@ public class CajaServiceImpl implements ICajaService {
         cajaRepo.findById(idCaja)
                 .map(cajaSave -> {
                     cajaSave.setHoraCierre(AppUtils.obtenerHoraActual());
-                    cajaSave.setEstado(Constantes.CAJA_CERRADA);
+                    cajaSave.setEstado(EstadoCaja.CERRADA);
                     return cajaRepo.save(cajaSave);
                 })
                 .orElseThrow(() -> new EntityNotFoundException(
@@ -87,7 +88,7 @@ public class CajaServiceImpl implements ICajaService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         String.format(Constantes.MENSAJE_NOT_FOUND, CajaServiceImpl.class, idCaja)));
 
-       if("CERRADO".equalsIgnoreCase(caja.getEstado())){
+       if("CERRADO".equalsIgnoreCase(String.valueOf(caja.getEstado()))){
            throw new ConflictException(Constantes.MSJ_CAJA_CERRADA);
        }
 
@@ -124,7 +125,7 @@ public class CajaServiceImpl implements ICajaService {
 
 
 
-    private UsuarioGetDto obtenerUsuarioLogueado() {
+    private UsuarioDto obtenerUsuarioLogueado() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         log.info(auth.getName());
         String username = auth.getName();
@@ -236,7 +237,7 @@ public class CajaServiceImpl implements ICajaService {
                 .cajero(caja.getUsuario().getUsuario())
                 .fecApertura(caja.getFecha())
                 .fecCierre(caja.getFecha())
-                .estado(caja.getEstado())
+                .estado(String.valueOf(caja.getEstado()))
                 .moneda("SOLES")
                 .totalesPorPago(totalesPorPago)
                 .totalesPorMovimiento(totalesPorMovimiento)
@@ -252,6 +253,5 @@ public class CajaServiceImpl implements ICajaService {
                 .montoTexto(NumeroATexto.convertir(finales.getTotalCuadre(), "SOLES"))
                 .build();
     }
-
 
 }

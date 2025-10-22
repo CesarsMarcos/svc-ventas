@@ -7,8 +7,7 @@ import java.util.stream.Collectors;
 
 import com.svc.ventas.service.UbigeoService;
 import jakarta.validation.Valid;
-import com.svc.ventas.models.mapstruct.dto.ClienteGetDto;
-import com.svc.ventas.models.mapstruct.dto.ClientePostDto;
+import com.svc.ventas.models.mapstruct.dto.ClienteDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -34,18 +33,18 @@ public class ClienteController {
 
 	@GetMapping
 	public ResponseEntity<?> clientes(){
-		return new ResponseEntity<List<ClienteGetDto>>(clienteService.clientes(),HttpStatus.OK);
+		return new ResponseEntity<List<ClienteDto>>(clienteService.clientes(),HttpStatus.OK);
 	}
 
 	@PostMapping
-	public ResponseEntity<?> guardar(@RequestBody @Valid ClientePostDto cliente) {
+	public ResponseEntity<?> guardar(@RequestBody @Valid ClienteDto cliente) {
 		return ResponseEntity.status(HttpStatus.CREATED)
 				.body(clienteService.agregar(cliente));
 	}
 
 	@GetMapping("{id}")
 	public ResponseEntity<?> obtener(@PathVariable Integer id){
-		return new ResponseEntity<ClienteGetDto>(clienteService.obtener(id),HttpStatus.OK);
+		return new ResponseEntity<ClienteDto>(clienteService.obtener(id),HttpStatus.OK);
 	}
 	
 	@GetMapping("searchCliente")
@@ -59,7 +58,7 @@ public class ClienteController {
 
 		Page<Cliente> pageCliente = clienteService.searchCliente(documento, nombre, paging);
 
-		List<ClienteGetDto> clientesDto = pageCliente.getContent().stream()
+		List<ClienteDto> clientesDto = pageCliente.getContent().stream()
 				.map(clienteMapper::mapClienteDto).collect(Collectors.toList());
 
 		Map<String, Object> response = new HashMap<>();

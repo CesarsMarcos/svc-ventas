@@ -26,6 +26,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+import static com.svc.ventas.util.Constantes.*;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -39,14 +41,15 @@ public class SecurityConfig {
 
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(request ->
-                        request.requestMatchers(Constantes.ENDPOINTS_PERMIT).permitAll()
-                                .requestMatchers(Constantes.ENDPOINTS_USER).hasAnyAuthority(Constantes.ROL_USER)
-                                .requestMatchers(Constantes.ENDPOINTS_ADMIN).hasAnyAuthority(Constantes.ROL_ADMIN)
-                                .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtFilterConfig, UsernamePasswordAuthenticationFilter.class)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(ENDPOINTS_PERMIT).permitAll()
+                        .requestMatchers(ENDPOINTS_USER).hasAnyAuthority(ROL_USER, ROL_ADMIN)
+                        .requestMatchers(ENDPOINTS_ADMIN).hasAuthority(ROL_ADMIN)
+                        .anyRequest().authenticated())
+
                 .exceptionHandling(exception ->
                         exception
                                 .authenticationEntryPoint(new CustomAuthenticationEntryPoint())

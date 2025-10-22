@@ -24,7 +24,7 @@ public class CompraGetDto {
   private String estado;
 
   @NotNull
-  private TipoDocumentoGetDto tipoDocumento;
+  private TipoDocumentoDto tipoDocumento;
 
   @NotBlank
   private String tipoPago;

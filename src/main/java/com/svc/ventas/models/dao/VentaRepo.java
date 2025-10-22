@@ -19,7 +19,7 @@ public interface VentaRepo extends JpaRepository<Venta, Long> {
     @Query("SELECT COALESCE(SUM(v.total), 0) FROM Venta v WHERE v.fecAdd BETWEEN :inicio AND :fin")
     BigDecimal obtenerSumaVentasPorRango(LocalDateTime inicio, LocalDateTime fin);
 
-     @Query("SELECT new com.svc.venta.models.mapstruct.dto.VentasPorMesDTO(" +
+     @Query("SELECT new com.svc.ventas.models.mapstruct.dto.VentasPorMesDTO(" +
                 "YEAR(v.fecAdd), MONTH(v.fecAdd), SUM(v.total)) " +
                 "FROM Venta v " +
                 "WHERE v.fecAdd >= :fechaInicio " +

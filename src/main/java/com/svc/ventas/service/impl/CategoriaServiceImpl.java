@@ -3,8 +3,7 @@ package com.svc.ventas.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.svc.ventas.models.mapstruct.dto.CategoriaGetDto;
-import com.svc.ventas.models.mapstruct.dto.CategoriaPostDto;
+import com.svc.ventas.models.mapstruct.dto.CategoriaDto;
 import com.svc.ventas.models.mapstruct.mappers.CategoriaMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,7 @@ public class CategoriaServiceImpl implements ICategoriaService {
 	private final CategoriaMapper categoriaMapper;
 
 	@Override
-	public List<CategoriaGetDto> lista() {
+	public List<CategoriaDto> lista() {
 		return categoriaRepo.listaActivos()
 				.stream()
 				.map(categoriaMapper::mapToGetDto)
@@ -32,13 +31,13 @@ public class CategoriaServiceImpl implements ICategoriaService {
 	}
 
 	@Override
-	public Response guardar(CategoriaPostDto categoria) {
+	public Response guardar(CategoriaDto categoria) {
 		categoriaRepo.save(categoriaMapper.mapToEntity(categoria));
 		return Response.builder().mensaje(Constantes.MENSAJE_SAVE).build();
 	}
 
 	@Override
-	public Response modificar(int id, CategoriaPostDto categoriaDto) {
+	public Response modificar(int id, CategoriaDto categoriaDto) {
 		categoriaRepo.findById(id)
 				.map(categoria -> {
 					categoria.setDesCategoria(categoriaDto.getDesCategoria());
@@ -51,7 +50,7 @@ public class CategoriaServiceImpl implements ICategoriaService {
 	}
 
 	@Override
-	public CategoriaGetDto obtener(int id) {
+	public CategoriaDto obtener(int id) {
 		return categoriaRepo.findById(id)
 				.map(categoriaMapper::mapToGetDto)
 				.orElseThrow(() ->new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND,"Categoria",id)));

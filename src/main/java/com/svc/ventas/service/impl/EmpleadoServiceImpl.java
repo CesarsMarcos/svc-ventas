@@ -3,8 +3,7 @@ package com.svc.ventas.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.svc.ventas.models.mapstruct.dto.EmpleadoGetDto;
-import com.svc.ventas.models.mapstruct.dto.EmpleadoPostDto;
+import com.svc.ventas.models.mapstruct.dto.EmpleadoDto;
 import com.svc.ventas.models.mapstruct.mappers.PersonaMapper;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +28,7 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
 	private final PersonaMapper personaMapper;
 
 	@Override
-	public List<EmpleadoGetDto> lista() {
+	public List<EmpleadoDto> lista() {
 		return empleadoRepo.findEmpleados()
 				.stream()
 				.map(empleadoMapper::mapToEmpleadoDto)
@@ -37,7 +36,7 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
 	}
 
 	@Override
-	public Response agregar(EmpleadoPostDto empleado) {
+	public Response agregar(EmpleadoDto empleado) {
 		empleadoRepo.save(empleadoMapper.mapToEmpleado(empleado));
 		return Response.builder()
 				.mensaje(Constantes.MENSAJE_SAVE)
@@ -45,7 +44,7 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
 	}
 
 	@Override
-	public Response modificar(int id, EmpleadoPostDto empleadoPostDto) {
+	public Response modificar(int id, EmpleadoDto empleadoPostDto) {
 		empleadoRepo.findById(id)
 				.map(empleado-> {
 					empleado.setPersona(personaMapper.mapToPersona(empleadoPostDto.getPersona()));
@@ -58,7 +57,7 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
 	}
 
 	@Override
-	public EmpleadoGetDto obtener(int id) {
+	public EmpleadoDto obtener(int id) {
 		return empleadoRepo.findById(id)
 				.map(empleadoMapper::mapToEmpleadoDto)
 				.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Empleado", id)));

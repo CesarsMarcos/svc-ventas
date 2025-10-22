@@ -1,33 +1,40 @@
 package com.svc.ventas.models.mapstruct.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProveedorGetDto {
+public class ProveedorDto {
 
 	private Integer idProveedor;
 
-	private TipoDocumentoGetDto tipoDocumento;
+	@NotNull
+	private TipoDocumentoDto tipoDocumento;
 
+	@NotBlank
 	private String numDocumento;
 
+	@NotBlank
 	private String razonSocial;
 
+	@NotBlank
 	private String correo;
 
+	@NotBlank
 	private String direccion;
 
+	@NotBlank
 	private String telefono;
 
+	@NotBlank
 	private String representante;
 
+	@NotBlank
 	private String telefonoContacto;
 
 }

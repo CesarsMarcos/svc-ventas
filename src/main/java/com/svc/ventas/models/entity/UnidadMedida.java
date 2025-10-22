@@ -18,11 +18,10 @@ public class UnidadMedida implements Serializable {
 	@Column(name="id_umedida")
 	private Integer idUmedida;
 
-	@Column(name="ind_estado")
-	private Boolean indEstado;
-
 	private String nombre;
 
 	private String prefijo;
+
+	private Boolean indEstado;
 
 }

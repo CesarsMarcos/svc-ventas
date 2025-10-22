@@ -12,7 +12,7 @@ import jakarta.validation.constraints.NotBlank;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SucursalGetDto {
+public class SucursalDto {
 
 	private Long idSucursal;
 	
@@ -38,7 +38,7 @@ public class SucursalGetDto {
 	private String telefono;
 
 	@NotBlank
-	private TipoDocumentoGetDto tipoDocumento;
+	private TipoDocumentoDto tipoDocumento;
 
 	private Boolean indEstado;
 
