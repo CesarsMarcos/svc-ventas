@@ -2,7 +2,7 @@ package com.svc.ventas.controller;
 
 import java.util.List;
 
-import com.svc.ventas.models.mapstruct.dto.EmpresaPostDto;
+import com.svc.ventas.models.mapstruct.dto.EmpresaDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,13 +26,13 @@ public class GlobalController {
 	}
 
 	@PostMapping
-	public ResponseEntity<Response> guardar(@RequestBody EmpresaPostDto global) {
+	public ResponseEntity<Response> guardar(@RequestBody EmpresaDto global) {
 		return ResponseEntity.status(HttpStatus.CREATED)
 				.body(globalService.guardar(global));
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<?> modificar(@PathVariable Integer id, @RequestBody EmpresaPostDto global) {
+	public ResponseEntity<?> modificar(@PathVariable Integer id, @RequestBody EmpresaDto global) {
 		return new ResponseEntity<Response>(globalService.modificar(id,global), HttpStatus.OK);
 	}
 

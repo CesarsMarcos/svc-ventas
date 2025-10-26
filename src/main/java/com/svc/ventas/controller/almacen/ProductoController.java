@@ -4,11 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.svc.ventas.models.mapstruct.dto.ProductoGetDTO;
 import jakarta.validation.Valid;
 
 import com.svc.ventas.message.response.ProductoSearchResponse;
-import com.svc.ventas.models.mapstruct.dto.ProductoPostDTO;
+import com.svc.ventas.models.mapstruct.dto.ProductoDTO;
 import com.svc.ventas.service.IProductoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,7 +26,7 @@ public class ProductoController {
 
 	@GetMapping
 	public ResponseEntity<?> articulos() {
-		List<ProductoGetDTO> productos = articuloService.lista();
+		List<ProductoDTO> productos = articuloService.lista();
 		if(productos.isEmpty()){
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 		}
@@ -35,13 +34,13 @@ public class ProductoController {
 	}
 
 	@PostMapping
-	public ResponseEntity<?> guardar(@Valid @RequestBody ProductoPostDTO articuloDto) {
+	public ResponseEntity<?> guardar(@Valid @RequestBody ProductoDTO articuloDto) {
 		return ResponseEntity.status(HttpStatus.CREATED)
 				.body(articuloService.agregar(articuloDto));
 	}
 
 	@PutMapping("{id}")
-	public ResponseEntity<?> modificar(@PathVariable Long id, @Valid @RequestBody ProductoPostDTO articuloDto) {
+	public ResponseEntity<?> modificar(@PathVariable Long id, @Valid @RequestBody ProductoDTO articuloDto) {
 		return new ResponseEntity<>( articuloService.modificar(id, articuloDto), HttpStatus.OK);
 
 	}

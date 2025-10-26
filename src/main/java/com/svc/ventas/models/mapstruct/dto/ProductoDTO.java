@@ -11,18 +11,18 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductoGetDTO {
+public class ProductoDTO {
 
 	private Long idProducto;
 	
 	@NotNull
-	private CategoriaGetDto categoria;
+	private CategoriaDto categoria;
 
 	@NotNull
-	private MarcaGetDto marca;
+	private MarcaDto marca;
 
 	@NotNull
-	private UnidadMedidaGetDto unidadMedida;
+	private UnidadMedidaDto unidadMedida;
 
 	@NotBlank
 	private String descripcion;
@@ -30,7 +30,6 @@ public class ProductoGetDTO {
 	@NotBlank
 	private String nombre;
 
-	@NotBlank
 	private String imagen;
 
 	@NotNull
@@ -53,16 +52,4 @@ public class ProductoGetDTO {
 
 	private Boolean indEstado;
 
-	public boolean sinStock() {
-		return this.stock <= 0;
-	}
-
-	public void restarStock(Integer stock) {
-		this.stock -= stock;
-	}
-
-	public void sumarStock(Integer stock) {
-		this.stock += stock;
-	}
-	
 }

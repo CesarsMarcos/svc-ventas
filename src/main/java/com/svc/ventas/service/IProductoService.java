@@ -4,15 +4,14 @@ import java.util.List;
 
 import com.svc.ventas.message.response.ProductoSearchResponse;
 import com.svc.ventas.message.response.Response;
-import com.svc.ventas.models.mapstruct.dto.ProductoGetDTO;
-import com.svc.ventas.models.mapstruct.dto.ProductoPostDTO;
+import com.svc.ventas.models.mapstruct.dto.ProductoDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface IProductoService {
 
-	List<ProductoGetDTO> lista();
+	List<ProductoDTO> lista();
 	
 	List<ProductoSearchResponse>  listaParaCompra();
 
@@ -21,12 +20,12 @@ public interface IProductoService {
 	List<ProductoSearchResponse> buscarPorNombreOCodigo(String termino);
 
 	@Transactional
-	Response agregar (ProductoPostDTO productoDto);
+	Response agregar (ProductoDTO productoDto);
 
 	@Transactional
-	Response modificar(Long id, ProductoPostDTO productoDto);
+	Response modificar(Long id, ProductoDTO productoDto);
 
-	ProductoGetDTO obtener(Long id) ;
+	ProductoDTO obtener(Long id) ;
 	
 	void eliminar(Long id);
 

@@ -4,11 +4,9 @@ import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.PersonaRepository;
 import com.svc.ventas.models.entity.Persona;
-import com.svc.ventas.models.mapstruct.dto.PersonaGetDto;
-import com.svc.ventas.models.mapstruct.dto.PersonaPostDto;
+import com.svc.ventas.models.mapstruct.dto.PersonaDto;
 import com.svc.ventas.models.mapstruct.mappers.PersonaMapper;
 import com.svc.ventas.models.mapstruct.mappers.TipoDocumentoMapper;
-import com.svc.ventas.models.mapstruct.mappers.TipoPersonaMapper;
 import com.svc.ventas.service.IPersonaService;
 import com.svc.ventas.util.Constantes;
 import lombok.RequiredArgsConstructor;
@@ -25,12 +23,10 @@ public class PersonaServiceImpl implements IPersonaService {
 
   private final PersonaMapper personaMapper;
 
-  private final TipoPersonaMapper tipoPersonaMapper;
-
   private final TipoDocumentoMapper tipoDocMapper;
 
   @Override
-  public List<PersonaGetDto> personas() {
+  public List<PersonaDto> personas() {
     return personaRepo.findAll().stream()
             .map(personaMapper::map)
             .collect(Collectors.toList());
@@ -38,7 +34,7 @@ public class PersonaServiceImpl implements IPersonaService {
 
 
   @Override
-  public Response guardar(PersonaPostDto personaDto) {
+  public Response guardar(PersonaDto personaDto) {
     Persona persona = personaMapper.mapToPersona(personaDto);
 
     personaRepo.save(persona);
@@ -49,7 +45,7 @@ public class PersonaServiceImpl implements IPersonaService {
   }
 
   @Override
-  public Response modificar(Integer id, PersonaPostDto personaDto) {
+  public Response modificar(Integer id, PersonaDto personaDto) {
 
     Persona personaSave = personaRepo.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Persona", id)));
@@ -65,8 +61,6 @@ public class PersonaServiceImpl implements IPersonaService {
     personaSave.setNumDocumento(personaDto.getNumDocumento());
     personaSave.setTelefono(personaDto.getTelefono());
     personaSave.setTipoDocumento(tipoDocMapper.mapTipoDocumento(personaDto.getTipoDocumento()));
-    personaSave.setTipoPersona(tipoPersonaMapper.mapTipoPersona(personaDto.getTipoPersona()));
-
     personaRepo.save(personaSave);
 
     return Response
@@ -76,7 +70,7 @@ public class PersonaServiceImpl implements IPersonaService {
   }
 
   @Override
-  public PersonaGetDto obtener(Integer id) {
+  public PersonaDto obtener(Integer id) {
     return personaRepo.findById(id)
             .map(personaMapper::map)
             .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Persona", id)));
@@ -87,11 +81,5 @@ public class PersonaServiceImpl implements IPersonaService {
     return personaRepo.existsByNumDocumento(documento);
   }
 
-  @Override
-  public List<PersonaGetDto> personasPorTipo(String tipo) {
-    return this.personas().stream()
-            .filter(tip -> tip.getTipoPersona().getDescripcion().equals(tipo))
-            .collect(Collectors.toList());
-  }
 
 }

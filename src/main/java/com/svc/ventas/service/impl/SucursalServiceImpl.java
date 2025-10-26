@@ -3,8 +3,7 @@ package com.svc.ventas.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.svc.ventas.models.mapstruct.dto.SucursalGetDto;
-import com.svc.ventas.models.mapstruct.dto.SucursalPostDto;
+import com.svc.ventas.models.mapstruct.dto.SucursalDto;
 import org.springframework.stereotype.Service;
 
 import com.svc.ventas.exception.EntityNotFoundException;
@@ -26,7 +25,7 @@ public class SucursalServiceImpl implements ISucursalService {
 	private final SucursalMapper sucursalMapper;
 
 	@Override
-	public List<SucursalGetDto> lista() {
+	public List<SucursalDto> lista() {
 		return sucursalRepo.findSucursales()
 				.stream()
 				.map(sucursalMapper::mapToSucursalDTO)
@@ -34,7 +33,7 @@ public class SucursalServiceImpl implements ISucursalService {
 	}
 
 	@Override
-	public Response agregar(SucursalPostDto sucursalDto) {
+	public Response agregar(SucursalDto sucursalDto) {
 		sucursalRepo.save(sucursalMapper.mapToSucursalPost(sucursalDto));
 
 		return Response.builder()
@@ -43,7 +42,7 @@ public class SucursalServiceImpl implements ISucursalService {
 	}
 
 	@Override
-	public Response modificar(int id, SucursalPostDto sucursalDto) {
+	public Response modificar(int id, SucursalDto sucursalDto) {
 		sucursalRepo.findById(id)
 				.map(sucursal -> {
 					sucursal = sucursalMapper.mapToSucursalPost(sucursalDto);
@@ -56,7 +55,7 @@ public class SucursalServiceImpl implements ISucursalService {
 	}
 
 	@Override
-	public SucursalGetDto obtener(int id) {
+	public SucursalDto obtener(int id) {
 		return sucursalRepo.findById(id)
 				.map(sucursalMapper::mapToSucursalDTO)
 				.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Sucursal", id)));

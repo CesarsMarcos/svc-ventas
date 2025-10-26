@@ -3,8 +3,7 @@ package com.svc.ventas.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.svc.ventas.models.mapstruct.dto.ProductoGetDTO;
-import com.svc.ventas.models.mapstruct.dto.ProductoPostDTO;
+import com.svc.ventas.models.mapstruct.dto.ProductoDTO;
 import com.svc.ventas.models.mapstruct.mappers.CategoriaMapper;
 import com.svc.ventas.models.mapstruct.mappers.MarcaMapper;
 import com.svc.ventas.models.mapstruct.mappers.UMedidaMapper;
@@ -41,7 +40,7 @@ public class ProductoServiceImpl implements IProductoService {
 	
 
 	@Override
-	public List<ProductoGetDTO> lista() {
+	public List<ProductoDTO> lista() {
 		return productoRepo.listaActivos()
 				.stream()
 				.map(productoMapper::map)
@@ -49,7 +48,7 @@ public class ProductoServiceImpl implements IProductoService {
 	}
 
 	@Override
-	public Response agregar(ProductoPostDTO productoDto) {
+	public Response agregar(ProductoDTO productoDto) {
 		productoRepo.save(productoMapper.mapToProducto(productoDto));
 		return Response
 				.builder()
@@ -58,7 +57,7 @@ public class ProductoServiceImpl implements IProductoService {
 	}
 
 	@Override
-	public Response modificar(Long id, ProductoPostDTO productoDto) {
+	public Response modificar(Long id, ProductoDTO productoDto) {
 		productoRepo.findById(id)
 				.map(producto ->{
 					producto.setNombre(productoDto.getNombre());
@@ -81,7 +80,7 @@ public class ProductoServiceImpl implements IProductoService {
 	}
 
 	@Override
-	public ProductoGetDTO obtener(Long id) {
+	public ProductoDTO obtener(Long id) {
 		return productoRepo.findById(id)
 				.map(productoMapper::map)
 				.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Producto", id)));

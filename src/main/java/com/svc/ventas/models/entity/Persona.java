@@ -23,11 +23,6 @@ public class Persona implements Serializable {
 
 	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "id_tipo_persona", foreignKey = @ForeignKey(name = "fk_persona_tipo_persona"))
-	private TipoPersona tipoPersona;
-
-	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_tipo_documento", foreignKey = @ForeignKey(name = "fk_persona_tipo_documento"))
 	private TipoDocumento tipoDocumento;
 
@@ -61,12 +56,12 @@ public class Persona implements Serializable {
 	private Boolean indEstado;
 
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "COD_USUARIO_REGISTRO", foreignKey = @ForeignKey(name = "FK_PERSPNA_USUARIO_REG"))
+	@JoinColumn(name = "COD_USUARIO_REGISTRO", foreignKey = @ForeignKey(name = "FK_PERSONA_USUARIO_REG"))
 	private Usuario usuRegistro;
 
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "COD_USUARIO_MOD", foreignKey = @ForeignKey(name = "FK_PERSPNA_USUARIO_MOD"))
-	private Usuario usuActualizacion;
+	@JoinColumn(name = "COD_USUARIO_MOD", foreignKey = @ForeignKey(name = "FK_PERSONA_USUARIO_MOD"))
+	private Usuario usuMod;
 
 	@Column(name = "fec_add")
 	private LocalDateTime fecAdd;

@@ -51,27 +51,5 @@ public class Empresa implements Serializable {
 
 	@Column(name="ind_estado")
 	private Boolean indEstado;
-	
-	@Column(name="user_add")
-	private String userAdd;
-
-	@Column(name="user_update")
-	private String userUpdate;
-
-	@Column(name="fec_add")
-	private LocalDateTime fecAdd;
-
-	@Column(name="fec_update")
-	private LocalDateTime fecUpdate;
-	
-	@PrePersist
-	protected void onCreate() {
-		this.fecAdd = LocalDateTime.now();
-	}
-
-	@PreUpdate
-	protected void onUpdate() {
-		this.fecUpdate = LocalDateTime.now();
-	}
 
 }

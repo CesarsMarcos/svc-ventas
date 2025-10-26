@@ -4,16 +4,14 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.svc.ventas.models.enums.TipoMovimiento;
 import com.svc.ventas.models.enums.TipoPago;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity

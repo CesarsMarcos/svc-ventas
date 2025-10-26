@@ -1,22 +1,18 @@
 package com.svc.ventas.models.mapstruct.mappers;
 
-import com.svc.ventas.models.mapstruct.dto.MarcaGetDto;
-import com.svc.ventas.models.mapstruct.dto.MarcaPostDto;
+import com.svc.ventas.models.mapstruct.dto.MarcaDto;
 import org.mapstruct.Mapper;
-
-import com.svc.ventas.models.entity.Marca;
 import org.mapstruct.Mapping;
+import com.svc.ventas.models.entity.Marca;
 
 @Mapper(componentModel = "spring")
 public interface MarcaMapper {
 
 	@Mapping(target = "indEstado", constant = "true")
-	Marca mapMarca(MarcaPostDto marcaDto);
+	Marca mapMarca(MarcaDto marcaDto);
 
-	Marca mapMarca(MarcaGetDto marcaDto);
+	Marca mapMarcaDto(Marca marca);
 
-	MarcaPostDto mapMarcaDto(Marca marca);
-
-	MarcaGetDto mapMarcaGetDto(Marca marca);
+	MarcaDto mapMarcaGetDto(Marca marca);
 
 }

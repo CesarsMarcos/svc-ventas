@@ -7,7 +7,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UnidadMedidaGetDto {
+public class UnidadMedidaDto {
 
     private long idUmedida;
 

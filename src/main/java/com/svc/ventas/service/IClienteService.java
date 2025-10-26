@@ -2,8 +2,7 @@ package com.svc.ventas.service;
 
 import java.util.List;
 
-import com.svc.ventas.models.mapstruct.dto.ClienteGetDto;
-import com.svc.ventas.models.mapstruct.dto.ClientePostDto;
+import com.svc.ventas.models.mapstruct.dto.ClienteDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -13,15 +12,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface IClienteService {
 
-	List<ClienteGetDto> clientes();
+	List<ClienteDto> clientes();
 
 	@Transactional
-	Response agregar(ClientePostDto cliente);
+	Response agregar(ClienteDto cliente);
 
 	@Transactional
-	Response modificar(Integer id, ClientePostDto cliente);
+	Response modificar(Integer id, ClienteDto cliente);
 
-	ClienteGetDto obtener(Integer id);
+	ClienteDto obtener(Integer id);
 
 	Page<Cliente> searchCliente(String nombre, String documento, Pageable pageable);
 

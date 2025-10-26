@@ -1,6 +1,5 @@
 package com.svc.ventas.models.mapstruct.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,10 +13,10 @@ import jakarta.validation.constraints.NotNull;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PersonaPostDto {
-	
+public class PersonaDto {
+
 	@NotNull
-	private TipoPersonaDto tipoPersona;
+	private Integer idPersona;
 
 	@NotNull
 	private TipoDocumentoDto tipoDocumento;
@@ -33,10 +32,7 @@ public class PersonaPostDto {
 
 	@NotBlank
 	private String apePaterno;
-
-	@NotBlank
-	private String ubigeo;
-
+	
 	@Email
 	private String correo;
 
@@ -49,10 +45,12 @@ public class PersonaPostDto {
 	@NotBlank
 	private String celular;
 
+	@NotBlank
 	private String fechaNacimiento;
 
 	@NotBlank
 	private String foto;
 
+	private Boolean indEstado;
 
 }

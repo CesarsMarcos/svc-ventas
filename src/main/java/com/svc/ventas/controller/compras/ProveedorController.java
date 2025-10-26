@@ -2,7 +2,7 @@ package com.svc.ventas.controller.compras;
 
 import jakarta.validation.Valid;
 
-import com.svc.ventas.models.mapstruct.dto.ProveedorPostDto;
+import com.svc.ventas.models.mapstruct.dto.ProveedorDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,12 +28,12 @@ public class ProveedorController {
 	}
 
 	@PostMapping
-	public ResponseEntity<?> guardar(@Valid @RequestBody ProveedorPostDto proveedorDto) {
+	public ResponseEntity<?> guardar(@Valid @RequestBody ProveedorDto proveedorDto) {
 		return new ResponseEntity<>(proveedorService.registrar(proveedorDto), HttpStatus.CREATED);
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<?> modificar(@PathVariable int id, @RequestBody ProveedorPostDto proveedorDto) {
+	public ResponseEntity<?> modificar(@PathVariable int id, @RequestBody ProveedorDto proveedorDto) {
 		return new ResponseEntity<>(proveedorService.modificar(id, proveedorDto), HttpStatus.OK);
 	}
 

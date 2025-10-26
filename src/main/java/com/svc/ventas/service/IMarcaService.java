@@ -3,21 +3,20 @@ package com.svc.ventas.service;
 import java.util.List;
 
 import com.svc.ventas.message.response.Response;
-import com.svc.ventas.models.mapstruct.dto.MarcaGetDto;
-import com.svc.ventas.models.mapstruct.dto.MarcaPostDto;
+import com.svc.ventas.models.mapstruct.dto.MarcaDto;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface IMarcaService {
 
-	List<MarcaGetDto> lista();
+	List<MarcaDto> lista();
 
-	MarcaGetDto obtener(Integer id);
-
-	@Transactional
-	Response guardar(MarcaPostDto marca);
+	MarcaDto obtener(Integer id);
 
 	@Transactional
-	Response modificar(Integer id,MarcaPostDto marca);
+	Response guardar(MarcaDto marca);
+
+	@Transactional
+	Response modificar(Integer id,MarcaDto marca);
 
 	void eliminar(int id);
 

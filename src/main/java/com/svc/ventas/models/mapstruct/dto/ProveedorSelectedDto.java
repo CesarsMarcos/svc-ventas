@@ -17,6 +17,5 @@ public class ProveedorSelectedDto {
 	private String ruc;
 
 	private String razonSocial;
-
-
+	
 }

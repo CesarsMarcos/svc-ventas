@@ -29,7 +29,7 @@ public class CompraDto {
   private String tipoPago;
 
   @NotNull
-  private ProveedorGetDto proveedor;
+  private ProveedorDto proveedor;
 
   @NotNull
   private List<ProductoParaComprar> productos;

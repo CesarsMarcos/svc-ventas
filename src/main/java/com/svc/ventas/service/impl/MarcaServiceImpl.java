@@ -3,8 +3,7 @@ package com.svc.ventas.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.svc.ventas.models.mapstruct.dto.MarcaGetDto;
-import com.svc.ventas.models.mapstruct.dto.MarcaPostDto;
+import com.svc.ventas.models.mapstruct.dto.MarcaDto;
 import org.springframework.stereotype.Service;
 import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.response.Response;
@@ -25,21 +24,21 @@ public class MarcaServiceImpl implements IMarcaService {
 	private final MarcaMapper marcaMapper;
 	
 	@Override
-	public List<MarcaGetDto> lista() {
+	public List<MarcaDto> lista() {
 		return marcaRepositorio.marcas()
 				.stream()
 				.map(marcaMapper::mapMarcaGetDto).collect(Collectors.toList());
 	}
 
 	@Override
-	public MarcaGetDto obtener(Integer id) {
+	public MarcaDto obtener(Integer id) {
 		return marcaRepositorio.findById(id)
 				.map(marcaMapper::mapMarcaGetDto)
 				.orElseThrow(()-> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND,"Marca",id)));
 	}
 
 	@Override
-	public Response guardar(MarcaPostDto marcaDto) {
+	public Response guardar(MarcaDto marcaDto) {
 		marcaRepositorio.save(marcaMapper.mapMarca(marcaDto));
 		return Response
 				.builder()
@@ -48,7 +47,7 @@ public class MarcaServiceImpl implements IMarcaService {
 	}
 
 	@Override
-	public Response modificar(Integer id, MarcaPostDto marcaDto) {
+	public Response modificar(Integer id, MarcaDto marcaDto) {
 		Marca marcaSave = marcaRepositorio.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Marca", id)));
 

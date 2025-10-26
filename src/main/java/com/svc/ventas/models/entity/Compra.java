@@ -61,7 +61,7 @@ public class Compra implements Serializable {
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "COD_USUARIO_MOD", foreignKey = @ForeignKey(name = "FK_COMPRA_USUARIO_MOD"))
-	private Usuario usuActualizacion;
+	private Usuario usuMod;
 
 	@Column(name = "user_update")
 	private String userUpdate;

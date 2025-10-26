@@ -15,7 +15,7 @@ public class CajaDTOBackup {
 
     private Long idCash;
 
-    private UsuarioGetDto usuario;
+    private UsuarioDto usuario;
 
     private VentaGetDto venta;
 

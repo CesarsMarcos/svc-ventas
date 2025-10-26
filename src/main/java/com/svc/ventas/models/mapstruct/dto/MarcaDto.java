@@ -1,21 +1,21 @@
 package com.svc.ventas.models.mapstruct.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import jakarta.validation.constraints.NotBlank;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class EmpleadoGetDto {
+public class MarcaDto {
 
-	private Integer idEmpleado;
+	private Long idMarca;
 
-	private PersonaGetDto persona;
-
-	private  Boolean indEstado;
+	@NotBlank
+	private String descripcion;
 
 }

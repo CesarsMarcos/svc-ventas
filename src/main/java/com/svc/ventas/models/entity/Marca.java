@@ -15,28 +15,10 @@ public class Marca implements Serializable {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="id_marca")
 	private Integer idMarca;
 
 	private String descripcion;
 
-	@Column(name="ind_estado")
 	private Boolean indEstado;
-
-	@Column(name="fec_add")
-	private LocalDateTime fecAdd;
-
-	@Column(name="fec_update")
-	private LocalDateTime fecUpdate;
-
-	@PrePersist
-	protected void onCreate() {
-		this.fecAdd = LocalDateTime.now();
-	}
-
-	@PreUpdate
-	protected void onUpdate() {
-		this.fecUpdate =LocalDateTime.now(); 
-	}
 
 }

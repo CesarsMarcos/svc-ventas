@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class EmpresaGetDto implements Serializable {
+public class EmpresaDto implements Serializable {
 
 	private Integer idEmpresa;
 
@@ -43,8 +43,5 @@ public class EmpresaGetDto implements Serializable {
 	private String simboloMoneda;
 
 	private Boolean indEstado;
-
-
-	private static final long serialVersionUID = 1L;
 
 }

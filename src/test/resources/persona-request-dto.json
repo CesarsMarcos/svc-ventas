@@ -9,9 +9,6 @@
     "celular": "123456",
     "fechaNacimiento": "22/11/1989",
     "foto": "foto",
-    "tipoPersona": {
-      "idTipoPersona": 2
-    },
     "tipoDocumento": {
       "idTipoDocumento": 1
     },

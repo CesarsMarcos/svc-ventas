@@ -1,5 +1,6 @@
 package com.svc.ventas.models.mapstruct.dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,10 +10,12 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UnidadMedidaPostDto {
+public class EmpleadoDto {
 
-    private String nombre;
+	private Integer idEmpleado;
 
-    private String prefijo;
+	private PersonaDto persona;
+
+	private  Boolean indEstado;
 
 }

@@ -11,7 +11,7 @@ spring:
     database-platform: org.hibernate.dialect.MySQLDialect
   datasource:
     #url: jdbc:mysql://mysql_bd_ventas:3306/bd_svc-ventas?serverTimezone=UTC
-    url: jdbc:mysql://localhost:3309/bd_svc-ventas?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3314/db_ventas_v2?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true
     username: root
     password: root
     hikari:
@@ -33,7 +33,7 @@ logging:
   level:
     org:
       hibernate:
-        SQL: DEBUG
+        SQL: OFF
     #root: debug
 key:
   signature: Ub4GiF7+MS8VG8s8Wh/6W/Uwu1LYqsRpVFDugnSlcphOuLHPsyiaEi+Xo0ARBjEDCNfujsWTKEluKyvvSpV0Qg==

@@ -1,9 +1,9 @@
 package com.svc.ventas.message.request;
 
-import com.svc.ventas.models.mapstruct.dto.CategoriaGetDto;
-import com.svc.ventas.models.mapstruct.dto.MarcaGetDto;
-import com.svc.ventas.models.mapstruct.dto.ProductoPostDTO;
-import com.svc.ventas.models.mapstruct.dto.UnidadMedidaGetDto;
+import com.svc.ventas.models.mapstruct.dto.CategoriaDto;
+import com.svc.ventas.models.mapstruct.dto.MarcaDto;
+import com.svc.ventas.models.mapstruct.dto.ProductoDTO;
+import com.svc.ventas.models.mapstruct.dto.UnidadMedidaDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,17 +16,17 @@ import java.math.BigDecimal;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductoParaComprar extends ProductoPostDTO {
+public class ProductoParaComprar extends ProductoDTO {
 
   private Integer cantidad;
 
   public ProductoParaComprar(Long idProducto,
-                             @NotNull CategoriaGetDto categoria, @NotNull MarcaGetDto marca,
-                             @NotNull UnidadMedidaGetDto unidadMedida, @NotBlank String descripcion,
+                             @NotNull CategoriaDto categoria, @NotNull MarcaDto marca,
+                             @NotNull UnidadMedidaDto unidadMedida, @NotBlank String descripcion,
                              @NotBlank String nombre, String imagen, @NotNull BigDecimal precio,
                              @NotNull BigDecimal precioDescuento, @NotNull BigDecimal precioProveedor,
-                             @NotNull Integer maxCantidad, @NotNull Integer minCantidad, @NotNull Integer stock) {
+                             @NotNull Integer maxCantidad, @NotNull Integer minCantidad, @NotNull Integer stock, Boolean indEstado) {
     super(idProducto, categoria, marca, unidadMedida, descripcion, nombre, imagen, precio,
-            precioDescuento, precioProveedor, maxCantidad, minCantidad, stock);
+            precioDescuento, precioProveedor, maxCantidad, minCantidad, stock, indEstado);
   }
 }

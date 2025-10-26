@@ -13,10 +13,29 @@ public class JsonUtils {
   }
 
   public static <T> T fromJsonFile(String path, Class<T> clazz) {
-    try (InputStream inputStream = JsonUtils.class.getClassLoader().getResourceAsStream(path)) {
+    InputStream inputStream = null;
+    try {
+      inputStream = JsonUtils.class.getClassLoader().getResourceAsStream(path);
+
+      if (inputStream == null) {
+        throw new IllegalArgumentException(
+                "No se encontró el archivo JSON en el classpath: " + path
+        );
+      }
+
       return objectMapper.readValue(inputStream, clazz);
+
     } catch (Exception e) {
-      throw new RuntimeException("Error al leer JSON desde archivo: " + path, e);
+      throw new RuntimeException(
+              "Error al leer o parsear el JSON desde archivo: " + path + " - " + e.getMessage(),
+              e
+      );
+    } finally {
+      if (inputStream != null) {
+        try {
+          inputStream.close();
+        } catch (Exception ignored) {}
+      }
     }
   }
 }

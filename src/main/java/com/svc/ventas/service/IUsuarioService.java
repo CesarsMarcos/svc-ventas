@@ -3,22 +3,21 @@ package com.svc.ventas.service;
 import java.util.List;
 
 import com.svc.ventas.message.response.Response;
-import com.svc.ventas.models.mapstruct.dto.UsuarioGetDto;
-import com.svc.ventas.models.mapstruct.dto.UsuarioPostDto;
+import com.svc.ventas.models.mapstruct.dto.UsuarioDto;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface IUsuarioService {
 
-	List<UsuarioGetDto> lista();
+	List<UsuarioDto> lista();
 
 	@Transactional
-	Response agregar(UsuarioPostDto usuario);
+	Response agregar(UsuarioDto usuario);
 
 	@Transactional
-	Response modificar(Integer id, UsuarioPostDto usuario);
+	Response modificar(Integer id, UsuarioDto usuario);
 
-	UsuarioGetDto obtener(int id);
+	UsuarioDto obtener(int id);
 
 	void eliminar(int id);
 
@@ -26,6 +25,6 @@ public interface IUsuarioService {
 
 	UserDetailsService userDetailsService();
 
-	UsuarioGetDto getPorUserName(String username);
+	UsuarioDto getPorUserName(String username);
 
 }

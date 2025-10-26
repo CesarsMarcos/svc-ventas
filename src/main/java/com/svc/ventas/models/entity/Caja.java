@@ -1,6 +1,7 @@
 package com.svc.ventas.models.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.svc.ventas.models.enums.EstadoCaja;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -45,7 +46,8 @@ public class Caja implements Serializable {
 
     private BigDecimal diferencia;
 
-    private String estado; //abierto cerrado
+    @Enumerated(EnumType.STRING)
+    private EstadoCaja estado;
 
     @Column(name = "fec_add")
     private LocalDateTime fecAdd;
@@ -54,4 +56,5 @@ public class Caja implements Serializable {
     protected void onCreate() {
         this.fecAdd = LocalDateTime.now();
     }
+
 }

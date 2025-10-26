@@ -1,8 +1,7 @@
 package com.svc.ventas.controller.mantenimiento;
 
-import com.svc.ventas.models.mapstruct.dto.SucursalGetDto;
+import com.svc.ventas.models.mapstruct.dto.SucursalDto;
 import jakarta.validation.Valid;
-import com.svc.ventas.models.mapstruct.dto.SucursalPostDto;
 import com.svc.ventas.service.ISucursalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,7 +19,7 @@ public class SucursalController {
 
 	@GetMapping()
 	public ResponseEntity<?> sucursales() {
-		List<SucursalGetDto> sucursales = sucursalService.lista();
+		List<SucursalDto> sucursales = sucursalService.lista();
 		if(sucursales.isEmpty()){
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 		}
@@ -34,15 +33,13 @@ public class SucursalController {
 	}
 
 	@PostMapping
-	public ResponseEntity<?> agregar(@Valid @RequestBody SucursalPostDto sucursalDto) {
+	public ResponseEntity<?> agregar(@Valid @RequestBody SucursalDto sucursalDto) {
 		return  ResponseEntity.status(HttpStatus.CREATED).body(sucursalService.agregar(sucursalDto));
 	}
 
 	@PutMapping("{id}")
-	public ResponseEntity<?> modificar(@PathVariable Integer id, @RequestBody SucursalPostDto sucursalDto) {
+	public ResponseEntity<?> modificar(@PathVariable Integer id, @RequestBody SucursalDto sucursalDto) {
 		return new ResponseEntity<> (sucursalService.modificar(id, sucursalDto), HttpStatus.OK);
 	}
-	
-	
 
 }

@@ -3,7 +3,6 @@ package com.svc.ventas.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.svc.ventas.models.mapstruct.dto.UsuarioPostDto;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,7 +13,7 @@ import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.UsuarioRepo;
 import com.svc.ventas.models.entity.Usuario;
-import com.svc.ventas.models.mapstruct.dto.UsuarioGetDto;
+import com.svc.ventas.models.mapstruct.dto.UsuarioDto;
 import com.svc.ventas.models.mapstruct.mappers.EmpleadoMapper;
 import com.svc.ventas.models.mapstruct.mappers.SucursalMapper;
 import com.svc.ventas.models.mapstruct.mappers.UsuarioMapper;
@@ -36,7 +35,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
 	private final SucursalMapper sucursalMapper;
 
 	@Override
-	public List<UsuarioGetDto> lista() {
+	public List<UsuarioDto> lista() {
 		 return usuarioRepo.getUsuariosActivos()
 				 .stream()
 				 .map(usuarioMapper::map)
@@ -44,7 +43,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
 	}
 
 	@Override
-	public Response agregar(UsuarioPostDto usuarioDto) {
+	public Response agregar(UsuarioDto usuarioDto) {
 		Usuario usuario = usuarioMapper.mapToUsuario(usuarioDto);
 		usuario.setClave(new BCryptPasswordEncoder().encode(usuarioDto.getClave()));
 		usuarioRepo.save(usuario);
@@ -55,7 +54,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
 	}
 
 	@Override
-	public Response modificar(Integer id, UsuarioPostDto usuarioDto) {
+	public Response modificar(Integer id, UsuarioDto usuarioDto) {
 		usuarioRepo.findById(id)
 				.map(usuario-> {
 					usuario.setEmpleado(empleadoMapper.mapToEmpleado(usuarioDto.getEmpleado()));
@@ -70,7 +69,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
 	}
 
 	@Override
-	public UsuarioGetDto obtener(int id) {
+	public UsuarioDto obtener(int id) {
 		return  usuarioRepo.findById(id)
 				.map(usuarioMapper::map)
 				.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Usuario", id)));
@@ -99,7 +98,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
 	}
 
 	@Override
-	public UsuarioGetDto getPorUserName(String username) {
+	public UsuarioDto getPorUserName(String username) {
 		return usuarioRepo.findByUsuario(username)
 				.map(usuarioMapper::map)
 				.orElseThrow(() ->

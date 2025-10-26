@@ -7,7 +7,7 @@ import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.EmpleadoRepo;
 import com.svc.ventas.models.entity.Empleado;
-import com.svc.ventas.models.mapstruct.dto.EmpleadoPostDto;
+import com.svc.ventas.models.mapstruct.dto.EmpleadoDto;
 import com.svc.ventas.models.mapstruct.mappers.EmpleadoMapper;
 import com.svc.ventas.models.mapstruct.mappers.PersonaMapper;
 import com.svc.ventas.utils.JsonUtils;
@@ -50,7 +50,7 @@ class EmpleadoServiceImplTest {
     Integer id = 15;
 
     Empleado empleado = JsonUtils.fromJsonFile("empleado-request.json", Empleado.class);
-    EmpleadoPostDto empleadoPostDto = JsonUtils.fromJsonFile("persona-request-dto.json", EmpleadoPostDto.class);
+     EmpleadoDto empleadoPostDto = JsonUtils.fromJsonFile("persona-request-dto.json", EmpleadoDto.class);
 
     when(empleadoMapper.mapToEmpleado(empleadoPostDto)).thenReturn(empleado);
     when(empleadoRepo.findById(id)).thenReturn(Optional.of(empleado));
@@ -68,7 +68,7 @@ class EmpleadoServiceImplTest {
     Integer id = 15;
 
     Empleado empleado = JsonUtils.fromJsonFile("empleado-request.json", Empleado.class);
-    EmpleadoPostDto empleadoPostDto = JsonUtils.fromJsonFile("persona-request-dto.json", EmpleadoPostDto.class);
+    EmpleadoDto empleadoPostDto = JsonUtils.fromJsonFile("persona-request-dto.json", EmpleadoDto.class);
 
     when(empleadoRepo.findById(id)).thenReturn(Optional.of(empleado));
 

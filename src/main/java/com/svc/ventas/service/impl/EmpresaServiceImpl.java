@@ -1,11 +1,9 @@
 package com.svc.ventas.service.impl;
 
 import java.util.List;
-
 import com.svc.ventas.models.entity.Empresa;
-import com.svc.ventas.models.mapstruct.dto.EmpresaGetDto;
-import com.svc.ventas.models.mapstruct.dto.EmpresaPostDto;
-import com.svc.ventas.models.mapstruct.mappers.GlobalMapper;
+import com.svc.ventas.models.mapstruct.dto.EmpresaDto;
+import com.svc.ventas.models.mapstruct.mappers.Empresamapper;
 import org.springframework.stereotype.Service;
 
 import com.svc.ventas.exception.EntityNotFoundException;
@@ -22,7 +20,7 @@ public class EmpresaServiceImpl implements IEmpresaService {
 
 	private final GlobalRepository globalRepo;
 
-	private final GlobalMapper globalMapper;
+	private final Empresamapper globalMapper;
 
 	@Override
 	public List<Empresa> listar() {
@@ -30,7 +28,7 @@ public class EmpresaServiceImpl implements IEmpresaService {
 	}
 
 	@Override
-	public EmpresaGetDto obtener(Integer id) {
+	public EmpresaDto obtener(Integer id) {
 		return globalRepo.findById(id)
 				.map(globalMapper::mapToGetDto)
 				.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Empresa", id)));
@@ -38,8 +36,8 @@ public class EmpresaServiceImpl implements IEmpresaService {
 	}
 
 	@Override
-	public Response guardar(EmpresaPostDto globalPostDto) {
-		globalRepo.save(globalMapper.mapToEntity(globalPostDto));
+	public Response guardar(EmpresaDto empresaDto) {
+		globalRepo.save(globalMapper.mapToEntity(empresaDto));
 		return Response
 				.builder()
 				.mensaje(Constantes.MENSAJE_SAVE)
@@ -47,7 +45,7 @@ public class EmpresaServiceImpl implements IEmpresaService {
 	}
 
 	@Override
-	public Response modificar(Integer id, EmpresaPostDto empresa) {
+	public Response modificar(Integer id, EmpresaDto empresa) {
 		 globalRepo.findById(id)
 				.map(global -> {
 					global.setRuc(empresa.getRuc());
@@ -63,7 +61,7 @@ public class EmpresaServiceImpl implements IEmpresaService {
 					global.setLogo(empresa.getLogo());
 					return globalRepo.save(global);
 				}).
-				orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Global", id)));
+				orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Empresa", id)));
 
 		return Response
 				.builder()
@@ -74,7 +72,7 @@ public class EmpresaServiceImpl implements IEmpresaService {
 	@Override
 	public void eliminar(Integer id) {
 		Empresa empresaSave = globalRepo.findById(id)
-						.orElseThrow(()-> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND,"Global",id)));
+						.orElseThrow(()-> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND,"Empresa",id)));
 		empresaSave.setIndEstado(Constantes.IND_INACTIVO);
 		globalRepo.save(empresaSave);
 	}

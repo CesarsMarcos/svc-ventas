@@ -63,7 +63,7 @@ public class Proveedor implements Serializable {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "COD_USUARIO_MOD", foreignKey = @ForeignKey(name = "FK_PROVEEDOR_USUARIO_MOD"))
-	private Usuario usuActualizacion;
+	private Usuario usuMod;
 
 	@Column(name = "fec_add")
 	private LocalDateTime fecAdd;

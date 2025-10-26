@@ -3,21 +3,20 @@ package com.svc.ventas.service;
 import java.util.List;
 
 import com.svc.ventas.message.response.Response;
-import com.svc.ventas.models.mapstruct.dto.SucursalGetDto;
-import com.svc.ventas.models.mapstruct.dto.SucursalPostDto;
+import com.svc.ventas.models.mapstruct.dto.SucursalDto;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface ISucursalService {
 
-	List<SucursalGetDto> lista();
+	List<SucursalDto> lista();
 
 	@Transactional
-	Response agregar(SucursalPostDto sucursal);
+	Response agregar(SucursalDto sucursal);
 
 	@Transactional
-	Response modificar(int id, SucursalPostDto sucursal);
+	Response modificar(int id, SucursalDto sucursal);
 
-	SucursalGetDto obtener(int id);
+	SucursalDto obtener(int id);
 
 	void eliminar(int id);
 

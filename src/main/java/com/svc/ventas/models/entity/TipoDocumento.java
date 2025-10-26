@@ -21,16 +21,14 @@ public class TipoDocumento implements Serializable{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id_tipo_documento")
 	private Integer idTipoDocumento;
 
-	@Column(name = "descripcion")
 	private String descripcion;
 
-	@Column(name = "tipo")
+	private String abreviatura;
+
 	private Integer tipo;
 
-	@Column(name = "ind_estado")
 	private Boolean indEstado;
 
 }

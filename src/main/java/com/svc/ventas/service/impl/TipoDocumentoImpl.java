@@ -5,8 +5,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.svc.ventas.models.mapstruct.dto.TipoDocumentoDto;
-import com.svc.ventas.models.mapstruct.dto.TipoDocumentoGetDto;
-import com.svc.ventas.models.mapstruct.dto.TipoDocumentoSelectedDto;
 import com.svc.ventas.models.mapstruct.mappers.TipoDocumentoMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,7 +28,7 @@ public class TipoDocumentoImpl implements ITipoDocumentoService  {
 	public List<TipoDocumento> lista() {return tipoRepo.findAll();}
 
 	@Override
-	public List<TipoDocumentoSelectedDto> listaPorTipo(Integer tipo) {
+	public List<TipoDocumentoDto> listaPorTipo(Integer tipo) {
 		return tipoRepo.findAll().stream()
 						.filter(x-> Objects.equals(x.getTipo(), tipo))
 						.map(tipoDocumentoMapper::mapToTipoDocumentoSelected)
@@ -58,7 +56,7 @@ public class TipoDocumentoImpl implements ITipoDocumentoService  {
 	}
 
 	@Override
-	public TipoDocumentoGetDto obtener(int id) {
+	public TipoDocumentoDto obtener(int id) {
 		return tipoRepo.findById(id)
 				.map(tipoDocumentoMapper::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "TipoDocumento", id)));

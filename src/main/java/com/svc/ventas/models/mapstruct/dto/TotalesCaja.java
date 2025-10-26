@@ -8,6 +8,9 @@ import java.math.BigDecimal;
 @Getter
 @AllArgsConstructor
 public class TotalesCaja {
-    private final BigDecimal totalIngresos;
-    private final BigDecimal totalEgresos;
+
+  private final BigDecimal totalIngresos;
+
+  private final BigDecimal totalEgresos;
+
 }
