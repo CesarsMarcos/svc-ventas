@@ -20,7 +20,7 @@ public class CajaDTO {
     @NonNull
     private BigDecimal montoApertura;
 
-    private String estado; //abierto cerrado
+    private String estado;
 
     private Set<CajaMovimientosDTO> movimientos;
 

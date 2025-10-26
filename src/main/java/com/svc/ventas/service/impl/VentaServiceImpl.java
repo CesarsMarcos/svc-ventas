@@ -5,22 +5,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.svc.ventas.exception.EntityNotFoundException;
-import com.svc.ventas.models.mapstruct.dto.ProductoDTO;
+import com.svc.ventas.models.entity.*;
+import com.svc.ventas.models.enums.TipoMovimiento;
+import com.svc.ventas.models.enums.TipoPago;
+import com.svc.ventas.models.mapstruct.dto.*;
 import com.svc.ventas.util.AppUtils;
+import com.svc.ventas.util.SecurityUtils;
 import jakarta.transaction.Transactional;
 
-import com.svc.ventas.models.entity.Serie;
-import com.svc.ventas.models.mapstruct.dto.UsuarioDto;
-import com.svc.ventas.models.mapstruct.dto.VentaGetDto;
 import com.svc.ventas.models.mapstruct.mappers.*;
 import com.svc.ventas.service.*;
 import org.springframework.stereotype.Service;
 
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.VentaRepo;
-import com.svc.ventas.models.entity.ProductoVendido;
-import com.svc.ventas.models.entity.Venta;
-import com.svc.ventas.models.mapstruct.dto.VentaDto;
 import com.svc.ventas.util.Constantes;
 import com.svc.ventas.models.dao.ProductoVendidoRepository;
 
@@ -32,115 +30,137 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class VentaServiceImpl implements IVentaService {
 
-	private final IClienteService clienteService;
+  private final IClienteService clienteService;
 
-	private final IProductoService productoService;
+  private final IProductoService productoService;
 
-	private final ITipoDocumentoService tipoDocumentoService;
+  private final ITipoDocumentoService tipoDocumentoService;
 
-	private final IUsuarioService usuarioService;
+  private final IUsuarioService usuarioService;
 
-	private final ISerieService serieService;
+  private final ISerieService serieService;
 
-	private final ProductoVendidoRepository productoVendidoRepo;
+  private final ICajaService cajaService;
 
-	private final VentaRepo ventaRepo;
+  private final ProductoVendidoRepository productoVendidoRepo;
 
-	private final ProductoMapper productoMapper;
+  private final VentaRepo ventaRepo;
 
-	private final VentaMapper ventaMapper;
+  private final ProductoMapper productoMapper;
 
-	private final ClienteMapper clienteMapper;
+  private final VentaMapper ventaMapper;
 
-	private final UsuarioMapper usuarioMapper;
+  private final ClienteMapper clienteMapper;
 
-	private final TipoDocumentoMapper tipoDocumentoMapper;
+  private final UsuarioMapper usuarioMapper;
 
-	@Override
-	@Transactional
-	public Response registrar(VentaDto ventaDto) {
+  private final TipoDocumentoMapper tipoDocumentoMapper;
 
-		log.info("Busca cliente :: ");
-		clienteService.obtener(ventaDto.getCliente().getIdCliente());
+  private final SecurityUtils securityUtils;
 
-		log.info("Busca tipo de documento existente :: ");
-		tipoDocumentoService.obtener(ventaDto.getTipoDocumento().getIdTipoDocumento());
+  @Override
+  @Transactional
+  public Response registrar(VentaDto ventaDto) {
 
-		log.info("Obtiene usuario logueado ::");
-		UsuarioDto usuarioLogueado = usuarioService.obtener(2);
+    log.info("Busca cliente :: ");
+    clienteService.obtener(ventaDto.getCliente().getIdCliente());
 
-		log.info("Validar correlativo ::");
-		Serie serieBD = serieService.getByIdDocumentType(ventaDto.getTipoDocumento().getIdTipoDocumento());
-		int nextCorrelativo = serieBD.getCorrelativo() + 1;
+    log.info("Busca tipo de documento existente :: ");
+    tipoDocumentoService.obtener(ventaDto.getTipoDocumento().getIdTipoDocumento());
 
-		log.info("Actualizar correlativo en series ::");
-		serieBD.setCorrelativo(nextCorrelativo);
-		serieService.save(serieBD);
+    log.info("Obtiene usuario logueado ::");
+    UsuarioDto usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
 
-		Venta ventaNew = Venta.builder()
-				.cliente(clienteMapper.mapCliente(ventaDto.getCliente()))
-				.tipoDocumento(tipoDocumentoMapper.mapTipoDocumento(ventaDto.getTipoDocumento()))
-				.serie(serieBD.getSerie())
-				.correlativo(nextCorrelativo)
-				.igv(ventaDto.getIgv())
-				.subTotal(ventaDto.getSubTotal())
-				.fecha(AppUtils.convert(ventaDto.getFecha()))
-				.estado(Constantes.STATUS_CREADO)
-				.usuRegistro(usuarioMapper.mapToUsuarioGet(usuarioLogueado))
-				.build();
+    log.info("Validar correlativo ::");
+    Serie serieBD = serieService.getByIdDocumentType(ventaDto.getTipoDocumento().getIdTipoDocumento());
+    int nextCorrelativo = serieBD.getCorrelativo() + 1;
 
-		ventaDto.getProductos()
-				.forEach(ppv -> {
-					log.info("Busca producto y actualiza el stock del producto ::");
-					ProductoDTO productoBD = productoService.obtener(ppv.getIdProducto());
-					//productoBD.restarStock(ppv.getCantidad());
+    String numeroDocumento = serieBD.getSerie() + "-" + String.format("%05d", nextCorrelativo);
+    log.info("Número de documento generado: {}", numeroDocumento);
 
-					productoService.modificar(productoBD.getIdProducto(), productoMapper.mapToGet(productoBD));
+    log.info("Actualizar correlativo en series ::");
+    serieBD.setCorrelativo(nextCorrelativo);
+    serieService.save(serieBD);
 
-					productoVendidoRepo.save(ProductoVendido
-							.builder()
-							.idProducto(productoBD.getIdProducto())
-							.descripcion(productoBD.getDescripcion())
-							.nombre(productoBD.getNombre())
-							.precio(productoBD.getPrecio())
-							.cantidad(ppv.getCantidad())
-							.venta(ventaRepo.save(ventaNew))
-							.build());
-				});
+    log.info("Obtener caja activa ::");
+    CajaDetalleDTO cajaDet = cajaService.findByFechaAndUsuario();
 
-		return Response
-				.builder()
-				.mensaje(Constantes.MENSAJE_SAVE)
-				.build();
-	}
+    Venta ventaNew = Venta.builder()
+            .cliente(clienteMapper.mapCliente(ventaDto.getCliente()))
+            .tipoDocumento(tipoDocumentoMapper.mapTipoDocumento(ventaDto.getTipoDocumento()))
+            .serie(serieBD.getSerie())
+            .correlativo(nextCorrelativo)
+            .igv(ventaDto.getIgv())
+            .subTotal(ventaDto.getSubTotal())
+            .total(ventaDto.getTotal())
+            .fecha(AppUtils.convert(ventaDto.getFecha()))
+            .estado(Constantes.STATUS_CREADO)
+            .usuRegistro(usuarioMapper.mapToUsuarioGet(usuarioLogueado))
+            .build();
 
-	@Override
-	public List<VentaGetDto> listado(Boolean isViewMore) {
-		LocalDate dateToday = LocalDate.now();
-		LocalDate sevenDaysAgo = dateToday.minusWeeks(1);
+    ventaDto.getProductos()
+            .forEach(ppv -> {
+              log.info("Busca producto y actualiza el stock del producto ::");
+              ProductoDTO productoBD = productoService.obtener(ppv.getIdProducto());
+              //productoBD.restarStock(ppv.getCantidad());
 
-		return ventaRepo.findAll().stream()
-				.filter(compra -> {
-					if (isViewMore) {
-						return compra.getFecha().isAfter(sevenDaysAgo.minusDays(1)) && compra.getFecha().isBefore(dateToday.plusDays(1));
-					} else {
-						return compra.getFecha().isEqual(dateToday);
-					}
-				})
-				.map(ventaMapper::mapToVentaGetDto)
-				.collect(Collectors.toList());
-	}
+              productoService.modificar(productoBD.getIdProducto(), productoMapper.mapToGet(productoBD));
 
-	@Override
-	public Object details(Long id) {
-		return ventaRepo.findById(id)
-				.map(ventaMapper::mapToVentaGetDto)
-				.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Venta", id)));
-	}
+              productoVendidoRepo.save(ProductoVendido
+                      .builder()
+                      .idProducto(productoBD.getIdProducto())
+                      .descripcion(productoBD.getDescripcion())
+                      .nombre(productoBD.getNombre())
+                      .precio(productoBD.getPrecio())
+                      .cantidad(ppv.getCantidad())
+                      .venta(ventaRepo.save(ventaNew))
+                      .build());
+            });
 
-	@Override
-	public List<Venta> listadoVentasPorCliente(String dni/*, String fecha*/) {
-		return ventaRepo.ventasPorDocumentoCliente(dni);
-	}
+    CajaMovimientosDTO mov = CajaMovimientosDTO
+            .builder()
+            .tipoMovimiento(TipoMovimiento.INGRESO)
+            .documento(numeroDocumento)
+            .monto(ventaNew.getTotal())
+            .tipoPago(TipoPago.EFECTIVO)
+            .build();
+    cajaService.agregarMovimiento(cajaDet.getIdCaja(), mov);
+
+    log.info("Venta registrada correctamente con número {}", numeroDocumento);
+
+    return Response
+            .builder()
+            .mensaje(Constantes.MENSAJE_SAVE)
+            .build();
+  }
+
+  @Override
+  public List<VentaGetDto> listado(Boolean isViewMore) {
+    LocalDate dateToday = LocalDate.now();
+    LocalDate sevenDaysAgo = dateToday.minusWeeks(1);
+
+    return ventaRepo.findAll().stream()
+            .filter(compra -> {
+              if (isViewMore) {
+                return compra.getFecha().isAfter(sevenDaysAgo.minusDays(1)) && compra.getFecha().isBefore(dateToday.plusDays(1));
+              } else {
+                return compra.getFecha().isEqual(dateToday);
+              }
+            })
+            .map(ventaMapper::mapToVentaGetDto)
+            .collect(Collectors.toList());
+  }
+
+  @Override
+  public Object details(Long id) {
+    return ventaRepo.findById(id)
+            .map(ventaMapper::mapToVentaGetDto)
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Venta", id)));
+  }
+
+  @Override
+  public List<Venta> listadoVentasPorCliente(String dni/*, String fecha*/) {
+    return ventaRepo.ventasPorDocumentoCliente(dni);
+  }
 
 }

@@ -20,7 +20,7 @@ public class ResumenCajaDTO {
     private String estado;
     private String moneda;
     private Map<TipoPago, BigDecimal> totalesPorPago;
-    //dentro de movimiento MONTO INICIAL
+
     private Map<TipoMovimiento, BigDecimal> totalesPorMovimiento;
     private BigDecimal totalIngresos;
     private BigDecimal totalEgresos;
@@ -30,7 +30,6 @@ public class ResumenCajaDTO {
     private BigDecimal totalEfectivoEnCaja; // (efectivo + monto inicial) - gastos
     private BigDecimal totalCtaBancaria;    // los depositos
     private BigDecimal totalCuadre;         // suma de los dos anteriores
-
     private String montoTexto;              // texto del monto anteior
 
 }

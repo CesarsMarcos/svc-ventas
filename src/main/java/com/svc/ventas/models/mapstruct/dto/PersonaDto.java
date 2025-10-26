@@ -52,4 +52,5 @@ public class PersonaDto {
 	private String foto;
 
 	private Boolean indEstado;
+
 }

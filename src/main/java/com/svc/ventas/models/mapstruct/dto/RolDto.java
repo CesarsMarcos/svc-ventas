@@ -10,8 +10,10 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RolDto {
+
 	private Integer idRol;
 
 	@NotBlank
 	private String desRol;
+
 }

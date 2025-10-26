@@ -1,7 +1,6 @@
 package com.svc.ventas.service.impl;
 
 import java.util.List;
-
 import com.svc.ventas.models.entity.Empresa;
 import com.svc.ventas.models.mapstruct.dto.EmpresaDto;
 import com.svc.ventas.models.mapstruct.mappers.Empresamapper;
@@ -62,7 +61,7 @@ public class EmpresaServiceImpl implements IEmpresaService {
 					global.setLogo(empresa.getLogo());
 					return globalRepo.save(global);
 				}).
-				orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Global", id)));
+				orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Empresa", id)));
 
 		return Response
 				.builder()
@@ -73,7 +72,7 @@ public class EmpresaServiceImpl implements IEmpresaService {
 	@Override
 	public void eliminar(Integer id) {
 		Empresa empresaSave = globalRepo.findById(id)
-						.orElseThrow(()-> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND,"Global",id)));
+						.orElseThrow(()-> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND,"Empresa",id)));
 		empresaSave.setIndEstado(Constantes.IND_INACTIVO);
 		globalRepo.save(empresaSave);
 	}

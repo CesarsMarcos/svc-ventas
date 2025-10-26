@@ -41,7 +41,5 @@ public class SucursalController {
 	public ResponseEntity<?> modificar(@PathVariable Integer id, @RequestBody SucursalDto sucursalDto) {
 		return new ResponseEntity<> (sucursalService.modificar(id, sucursalDto), HttpStatus.OK);
 	}
-	
-	
 
 }

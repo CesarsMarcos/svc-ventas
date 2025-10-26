@@ -15,7 +15,7 @@ public class ChartController {
   private final IChartService chartService;
 
   @GetMapping
-  public ResponseEntity getCharts (){
+  public ResponseEntity<?> getCharts (){
     return ResponseEntity.ok(chartService.getGraficos());
   }
 

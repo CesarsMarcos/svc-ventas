@@ -33,7 +33,7 @@ logging:
   level:
     org:
       hibernate:
-        SQL: DEBUG
+        SQL: OFF
     #root: debug
 key:
   signature: Ub4GiF7+MS8VG8s8Wh/6W/Uwu1LYqsRpVFDugnSlcphOuLHPsyiaEi+Xo0ARBjEDCNfujsWTKEluKyvvSpV0Qg==

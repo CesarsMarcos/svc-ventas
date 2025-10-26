@@ -1,6 +1,5 @@
 package com.svc.ventas.controller.mantenimiento;
 
-import java.util.List;
 import jakarta.validation.Valid;
 import com.svc.ventas.util.Constantes;
 import org.springframework.http.HttpStatus;

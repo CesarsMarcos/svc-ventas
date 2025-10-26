@@ -18,14 +18,11 @@ public class Constantes {
 
   public static final String CONFLICTO_REGISTRO = ":: El %s ya se encuentra registrado";
 
-  public static final String CAJA_ABIERTA = "ABIERTO";
-
-  public static final String CAJA_CERRADA = "CERRADO";
-
   public static final String MENSAJE_CAJA_CERRADA = "Se procedio con el cierre de la caja";
 
-  //CAJA
   public static final String MSJ_CAJA_EXISTE = "Ya existe una caja abierta para el usuario '%s' en la fecha '%s'";
+
+  public static final String MONEDA_PER= "SOLES";
 
   public static final String MSJ_MOVIMIENTO_AGREGADO = "Movimiento agregado correctamente a la caja con ID '%s'";
 

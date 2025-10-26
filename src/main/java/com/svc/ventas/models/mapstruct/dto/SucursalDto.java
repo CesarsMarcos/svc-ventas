@@ -14,32 +14,32 @@ import jakarta.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class SucursalDto {
 
-	private Long idSucursal;
-	
-	@NotBlank
-	private String direccion;
+  private Long idSucursal;
 
-	@NotBlank
-	@Email
-	private String email;
+  @NotBlank
+  private String direccion;
 
-	private String logo;
+  @NotBlank
+  @Email
+  private String email;
 
-	@NotBlank
-	private String numDocumento;
+  private String logo;
 
-	@NotBlank
-	private String razonSocial;
+  @NotBlank
+  private String numDocumento;
 
-	@NotBlank
-	private String representante;
+  @NotBlank
+  private String razonSocial;
 
-	@NotBlank
-	private String telefono;
+  @NotBlank
+  private String representante;
 
-	@NotBlank
-	private TipoDocumentoDto tipoDocumento;
+  @NotBlank
+  private String telefono;
 
-	private Boolean indEstado;
+  @NotBlank
+  private TipoDocumentoDto tipoDocumento;
+
+  private Boolean indEstado;
 
 }

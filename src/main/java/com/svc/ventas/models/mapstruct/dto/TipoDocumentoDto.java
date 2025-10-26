@@ -11,8 +11,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class TipoDocumentoDto {
 
-	private Integer idTipoDocumento;
+  private Integer idTipoDocumento;
 
-	private String descripcion;
+  private String descripcion;
 
 }
