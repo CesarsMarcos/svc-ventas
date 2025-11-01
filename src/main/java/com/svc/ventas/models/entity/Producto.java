@@ -92,16 +92,4 @@ public class Producto implements Serializable {
 		this.fecUpdate = LocalDateTime.now();
 	}
 
-	public boolean sinStock() {
-		return this.stock <= 0;
-	}
-
-	public void restarStock(Integer stock) {
-		this.stock -= stock;
-	}
-
-	public void sumarStock(Integer stock) {
-		this.stock += stock;
-	}
-
 }

@@ -8,7 +8,21 @@ public class Constantes {
 
   public static final String MENSAJE_NOT_FOUND = ":: No existe %s para el ID: %s ingresado";
 
+  public static final String MENSAJE_USUARIO_NO_ENCONTRADO = ":: Usuario o password incorrectos";
+
   public static final String MENSAJE_NOT_FOUND_CAJA = ":: No existe %s abierta para el día en curso";
+
+  public static final String RESPONSE_ERROR_500 = "Error interno del servidor. Por favor, intente nuevamente más tarde.";
+
+  public static final String RESPONSE_ERROR_400 = "Solicitud inválida. Verifique los datos enviados e intente nuevamente.";
+
+  public static final String RESPONSE_ERROR_404 = "Recurso no encontrado. Verifique los datos proporcionados.";
+
+  public static final String RESPONSE_ERROR_409 = "Conflicto en la solicitud. El recurso ya existe o hay un conflicto con los datos.";
+
+  public static final String RESPONSE_ERROR_401 = "No autorizado. Debe iniciar sesión o proporcionar credenciales válidas.";
+
+  public static final String RESPONSE_ERROR_403 = "Acceso denegado. No tiene permisos para realizar esta acción.";
 
   public static final Boolean IND_INACTIVO = false;
 

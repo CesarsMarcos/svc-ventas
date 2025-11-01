@@ -45,7 +45,7 @@ public class ProveedorServiceImpl implements IProveedorService {
 
 	@Override
 	public Response modificar(Integer id, ProveedorDto proveedorDto) {
-		Proveedor proveedorSave = proveedorRepo.findById(id)
+		proveedorRepo.findById(id)
 		.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Proveedor", id)));
 		return Response.builder().mensaje(Constantes.MENSAJE_MOD).build();
 	}

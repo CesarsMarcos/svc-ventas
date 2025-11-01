@@ -2,6 +2,9 @@ package com.svc.ventas.models.mapstruct.dto;
 
 import java.math.BigDecimal;
 import java.util.List;
+
+import com.svc.ventas.models.enums.TipoPago;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import com.svc.ventas.message.request.ProductoParaVender;
@@ -25,6 +28,10 @@ public class VentaDto {
 
 	@NotNull
 	private List<ProductoParaVender> productos;
+
+	private Boolean aplicarImpuesto;
+
+	private TipoPago tipoPago;
 
 	@NotNull
 	private BigDecimal igv;

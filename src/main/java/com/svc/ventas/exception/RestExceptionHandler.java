@@ -1,19 +1,23 @@
 package com.svc.ventas.exception;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
+import com.svc.ventas.util.Constantes;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+@Slf4j
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RestExceptionHandler {
@@ -21,21 +25,45 @@ public class RestExceptionHandler {
 	@ResponseBody
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex) {
-		List<String> errores = new ArrayList<>();
-		ex.getFieldErrors().forEach(err -> {
-			errores.add("El campo " + err.getField() + " " + err.getDefaultMessage());
-		});
-		return ResponseEntity.badRequest().body(getErrorsMap(errores));
+		List<String> errores = ex.getFieldErrors()
+						.stream().map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
+						.collect(Collectors.toList());
+    log.error("handleValidationExceptions:: {}", errores);
+		return new ResponseEntity<>(Collections.singletonMap("mensaje", Constantes.RESPONSE_ERROR_400), HttpStatus.BAD_REQUEST);
 	}
 
 	@ExceptionHandler(EntityNotFoundException.class)
-	public ResponseEntity<Object> handleResourceNotFoundException(EntityNotFoundException ex) {
-		return new ResponseEntity<>(Collections.singletonMap("mensaje", ex.getMessage()), HttpStatus.NOT_FOUND);
+	public ResponseEntity<Object> handleEntityNotFound(EntityNotFoundException ex) {
+		log.error("EntityNotFoundException:: {}", ex.getMessage());
+		return new ResponseEntity<>(
+						Collections.singletonMap("mensaje", Constantes.RESPONSE_ERROR_404),
+						HttpStatus.NOT_FOUND
+		);
+	}
+
+	@ExceptionHandler(UsernameNotFoundException.class)
+	public ResponseEntity<Object> handleUsernameNotFound(UsernameNotFoundException ex) {
+		log.error("UsernameNotFoundException:: {}", ex.getMessage());
+		return new ResponseEntity<>(
+						Collections.singletonMap("mensaje", Constantes.MENSAJE_USUARIO_NO_ENCONTRADO),
+						HttpStatus.NOT_FOUND
+		);
 	}
 
 	@ExceptionHandler(ConflictException.class)
 	public ResponseEntity<Object> handleConflictException(ConflictException ex) {
-		return new ResponseEntity<>(Collections.singletonMap("mensaje", ex.getMessage()), HttpStatus.CONFLICT);
+		log.error("ConflictException:: {}", ex.getMessage());
+		return new ResponseEntity<>(Collections.singletonMap("mensaje", Constantes.RESPONSE_ERROR_409), HttpStatus.CONFLICT);
+	}
+
+	@ExceptionHandler(BusinessException.class)
+	public ResponseEntity<?> handleBusinessException(BusinessException ex) {
+		return new ResponseEntity<>(Collections.singletonMap("mensaje", ex.getMessage()), HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(ValidationException.class)
+	public ResponseEntity<?> handleValidationException(ValidationException ex) {
+		return new ResponseEntity<>(Collections.singletonMap("mensaje", ex.getMessage()), HttpStatus.BAD_REQUEST);
 	}
 
 	@ExceptionHandler({ HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class })
@@ -44,21 +72,15 @@ public class RestExceptionHandler {
 	}
 
 	@ExceptionHandler(Exception.class)
-	public final ResponseEntity<Map<String, List<String>>> handleGeneralExceptions(Exception ex) {
-		List<String> errors = Collections.singletonList(ex.getMessage());
-		return new ResponseEntity<>(getErrorsMap(errors), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+	public final ResponseEntity<?> handleGeneralExceptions(Exception ex) {
+		log.error("Exception:: {}", ex.getMessage());
+		return new ResponseEntity<>(Collections.singletonMap("mensaje", Constantes.RESPONSE_ERROR_500), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@ExceptionHandler(RuntimeException.class)
-	public final ResponseEntity<Map<String, List<String>>> handleRuntimeExceptions(RuntimeException ex) {
-		List<String> errors = Collections.singletonList(ex.getMessage());
-		return new ResponseEntity<>(getErrorsMap(errors), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
-	}
-
-	private Map<String, List<String>> getErrorsMap(List<String> errors) {
-		Map<String, List<String>> errorResponse = new HashMap<>();
-		errorResponse.put("mensaje", errors);
-		return errorResponse;
+	public final ResponseEntity<?> handleRuntimeExceptions(RuntimeException ex) {
+		log.error("Exception:: {}", ex.getMessage());
+		return new ResponseEntity<>(Collections.singletonMap("mensaje", Constantes.RESPONSE_ERROR_500), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 }

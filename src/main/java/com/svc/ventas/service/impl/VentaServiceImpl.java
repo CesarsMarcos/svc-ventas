@@ -4,7 +4,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.svc.ventas.exception.BusinessException;
 import com.svc.ventas.exception.EntityNotFoundException;
+import com.svc.ventas.message.request.ProductoParaVender;
 import com.svc.ventas.models.entity.*;
 import com.svc.ventas.models.enums.TipoMovimiento;
 import com.svc.ventas.models.enums.TipoPago;
@@ -62,6 +64,11 @@ public class VentaServiceImpl implements IVentaService {
   @Transactional
   public Response registrar(VentaDto ventaDto) {
 
+    log.info("Iniciando registro de venta...");
+
+    log.info("Obtener caja activa ::");
+    CajaDetalleDTO cajaDet = cajaService.findByFechaAndUsuario();
+
     log.info("Busca cliente :: ");
     clienteService.obtener(ventaDto.getCliente().getIdCliente());
 
@@ -82,12 +89,10 @@ public class VentaServiceImpl implements IVentaService {
     serieBD.setCorrelativo(nextCorrelativo);
     serieService.save(serieBD);
 
-    log.info("Obtener caja activa ::");
-    CajaDetalleDTO cajaDet = cajaService.findByFechaAndUsuario();
-
     Venta ventaNew = Venta.builder()
             .cliente(clienteMapper.mapCliente(ventaDto.getCliente()))
             .tipoDocumento(tipoDocumentoMapper.mapTipoDocumento(ventaDto.getTipoDocumento()))
+            .tipoPago(ventaDto.getTipoPago())
             .serie(serieBD.getSerie())
             .correlativo(nextCorrelativo)
             .igv(ventaDto.getIgv())
@@ -98,11 +103,20 @@ public class VentaServiceImpl implements IVentaService {
             .usuRegistro(usuarioMapper.mapToUsuarioGet(usuarioLogueado))
             .build();
 
+    Venta ventaEntity = ventaRepo.save(ventaNew);
+    log.info("Venta guardada con ID: {}", ventaEntity.getIdVenta());
+
+    log.info("Registra los productos a vender :: ");
+
     ventaDto.getProductos()
             .forEach(ppv -> {
               log.info("Busca producto y actualiza el stock del producto ::");
               ProductoDTO productoBD = productoService.obtener(ppv.getIdProducto());
-              //productoBD.restarStock(ppv.getCantidad());
+
+              log.info("Valida disponibilidad de stock para producto :: {} ", productoBD.getNombre() );
+              validarStock(ppv, productoBD);
+
+              productoBD.restarStock(ppv.getCantidad());
 
               productoService.modificar(productoBD.getIdProducto(), productoMapper.mapToGet(productoBD));
 
@@ -113,7 +127,7 @@ public class VentaServiceImpl implements IVentaService {
                       .nombre(productoBD.getNombre())
                       .precio(productoBD.getPrecio())
                       .cantidad(ppv.getCantidad())
-                      .venta(ventaRepo.save(ventaNew))
+                      .venta(ventaEntity)
                       .build());
             });
 
@@ -125,7 +139,6 @@ public class VentaServiceImpl implements IVentaService {
             .tipoPago(TipoPago.EFECTIVO)
             .build();
     cajaService.agregarMovimiento(cajaDet.getIdCaja(), mov);
-
     log.info("Venta registrada correctamente con número {}", numeroDocumento);
 
     return Response
@@ -161,6 +174,18 @@ public class VentaServiceImpl implements IVentaService {
   @Override
   public List<Venta> listadoVentasPorCliente(String dni/*, String fecha*/) {
     return ventaRepo.ventasPorDocumentoCliente(dni);
+  }
+
+  private static void validarStock(ProductoParaVender ppv, ProductoDTO productoBD) {
+    if(productoBD.sinStock()){
+      throw new BusinessException("Stock insuficiente para el producto: " + productoBD.getNombre() +
+              ". Disponible: " + productoBD.getStock() + ", Solicitado: " + ppv.getCantidad());
+    }
+
+    if (productoBD.getStock() < ppv.getCantidad()) {
+      throw new BusinessException("Stock insuficiente para el producto: " + productoBD.getNombre() +
+              ". Disponible: " + productoBD.getStock() + ", Solicitado: " + ppv.getCantidad());
+    }
   }
 
 }

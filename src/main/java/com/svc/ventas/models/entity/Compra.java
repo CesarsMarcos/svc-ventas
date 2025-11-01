@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import com.svc.ventas.models.enums.TipoPagoCompra;
 import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -36,6 +37,9 @@ public class Compra implements Serializable {
 	@JsonManagedReference
 	@OneToMany(mappedBy = "compra", cascade = CascadeType.ALL)
 	private Set<ProductoComprado> productos;
+
+	@Enumerated(EnumType.STRING)
+	private TipoPagoCompra tipoPago;
 
 	private String serie;
 
