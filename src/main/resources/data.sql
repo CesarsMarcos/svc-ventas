@@ -12,15 +12,20 @@ VALUES ('MARVEL', 1), ('SONY', 1), ('LG', 1);
 INSERT INTO tb_unidad_medidas  (NOMBRE,PREFIJO,IND_ESTADO)
 VALUES ('CAJA','CAJ', 1), ('UNIDAD','UN', 1);
 
+/*SERIE*/
+INSERT INTO tb_series
+(correlativo, ind_estado, serie, id_tipo_documento)
+VALUES(0, 1, 'B0', 3);
+
 /*ROL*/
 INSERT INTO tb_roles  (ID_ROL,DES_ROL)
-VALUES (1,'ROLE_ADMIN'), (2,'ROLE_USER');
+VALUES (1,'ROLE_ADMIN'), (2,'ROLE_USER') , (3, 'ROLE_SALES');
 
 /*CATEGORIA*/
 INSERT INTO tb_categorias  (DES_CATEGORIA,IND_ESTADO)
 VALUES ('MOVILES', 1), ('TELEVISORES', 1), ('COMPUTO', 1);
 
-/*GLOBAL*/
+/*EMPRESA*/
 INSERT INTO tb_empresas  (nombre_comercial ,LOGO,NOMBRE_IMPUESTO,PORCENTAJE_IMPUESTO,SIMBOLO_MONEDA,IND_ESTADO)
 VALUES ('REWARDS', 'LOGO', 'IGV', 0.18, 'S/', 1);
 
@@ -65,3 +70,8 @@ COD_USUARIO_REGISTRO, COD_USUARIO_MOD, fec_add, fec_update)
 VALUES ('Av. Perú 123', 'sucursal1@empresa.com', true, 'logo1.png', '20601234567', 'Sucursal Lima Norte', 'Juan Pérez', '999999999', 1, null, null, NOW(), NOW()),
 ('Calle Los Olivos 456', 'olivos@empresa.com', true, 'logo2.png', '10765432109', 'Sucursal Los Olivos', 'Ana Díaz', '955555555', 2, null, null, NOW(), NOW()),
 ('Av. Arequipa 789', 'arequipa@empresa.com', false, 'logo3.png', '20456789123', 'Sucursal Arequipa', 'Carlos Ruiz', '944444444', 3, null, null, NOW(), NOW());
+
+/*PROVEEDORES*/
+INSERT INTO tb_proveedores
+(correo, direccion, ind_estado, num_documento, razon_social, representante, telefono, telefono_contacto, id_tipo_documento)
+VALUES('ventas@rewards.com', 'Miraflores', 1, '2040405623', 'REWARDS', 'Fernando', '2827239', '2827239', 1 );

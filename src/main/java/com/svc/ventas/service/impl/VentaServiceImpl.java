@@ -54,8 +54,6 @@ public class VentaServiceImpl implements IVentaService {
 
   private final ClienteMapper clienteMapper;
 
-  private final UsuarioMapper usuarioMapper;
-
   private final TipoDocumentoMapper tipoDocumentoMapper;
 
   private final SecurityUtils securityUtils;
@@ -90,7 +88,7 @@ public class VentaServiceImpl implements IVentaService {
     serieService.save(serieBD);
 
     Venta ventaNew = Venta.builder()
-            .cliente(clienteMapper.mapCliente(ventaDto.getCliente()))
+            .cliente(clienteMapper.mapDtoToEntity(ventaDto.getCliente()))
             .tipoDocumento(tipoDocumentoMapper.mapTipoDocumento(ventaDto.getTipoDocumento()))
             .tipoPago(ventaDto.getTipoPago())
             .serie(serieBD.getSerie())
@@ -100,7 +98,7 @@ public class VentaServiceImpl implements IVentaService {
             .total(ventaDto.getTotal())
             .fecha(AppUtils.convert(ventaDto.getFecha()))
             .estado(Constantes.STATUS_CREADO)
-            .usuRegistro(usuarioMapper.mapToUsuarioGet(usuarioLogueado))
+            //.usuRegistro(usuarioMapper.mapToUsuarioGet(usuarioLogueado))
             .build();
 
     Venta ventaEntity = ventaRepo.save(ventaNew);

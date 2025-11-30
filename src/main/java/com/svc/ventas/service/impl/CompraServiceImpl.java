@@ -83,7 +83,7 @@ public class CompraServiceImpl implements ICompraService {
 				.subTotal(compraMontosDto.getSubTotal())
 				.total(compraMontosDto.getTotal())
 				.estado(Constantes.STATUS_CREADO)
-				.usuRegistro(usuarioMapper.mapToUsuarioGet(usuarioLogueado))
+				//.usuRegistro(usuarioMapper.mapToUsuarioGet(usuarioLogueado))
 				.build();
 
 		Compra compraEntity = compraRepo.save(compraNew);

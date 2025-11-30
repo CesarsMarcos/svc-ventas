@@ -13,4 +13,14 @@ public interface EmpleadoRepo extends JpaRepository<Empleado, Integer>{
 	List<Empleado> findEmpleados();
 
 	Boolean existsByPersonaNumDocumento(String documento);
+
+	Boolean existsByPersonaIdPersona(Integer id);
+
+	@Query("""
+    SELECT e
+    FROM Empleado e
+    WHERE NOT EXISTS (
+        SELECT 1 FROM Usuario u WHERE u.empleado.id = e.id
+    )""")
+	List<Empleado> findEmpleadosQueNoTienenUsuario();
 }

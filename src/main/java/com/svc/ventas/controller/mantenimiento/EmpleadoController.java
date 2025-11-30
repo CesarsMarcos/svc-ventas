@@ -1,5 +1,6 @@
 package com.svc.ventas.controller.mantenimiento;
 
+import com.svc.ventas.message.request.EmpleadoCreateRequest;
 import com.svc.ventas.models.mapstruct.dto.EmpleadoDto;
 import jakarta.validation.Valid;
 
@@ -23,14 +24,12 @@ public class EmpleadoController {
 	public ResponseEntity<?> empleados() {
 		return new ResponseEntity<>(empleadoService.lista(), HttpStatus.OK);
 	}
-	
+
+	@GetMapping("no-usuarios")
+	public ResponseEntity<?> noUsuarios(){ return new ResponseEntity<>(empleadoService.empleadosNoUsuario(), HttpStatus.OK);}
+
 	@PostMapping
-	public ResponseEntity<Response> agregar(@Valid @RequestBody EmpleadoDto empleado) {
-
-		if(empleadoService.isSaved(empleado.getPersona().getNumDocumento())){
-			return ResponseEntity.status(409).body(Response.builder().mensaje(String.format(Constantes.CONFLICTO_REGISTRO, "Empleado")).build());
-		}
-
+	public ResponseEntity<Response> agregar(@Valid @RequestBody EmpleadoCreateRequest empleado) {
 		Response response = empleadoService.agregar(empleado);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}

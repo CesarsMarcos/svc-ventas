@@ -5,7 +5,7 @@ spring:
     name: svc-ventas
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     generate-ddl: true
     #show-sql: true
     database-platform: org.hibernate.dialect.MySQLDialect
@@ -24,7 +24,7 @@ spring:
       min-idle: 15
   sql:
     init:
-      mode: always
+      mode: never
       continue-on-error: true
 token:
   apis:

@@ -53,6 +53,7 @@ public class Constantes {
   public static final String REFRESH = "refreshToken";
   public static final String TYPE_TOKEN = "type";
   public static final String ACCESS = "accessToken";
+
   public static final String[] ENDPOINTS_PERMIT = {
           "/api/autenticacion/**",
           "/api/articulos/**",
@@ -81,6 +82,8 @@ public class Constantes {
           "/api/global/**",
           "/api/sucursales/**",
           "/api/personas/**",
+          "/api/clientes/**",
+          "/api/clientes/searchCliente",
           "/api/caja/**"
   };
 

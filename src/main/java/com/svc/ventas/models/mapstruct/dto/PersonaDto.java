@@ -15,7 +15,6 @@ import jakarta.validation.constraints.NotNull;
 @NoArgsConstructor
 public class PersonaDto {
 
-	@NotNull
 	private Integer idPersona;
 
 	@NotNull
@@ -45,7 +44,6 @@ public class PersonaDto {
 	@NotBlank
 	private String celular;
 
-	@NotBlank
 	private String fechaNacimiento;
 
 	@NotBlank
