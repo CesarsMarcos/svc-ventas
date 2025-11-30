@@ -5,6 +5,7 @@ import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.PersonaRepository;
 import com.svc.ventas.models.entity.Persona;
 import com.svc.ventas.models.mapstruct.dto.PersonaDto;
+import com.svc.ventas.models.mapstruct.dto.PersonaListDto;
 import com.svc.ventas.models.mapstruct.mappers.PersonaMapper;
 import com.svc.ventas.models.mapstruct.mappers.TipoDocumentoMapper;
 import com.svc.ventas.service.IPersonaService;
@@ -32,6 +33,19 @@ public class PersonaServiceImpl implements IPersonaService {
             .collect(Collectors.toList());
   }
 
+  @Override
+  public List<PersonaListDto> personasNoEmpleados() {
+    return personaRepo.findDisponiblesParaEmpleado().stream()
+            .map(personaMapper::mapToPersonaListDto)
+            .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<PersonaListDto> personasNoClientes() {
+    return personaRepo.findPersonasQueNoSonClientes().stream()
+            .map(personaMapper::mapToPersonaListDto)
+            .collect(Collectors.toList());
+  }
 
   @Override
   public Response guardar(PersonaDto personaDto) {

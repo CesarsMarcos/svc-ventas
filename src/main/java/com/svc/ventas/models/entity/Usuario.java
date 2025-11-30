@@ -36,11 +36,6 @@ public class Usuario implements UserDetails, Serializable {
 	@JoinColumn(name = "id_empleado",foreignKey=@ForeignKey(name="fk_usuario_empleado"))
 	private Empleado empleado;
 
-	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-	@ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
-	@JoinColumn(name = "id_sucursal",foreignKey=@ForeignKey(name="fk_usuario_sucursal"))
-	private Sucursal sucursal;
-
 	@JoinTable(name = "tb_usuario_rol", joinColumns = @JoinColumn(name = "id_usuario"), inverseJoinColumns = @JoinColumn(name = "id_rol"))
 	@ManyToMany(fetch = FetchType.EAGER)
 	private List<Rol> roles;

@@ -6,18 +6,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class EmpleadoDto {
+public class CompraMontosDto {
 
-	private Integer idEmpleado;
-
-	private PersonaDto persona;
-
-	private SucursalDto sucursal;
-
-	private  Boolean indEstado;
+  private BigDecimal subTotal;
+  private BigDecimal igv;
+  private BigDecimal total;
 
 }

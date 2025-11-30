@@ -20,6 +20,8 @@ public class ProductoParaComprar extends ProductoDTO {
 
   private Integer cantidad;
 
+  private Integer cantidadRecibida;
+
   public ProductoParaComprar(Long idProducto,
                              @NotNull CategoriaDto categoria, @NotNull MarcaDto marca,
                              @NotNull UnidadMedidaDto unidadMedida, @NotBlank String descripcion,

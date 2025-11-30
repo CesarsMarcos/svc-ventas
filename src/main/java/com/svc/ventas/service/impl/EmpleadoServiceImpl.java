@@ -1,10 +1,19 @@
 package com.svc.ventas.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.svc.ventas.exception.ConflictException;
+import com.svc.ventas.message.request.EmpleadoCreateRequest;
+import com.svc.ventas.models.dao.PersonaRepository;
+import com.svc.ventas.models.dao.SucursalRepo;
+import com.svc.ventas.models.entity.Persona;
+import com.svc.ventas.models.entity.Sucursal;
 import com.svc.ventas.models.mapstruct.dto.EmpleadoDto;
+import com.svc.ventas.models.mapstruct.dto.EmpleadoListDto;
 import com.svc.ventas.models.mapstruct.mappers.PersonaMapper;
+import com.svc.ventas.service.IPersonaService;
 import org.springframework.stereotype.Service;
 
 import com.svc.ventas.exception.EntityNotFoundException;
@@ -22,8 +31,14 @@ import lombok.RequiredArgsConstructor;
 public class EmpleadoServiceImpl implements IEmpleadoService {
 
 	private final EmpleadoRepo empleadoRepo;
+
+	private final PersonaRepository personaRepo;
+
+	private final SucursalRepo sucursalRepo;
 	
 	private final EmpleadoMapper empleadoMapper;
+
+	private final IPersonaService personaService;
 
 	private final PersonaMapper personaMapper;
 
@@ -36,8 +51,28 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
 	}
 
 	@Override
-	public Response agregar(EmpleadoDto empleado) {
-		empleadoRepo.save(empleadoMapper.mapToEmpleado(empleado));
+	public List<EmpleadoListDto> empleadosNoUsuario() {
+		return empleadoRepo.findEmpleadosQueNoTienenUsuario()
+						.stream()
+						.map(empleadoMapper::mapToEmpleado)
+						.collect(Collectors.toList());
+	}
+
+	@Override
+	public Response agregar(EmpleadoCreateRequest empleadoRequest) {
+
+		Persona persona = personaRepo.findById(empleadoRequest.getIdPersona())
+						.orElseThrow(() -> new EntityNotFoundException(
+										String.format(Constantes.MENSAJE_NOT_FOUND, "Persona", empleadoRequest.getIdPersona())));
+
+		if(empleadoRepo.existsByPersonaIdPersona(empleadoRequest.getIdPersona())){
+      throw new ConflictException("El empleado ya fue registrado");
+		}
+
+		Sucursal sucursal = sucursalRepo.findById(empleadoRequest.getIdSucursal())
+						.orElseThrow(() -> new EntityNotFoundException("Sucursal no encontrada"));
+
+		empleadoRepo.save(empleadoMapper.mapEmpleadoRequestToEmpleado(persona, sucursal));
 		return Response.builder()
 				.mensaje(Constantes.MENSAJE_SAVE)
 				.build();
@@ -57,10 +92,10 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
 	}
 
 	@Override
-	public EmpleadoDto obtener(int id) {
-		return empleadoRepo.findById(id)
-				.map(empleadoMapper::mapToEmpleadoDto)
-				.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Empleado", id)));
+	public Optional<EmpleadoDto> obtener(int id) {
+		return Optional.ofNullable(empleadoRepo.findById(id)
+            .map(empleadoMapper::mapToEmpleadoDto)
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Empleado", id))));
 	}
 
 	@Override

@@ -3,6 +3,10 @@ package com.svc.ventas.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.svc.ventas.exception.ConflictException;
+import com.svc.ventas.message.request.ClienteCreateRequest;
+import com.svc.ventas.models.dao.PersonaRepository;
+import com.svc.ventas.models.entity.Persona;
 import com.svc.ventas.models.mapstruct.dto.ClienteDto;
 import com.svc.ventas.models.mapstruct.mappers.PersonaMapper;
 import org.springframework.data.domain.Page;
@@ -26,6 +30,8 @@ import lombok.RequiredArgsConstructor;
 public class ClienteServiceImpl implements IClienteService {
 
 	private final ClienteRepo clienteRepo;
+
+	private final PersonaRepository personaRepo;
 	
 	private final ClienteMapper clienteMapper;
 
@@ -40,8 +46,17 @@ public class ClienteServiceImpl implements IClienteService {
 	}
 
 	@Override
-	public Response agregar(ClienteDto clienteDto) {
-		clienteRepo.save(clienteMapper.mapCliente(clienteDto));
+	public Response agregar(ClienteCreateRequest clienteRequest) {
+
+		Persona persona = personaRepo.findById(clienteRequest.getIdPersona())
+						.orElseThrow(() -> new EntityNotFoundException(
+										String.format(Constantes.MENSAJE_NOT_FOUND, "Persona", clienteRequest.getIdPersona())));
+
+		if(clienteRepo.existsByPersonaIdPersona(clienteRequest.getIdPersona())){
+			throw new ConflictException("El cliente ya fue registrado");
+		}
+
+		clienteRepo.save(clienteMapper.mapCliente(clienteRequest, persona));
 		return Response
 				.builder()
 				.mensaje(Constantes.MENSAJE_SAVE)

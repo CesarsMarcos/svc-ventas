@@ -23,10 +23,10 @@ public class AutenticacionServiceImpl implements IAutenticacionService {
     private final UsuarioRepo usuarioRepo;
     @Override
     public AutenticacionResponse signIn(AutenticacionRequest signInRequest) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                signInRequest.getUsuario(),signInRequest.getClave()));
         var user = usuarioRepo.findByUsuario(signInRequest.getUsuario()).orElseThrow(
                 ()-> new UsernameNotFoundException("Error usuario no encontrado!!"));
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                signInRequest.getUsuario(),signInRequest.getClave()));
         var token = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(new HashMap<>(),user);
         return AutenticacionResponse.builder()

@@ -24,6 +24,11 @@ public class Empleado implements Serializable {
 	@JoinColumn(name = "id_persona",foreignKey=@ForeignKey(name="fk_empleado_persona"))
 	private Persona persona;
 
+	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+	@ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
+	@JoinColumn(name = "id_sucursal",foreignKey=@ForeignKey(name="fk_empleado_sucursal"))
+	private Sucursal sucursal;
+
 	@Column(name="ind_estado")
 	private Boolean indEstado;
 

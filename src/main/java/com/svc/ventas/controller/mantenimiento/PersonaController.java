@@ -25,6 +25,12 @@ public class PersonaController {
 		return new ResponseEntity<>(personaService.personas(), HttpStatus.OK);
 	}
 
+	@GetMapping("no-empleados")
+	public ResponseEntity<?> noEmpleados(){ return new ResponseEntity<>(personaService.personasNoEmpleados(), HttpStatus.OK);}
+
+	@GetMapping("no-clientes")
+	public ResponseEntity<?> noClientes(){ return new ResponseEntity<>(personaService.personasNoClientes(), HttpStatus.OK);}
+
 	@PostMapping
 	public ResponseEntity<Response> guardar(@Valid @RequestBody PersonaDto persona) {
 		if (personaService.isSaved(persona.getNumDocumento())) {

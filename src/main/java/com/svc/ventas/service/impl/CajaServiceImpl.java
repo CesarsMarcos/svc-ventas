@@ -85,7 +85,7 @@ public class CajaServiceImpl implements ICajaService {
     }
 
     if (movimientoDTO.getTipoMovimiento() == TipoMovimiento.INGRESO
-            && movimientoDTO.getTipoPago() == null) {
+            && Objects.isNull(movimientoDTO.getTipoPago())) {
       throw new IllegalArgumentException("El tipo de pago es obligatorio para ingresos");
     }
 

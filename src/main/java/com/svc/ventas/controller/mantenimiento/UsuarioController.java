@@ -1,5 +1,6 @@
 package com.svc.ventas.controller.mantenimiento;
 
+import com.svc.ventas.message.request.UsuarioCreateRequest;
 import jakarta.validation.Valid;
 import com.svc.ventas.util.Constantes;
 import org.springframework.http.HttpStatus;
@@ -29,10 +30,7 @@ public class UsuarioController {
 	}
 
 	@PostMapping
-	public ResponseEntity<Response> crear(@Valid @RequestBody UsuarioDto usuario) {
-		if(usuarioService.isSaved(usuario.getEmpleado().getIdEmpleado())){
-			return ResponseEntity.status(409).body(Response.builder().mensaje(String.format(Constantes.CONFLICTO_REGISTRO, "Usuario")).build());
-		}
+	public ResponseEntity<Response> crear(@Valid @RequestBody UsuarioCreateRequest usuario) {
 		return new ResponseEntity<Response>(usuarioService.agregar(usuario), HttpStatus.OK);
 	}
 

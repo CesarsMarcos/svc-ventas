@@ -10,14 +10,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class EmpleadoDto {
+public class EmpleadoListDto {
 
 	private Integer idEmpleado;
 
-	private PersonaDto persona;
-
-	private SucursalDto sucursal;
-
-	private  Boolean indEstado;
+	private String nombre;
 
 }

@@ -3,6 +3,13 @@ package com.svc.ventas.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.svc.ventas.exception.BusinessException;
+import com.svc.ventas.exception.ConflictException;
+import com.svc.ventas.message.request.UsuarioCreateRequest;
+import com.svc.ventas.models.dao.EmpleadoRepo;
+import com.svc.ventas.models.dao.RolRepo;
+import com.svc.ventas.models.entity.Empleado;
+import com.svc.ventas.models.entity.Rol;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,7 +22,6 @@ import com.svc.ventas.models.dao.UsuarioRepo;
 import com.svc.ventas.models.entity.Usuario;
 import com.svc.ventas.models.mapstruct.dto.UsuarioDto;
 import com.svc.ventas.models.mapstruct.mappers.EmpleadoMapper;
-import com.svc.ventas.models.mapstruct.mappers.SucursalMapper;
 import com.svc.ventas.models.mapstruct.mappers.UsuarioMapper;
 import com.svc.ventas.service.IUsuarioService;
 import com.svc.ventas.util.Constantes;
@@ -28,11 +34,13 @@ public class UsuarioServiceImpl implements IUsuarioService {
 
 	private final UsuarioRepo usuarioRepo;
 
+	private final EmpleadoRepo empleadoRepo;
+
+	private final RolRepo rolRepo;
+
 	private final UsuarioMapper usuarioMapper;
 	
 	private final EmpleadoMapper empleadoMapper;
-	
-	private final SucursalMapper sucursalMapper;
 
 	@Override
 	public List<UsuarioDto> lista() {
@@ -43,9 +51,28 @@ public class UsuarioServiceImpl implements IUsuarioService {
 	}
 
 	@Override
-	public Response agregar(UsuarioDto usuarioDto) {
-		Usuario usuario = usuarioMapper.mapToUsuario(usuarioDto);
-		usuario.setClave(new BCryptPasswordEncoder().encode(usuarioDto.getClave()));
+	public Response agregar(UsuarioCreateRequest usuarioRequest) {
+
+		Empleado empleado = empleadoRepo.findById(usuarioRequest.getIdEmpleado())
+						.orElseThrow(() -> new EntityNotFoundException(
+										String.format(Constantes.MENSAJE_NOT_FOUND, "Empleado", usuarioRequest.getIdEmpleado())));
+
+		List<Rol> roles = rolRepo.findAllById(usuarioRequest.getRoles());
+		if (roles.size() != usuarioRequest.getRoles().size()) {
+			throw new BusinessException("Roles enviados no existen");
+		}
+
+		if(usuarioRepo.existsByEmpleadoIdEmpleado(usuarioRequest.getIdEmpleado())){
+			throw new ConflictException("El usuario ya fue registrado");
+		}
+
+		if(usuarioRepo.findByUsuario(usuarioRequest.getUsuario()).isPresent()){
+			throw new BusinessException("Solo debe existir un usuario registrado");
+		}
+
+		Usuario usuario = usuarioMapper.mapToUsuario(usuarioRequest, empleado, roles);
+		usuario.setClave(new BCryptPasswordEncoder().encode(usuarioRequest.getClave()));
+
 		usuarioRepo.save(usuario);
 		return Response
 				.builder()
@@ -58,7 +85,6 @@ public class UsuarioServiceImpl implements IUsuarioService {
 		usuarioRepo.findById(id)
 				.map(usuario-> {
 					usuario.setEmpleado(empleadoMapper.mapToEmpleado(usuarioDto.getEmpleado()));
-					usuario.setSucursal(sucursalMapper.mapToSucursalGet(usuarioDto.getSucursal()));
 					return usuarioRepo.save(usuario);
 				})
 				.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Usuario", id)));

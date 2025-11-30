@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.svc.ventas.message.request.ClienteCreateRequest;
+import com.svc.ventas.models.mapstruct.dto.ClienteGetDto;
 import com.svc.ventas.service.UbigeoService;
 import jakarta.validation.Valid;
 import com.svc.ventas.models.mapstruct.dto.ClienteDto;
@@ -33,13 +35,18 @@ public class ClienteController {
 
 	@GetMapping
 	public ResponseEntity<?> clientes(){
-		return new ResponseEntity<List<ClienteDto>>(clienteService.clientes(),HttpStatus.OK);
+		return new ResponseEntity<>(clienteService.clientes(), HttpStatus.OK);
 	}
 
 	@PostMapping
-	public ResponseEntity<?> guardar(@RequestBody @Valid ClienteDto cliente) {
+	public ResponseEntity<?> guardar(@RequestBody @Valid ClienteCreateRequest cliente) {
 		return ResponseEntity.status(HttpStatus.CREATED)
 				.body(clienteService.agregar(cliente));
+	}
+
+	@PatchMapping("{idCliente}")
+	public ResponseEntity<?> update(@RequestBody @Valid ClienteDto cliente, @PathVariable Integer idCliente){
+		return ResponseEntity.ok(clienteService.modificar(idCliente, cliente));
 	}
 
 	@GetMapping("{id}")
@@ -58,8 +65,8 @@ public class ClienteController {
 
 		Page<Cliente> pageCliente = clienteService.searchCliente(documento, nombre, paging);
 
-		List<ClienteDto> clientesDto = pageCliente.getContent().stream()
-				.map(clienteMapper::mapClienteDto).collect(Collectors.toList());
+		List<ClienteGetDto> clientesDto = pageCliente.getContent().stream()
+				.map(clienteMapper::mapClienteGet).collect(Collectors.toList());
 
 		Map<String, Object> response = new HashMap<>();
 		response.put("clientes", clientesDto);

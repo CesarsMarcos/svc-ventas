@@ -1,5 +1,6 @@
 package com.svc.ventas.models.mapstruct.dto;
 
+import com.svc.ventas.models.enums.TipoPagoCompra;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,8 +27,7 @@ public class CompraGetDto {
   @NotNull
   private TipoDocumentoDto tipoDocumento;
 
-  @NotBlank
-  private String tipoPago;
+  private TipoPagoCompra tipoPago;
 
   @NotNull
   private ProveedorGetCompraDto proveedor;

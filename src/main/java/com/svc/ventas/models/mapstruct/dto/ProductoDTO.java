@@ -5,6 +5,7 @@ import lombok.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Setter
 @Getter
@@ -51,5 +52,17 @@ public class ProductoDTO {
 	private Integer stock;
 
 	private Boolean indEstado;
+
+	public boolean sinStock() {
+		return Objects.isNull(this.stock) || this.stock <= 0;
+	}
+
+	public void restarStock(Integer stock) {
+		this.stock -= stock;
+	}
+
+	public void sumarStock(Integer stock) {
+		this.stock += stock;
+	}
 
 }

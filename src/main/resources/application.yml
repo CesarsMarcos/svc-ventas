@@ -24,7 +24,7 @@ spring:
       min-idle: 15
   sql:
     init:
-      mode: always
+      mode: never
       continue-on-error: true
 token:
   apis:
