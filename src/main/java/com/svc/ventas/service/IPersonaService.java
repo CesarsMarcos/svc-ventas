@@ -3,8 +3,11 @@ package com.svc.ventas.service;
 import java.util.List;
 
 import com.svc.ventas.message.response.Response;
+import com.svc.ventas.models.entity.Persona;
 import com.svc.ventas.models.mapstruct.dto.PersonaDto;
 import com.svc.ventas.models.mapstruct.dto.PersonaListDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface IPersonaService {
@@ -25,4 +28,5 @@ public interface IPersonaService {
 
 	Boolean isSaved (String documento);
 
+  Page<Persona> searchPersona(String documento, String nombre, Pageable paging);
 }

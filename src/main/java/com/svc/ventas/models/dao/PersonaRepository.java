@@ -1,15 +1,21 @@
 package com.svc.ventas.models.dao;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.svc.ventas.models.entity.Persona;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.List;
 
-public interface PersonaRepository extends JpaRepository<Persona, Integer>{
+public interface PersonaRepository extends CrudRepository<Persona, Integer>,
+        JpaSpecificationExecutor<Persona>, PagingAndSortingRepository<Persona, Integer> {
 
     Boolean existsByNumDocumento(String dni);
+
+    @Query("SELECT u FROM Empleado u WHERE u.indEstado = true")
+    List<Persona> getPersonasActivos();
+
 
     @Query("""
     SELECT p

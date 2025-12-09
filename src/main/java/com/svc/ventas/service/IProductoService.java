@@ -1,6 +1,7 @@
 package com.svc.ventas.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.svc.ventas.message.response.ProductoSearchResponse;
 import com.svc.ventas.message.response.Response;
@@ -17,7 +18,7 @@ public interface IProductoService {
 
 	Page<ProductoSearchResponse>  searchProductoPorNombre(String nombre, Pageable pageable);
 
-	List<ProductoSearchResponse> buscarPorNombreOCodigo(String termino);
+	Page<ProductoSearchResponse> buscarPorNombreOCodigo(String termino, Pageable pageable);
 
 	@Transactional
 	Response agregar (ProductoDTO productoDto);
@@ -29,4 +30,8 @@ public interface IProductoService {
 	
 	void eliminar(Long id);
 
+  Map<String, Object> searchProductos(String nombre, Long catergoriaId,
+																			Boolean estado, int page, int size);
+
+	Map<String, Object> searchProductsSales(String nombre, int page, int size);
 }

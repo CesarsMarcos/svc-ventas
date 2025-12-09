@@ -53,7 +53,6 @@ public class Usuario implements UserDetails, Serializable {
 	@Column(name = "fec_update")
 	private LocalDateTime fecUpdate;
 
-
 	@PrePersist
 	protected void onCreate() {
 		this.fecAdd = LocalDateTime.now();

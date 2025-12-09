@@ -8,9 +8,13 @@ import com.svc.ventas.models.mapstruct.dto.PersonaDto;
 import com.svc.ventas.models.mapstruct.dto.PersonaListDto;
 import com.svc.ventas.models.mapstruct.mappers.PersonaMapper;
 import com.svc.ventas.models.mapstruct.mappers.TipoDocumentoMapper;
+import com.svc.ventas.models.specifications.PersonaSpecifications;
 import com.svc.ventas.service.IPersonaService;
 import com.svc.ventas.util.Constantes;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,7 +32,8 @@ public class PersonaServiceImpl implements IPersonaService {
 
   @Override
   public List<PersonaDto> personas() {
-    return personaRepo.findAll().stream()
+    return personaRepo.getPersonasActivos()
+            .stream()
             .map(personaMapper::map)
             .collect(Collectors.toList());
   }
@@ -95,5 +100,16 @@ public class PersonaServiceImpl implements IPersonaService {
     return personaRepo.existsByNumDocumento(documento);
   }
 
+  @Override
+  public Page<Persona> searchPersona(String documento, String nombre, Pageable pageable) {
+    Specification<Persona> spec =  Specification.where(null);
+    if(documento != null && !documento.isEmpty()) {
+      spec = spec.and(PersonaSpecifications.hasDocumento(documento));
+    }
+    if(nombre != null && !nombre.isEmpty()) {
+      spec = spec.and(PersonaSpecifications.hasNombre(nombre));
+    }
+    return personaRepo.findAll(spec, pageable);
+  }
 
 }
