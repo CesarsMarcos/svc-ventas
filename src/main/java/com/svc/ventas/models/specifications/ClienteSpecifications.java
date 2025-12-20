@@ -18,9 +18,10 @@ public class ClienteSpecifications {
     }
 
     public static Specification<Cliente> hasClienteDocumento(String documento) {
-        return (root, query, criteriaBuilder) ->{
+        return (root, query, criteriaBuilder) -> {
             Join<Cliente, Persona> personaJoin = root.join("persona", JoinType.INNER);
             return  criteriaBuilder.equal(personaJoin.get("numDocumento"), documento);
         };
+
     }
 }

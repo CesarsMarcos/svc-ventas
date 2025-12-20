@@ -1,15 +1,22 @@
 package com.svc.ventas.service.impl;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.svc.ventas.models.entity.Cliente;
 import com.svc.ventas.models.mapstruct.dto.ProductoDTO;
 import com.svc.ventas.models.mapstruct.mappers.CategoriaMapper;
 import com.svc.ventas.models.mapstruct.mappers.MarcaMapper;
 import com.svc.ventas.models.mapstruct.mappers.UMedidaMapper;
+import com.svc.ventas.models.specifications.ProductSpecifications;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.svc.ventas.exception.EntityNotFoundException;
@@ -96,6 +103,63 @@ public class ProductoServiceImpl implements IProductoService {
 	}
 
 	@Override
+	public Map<String, Object> searchProductos(String nombre, Long catergoriaId,
+																						 Boolean estado, int page, int size) {
+
+		Specification<Producto> spec =  Specification.where(null);
+
+		if(Objects.nonNull(nombre) && !nombre.isEmpty()) {
+			spec = spec.and(ProductSpecifications.hasName(nombre));
+		}
+
+		if(Objects.nonNull(catergoriaId)){
+			spec = spec.and(ProductSpecifications.hasCategory(catergoriaId));
+		}
+
+		if(Objects.nonNull(estado)){
+			spec = spec.and(ProductSpecifications.hasStatus(estado));
+		}
+
+		Pageable pageable = PageRequest.of(page, size);
+
+		Page<Producto> pageProductos = productoRepo.findAll(spec, pageable);
+
+		List<ProductoDTO> listProducts = pageProductos.getContent()
+						.stream()
+						.map(productoMapper::map)
+						.toList();
+
+		return Map.of(
+						"products", listProducts,
+						"currentPage", pageProductos.getNumber(),
+						"pageSize", pageProductos.getSize(),
+						"totalItems", pageProductos.getTotalElements(),
+						"totalPages", pageProductos.getTotalPages(),
+						"empty", pageProductos.isEmpty()
+		);
+	}
+
+	@Override
+	public Map<String, Object> searchProductsSales(String nombre, int page, int size) {
+
+		String filtro = (nombre != null && !nombre.isBlank()) ? nombre.trim().toLowerCase() : "";
+
+		Pageable pageable = PageRequest.of(page, size);
+
+		Page<ProductoSearchResponse> pageProductos =
+						buscarPorNombreOCodigo(filtro, pageable);
+
+		return Map.of(
+						"productos", pageProductos.getContent(),
+						"currentPage", pageProductos.getNumber(),
+						"pageSize", pageProductos.getSize(),
+						"totalItems", pageProductos.getTotalElements(),
+						"totalPages", pageProductos.getTotalPages(),
+						"empty", pageProductos.isEmpty()
+		);
+	}
+
+	@Override
 	public Page<ProductoSearchResponse> searchProductoPorNombre(String nombre, Pageable pageable) {
 		final Page<ProductoSearchResponse> contratoSearch;
 
@@ -115,15 +179,10 @@ public class ProductoServiceImpl implements IProductoService {
 		return contratoSearch;
 	}
 
-	public List<ProductoSearchResponse> buscarPorNombreOCodigo(String termino) {
-		if (termino == null || termino.isEmpty()) {
-			return List.of();
-		}
-		return productoRepo.buscarPorNombreOCodigo(termino)
-						.stream().map(productoMapper::mapToSearch)
-						.collect(Collectors.toList());
+	public Page<ProductoSearchResponse> buscarPorNombreOCodigo(String termino, Pageable pageable) {
+		return productoRepo.buscarPorNombreOCodigo(termino, pageable)
+						.map(productoMapper::mapToSearch);
 	}
-
 	@Override
 	public List<ProductoSearchResponse> listaParaCompra() {
 		return productoRepo.listaActivos()

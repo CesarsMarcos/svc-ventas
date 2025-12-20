@@ -56,26 +56,22 @@ public class ProductoController {
 	}
 
 	@GetMapping("search")
-	public ResponseEntity<?> searchProducto(@RequestParam(required = false) String nombre,
+	public ResponseEntity<?> searchProducto(
+											@RequestParam(required = false) String nombre,
+											@RequestParam(required = false) Long catergoriaId,
+											@RequestParam(required = false) Boolean estado,
 											@RequestParam(defaultValue = "0") int page,
-											@RequestParam(defaultValue = "5") int size){
-
-		Pageable pageable = PageRequest.of(page, size);
-
-		Page<ProductoSearchResponse> pageProductos = articuloService
-				.searchProductoPorNombre(nombre,pageable);
-
-		Map<String, Object> response = new HashMap<>();
-
-		response.put("productos", pageProductos.getContent());
-		response.put("currentPage", pageProductos.getNumber());
-		response.put("totalItems", pageProductos.getTotalElements());
-		response.put("totalPages", pageProductos.getTotalPages());
-		return new ResponseEntity<>(response,HttpStatus.OK);
+											@RequestParam(defaultValue = "10") int size){
+		Map<String, Object> response = articuloService.searchProductos(nombre, catergoriaId, estado, page, size);
+		return ResponseEntity.ok(response);
 	}
 
-	@GetMapping("buscar")
-	public ResponseEntity<?> buscarProducto(@RequestParam("termino") String termino) {
-		return new ResponseEntity<>(articuloService.buscarPorNombreOCodigo(termino),HttpStatus.OK);}
+	@GetMapping("search-sales")
+	public ResponseEntity<?> searchProductSales(@RequestParam(required = false) String nombre,
+																					@RequestParam(defaultValue = "0") int page,
+																					@RequestParam(defaultValue = "5") int size){
+		Map<String, Object> response = articuloService.searchProductsSales(nombre, page, size);
+		return ResponseEntity.ok(response);
+	}
 
 }
