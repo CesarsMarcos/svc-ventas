@@ -20,14 +20,10 @@ public class ProductoDetalleDto {
 	private String nombre;
 
 	@NotNull
-	private BigDecimal precio;
+	private BigDecimal precioBase;
 
 	private Integer cantidad;
 
 	private BigDecimal total;
-
-	public BigDecimal getTotal() {
-		return this.precio.multiply(BigDecimal.valueOf(this.cantidad));
-	}
 
 }

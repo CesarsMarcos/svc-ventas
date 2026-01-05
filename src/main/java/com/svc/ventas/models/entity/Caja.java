@@ -49,6 +49,12 @@ public class Caja implements Serializable {
     @Enumerated(EnumType.STRING)
     private EstadoCaja estado;
 
+    @Column(name = "created_by")
+    private String  createdBy;
+
+    @Column(name = "updated_by")
+    private String  updatedBy;
+
     @Column(name = "fec_add")
     private LocalDateTime fecAdd;
 

@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import com.svc.ventas.models.enums.TipoPago;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import com.svc.ventas.message.request.ProductoParaVender;
@@ -24,7 +23,7 @@ public class VentaDto {
 	private ClienteDto cliente;
 
 	@NotNull
-	private TipoDocumentoDto tipoDocumento;
+	private String tipoDocumento;
 
 	@NotNull
 	private List<ProductoParaVender> productos;

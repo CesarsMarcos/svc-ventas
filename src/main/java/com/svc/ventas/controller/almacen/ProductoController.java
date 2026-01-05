@@ -1,22 +1,19 @@
 package com.svc.ventas.controller.almacen;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.svc.ventas.message.request.ProductoRequest;
 import jakarta.validation.Valid;
-
-import com.svc.ventas.message.response.ProductoSearchResponse;
 import com.svc.ventas.models.mapstruct.dto.ProductoDTO;
 import com.svc.ventas.service.IProductoService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/articulos/")
@@ -34,14 +31,14 @@ public class ProductoController {
 	}
 
 	@PostMapping
-	public ResponseEntity<?> guardar(@Valid @RequestBody ProductoDTO articuloDto) {
+	public ResponseEntity<?> guardar(@Valid @RequestBody ProductoRequest producto) {
 		return ResponseEntity.status(HttpStatus.CREATED)
-				.body(articuloService.agregar(articuloDto));
+				.body(articuloService.agregar(producto));
 	}
 
 	@PutMapping("{id}")
-	public ResponseEntity<?> modificar(@PathVariable Long id, @Valid @RequestBody ProductoDTO articuloDto) {
-		return new ResponseEntity<>( articuloService.modificar(id, articuloDto), HttpStatus.OK);
+	public ResponseEntity<?> modificar(@PathVariable Long id, @Valid @RequestBody ProductoRequest producto) {
+		return new ResponseEntity<>( articuloService.modificar(id, producto), HttpStatus.OK);
 
 	}
 
@@ -58,11 +55,12 @@ public class ProductoController {
 	@GetMapping("search")
 	public ResponseEntity<?> searchProducto(
 											@RequestParam(required = false) String nombre,
-											@RequestParam(required = false) Long catergoriaId,
+											@RequestParam(required = false) Integer categoriaId,
 											@RequestParam(required = false) Boolean estado,
 											@RequestParam(defaultValue = "0") int page,
 											@RequestParam(defaultValue = "10") int size){
-		Map<String, Object> response = articuloService.searchProductos(nombre, catergoriaId, estado, page, size);
+		log.info("searchProducto parametros:  nombre {} catergoriaId {} estado {} que se recibe ", nombre, categoriaId, estado);
+		Map<String, Object> response = articuloService.searchProductos(nombre, categoriaId, estado, page, size);
 		return ResponseEntity.ok(response);
 	}
 

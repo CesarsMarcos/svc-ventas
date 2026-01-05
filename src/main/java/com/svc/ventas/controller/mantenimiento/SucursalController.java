@@ -1,5 +1,6 @@
 package com.svc.ventas.controller.mantenimiento;
 
+import com.svc.ventas.message.request.SucursalRequest;
 import com.svc.ventas.models.mapstruct.dto.SucursalDto;
 import jakarta.validation.Valid;
 import com.svc.ventas.service.ISucursalService;
@@ -28,17 +29,17 @@ public class SucursalController {
 	}
 	
 	@GetMapping("{id}")
-	public ResponseEntity<?> obtener(@PathVariable int id) {
+	public ResponseEntity<?> obtener(@PathVariable Long id) {
 		return new ResponseEntity<> (sucursalService.obtener(id), HttpStatus.OK);
 	}
 
 	@PostMapping
-	public ResponseEntity<?> agregar(@Valid @RequestBody SucursalDto sucursalDto) {
-		return  ResponseEntity.status(HttpStatus.CREATED).body(sucursalService.agregar(sucursalDto));
+	public ResponseEntity<?> agregar(@Valid @RequestBody SucursalRequest sucursalRequest) {
+		return  ResponseEntity.status(HttpStatus.CREATED).body(sucursalService.agregar(sucursalRequest));
 	}
 
 	@PutMapping("{id}")
-	public ResponseEntity<?> modificar(@PathVariable Integer id, @RequestBody SucursalDto sucursalDto) {
+	public ResponseEntity<?> modificar(@PathVariable Long id, @RequestBody SucursalDto sucursalDto) {
 		return new ResponseEntity<> (sucursalService.modificar(id, sucursalDto), HttpStatus.OK);
 	}
 

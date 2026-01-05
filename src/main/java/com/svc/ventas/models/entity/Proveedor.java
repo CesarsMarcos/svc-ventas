@@ -3,20 +3,9 @@ package com.svc.ventas.models.entity;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ForeignKey;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
+import com.svc.ventas.models.enums.TipoDocumentoPersona;
+import jakarta.persistence.*;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 @Getter
@@ -31,12 +20,11 @@ public class Proveedor implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name ="id_proveedor")
-	private Integer idProveedor;
+	private Long idProveedor;
 
-	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "id_tipo_documento", foreignKey = @ForeignKey(name = "fk_proveedor_tipo_documento"))
-	private TipoDocumento tipoDocumento;
+	@Column(name = "tipo_documento")
+	@Enumerated(EnumType.STRING)
+	private TipoDocumentoPersona tipoDocumento;
 
 	private String numDocumento;
 
@@ -56,14 +44,12 @@ public class Proveedor implements Serializable {
 	
 	@Column(name = "ind_estado")
 	private Boolean indEstado;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "COD_USUARIO_REGISTRO", foreignKey = @ForeignKey(name = "FK_PROVEEDOR_USUARIO_REG"))
-	private Usuario usuRegistro;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "COD_USUARIO_MOD", foreignKey = @ForeignKey(name = "FK_PROVEEDOR_USUARIO_MOD"))
-	private Usuario usuMod;
+	@Column(name = "created_by")
+	private String  createdBy;
+
+	@Column(name = "updated_by")
+	private String  updatedBy;
 
 	@Column(name = "fec_add")
 	private LocalDateTime fecAdd;

@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import com.svc.ventas.models.enums.TipoDocumento;
 import com.svc.ventas.models.enums.TipoPago;
 import jakarta.persistence.*;
 
@@ -38,11 +39,15 @@ public class Venta implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_cliente", foreignKey = @ForeignKey(name = "fk_venta_cliente"))
 	private Cliente cliente;
-	
+
 	@JsonIgnore
 	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "id_tipo_documento", foreignKey = @ForeignKey(name = "fk_venta_tipo_documento"))
+	@JoinColumn(name = "id_sucursal", foreignKey = @ForeignKey(name = "fk_venta_sucursal"))
+	private Sucursal sucursal;
+
+	@Column(name = "tipo_documento")
+	@Enumerated(EnumType.STRING)
 	private TipoDocumento tipoDocumento;
 
 	@JsonManagedReference
@@ -72,13 +77,11 @@ public class Venta implements Serializable {
 	@Column(name = "estado", nullable = false)
 	private String estado;
 
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "COD_USUARIO_REGISTRO", foreignKey = @ForeignKey(name = "FK_VENTA_USUARIO_REG"), nullable = false)
-	private Usuario usuRegistro;
+	@Column(name = "created_by")
+	private String  createdBy;
 
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "COD_USUARIO_MOD", foreignKey = @ForeignKey(name = "FK_VENTA_USUARIO_MOD"), nullable = true)
-	private Usuario usuActualizacion;
+	@Column(name = "updated_by")
+	private String  updatedBy;
 
 	@Column(name = "fec_add")
 	private LocalDateTime fecAdd;

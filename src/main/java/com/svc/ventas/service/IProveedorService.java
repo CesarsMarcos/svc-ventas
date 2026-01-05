@@ -17,10 +17,10 @@ public interface IProveedorService {
 	Response registrar(ProveedorDto proveedor);
 
 	@Transactional
-	Response modificar(Integer id, ProveedorDto proveedor);
+	Response modificar(Long id, ProveedorDto proveedor);
 	
-	ProveedorDto obtener(int codigo);
+	ProveedorDto obtener(Long codigo);
 	
-	void eliminar(int codigo);
+	void eliminar(Long codigo);
 	
 }

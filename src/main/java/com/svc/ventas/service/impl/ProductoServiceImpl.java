@@ -1,17 +1,16 @@
 package com.svc.ventas.service.impl;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.svc.ventas.models.entity.Cliente;
+import com.svc.ventas.message.request.ProductoRequest;
+import com.svc.ventas.models.dao.*;
+import com.svc.ventas.models.entity.*;
 import com.svc.ventas.models.mapstruct.dto.ProductoDTO;
-import com.svc.ventas.models.mapstruct.mappers.CategoriaMapper;
-import com.svc.ventas.models.mapstruct.mappers.MarcaMapper;
-import com.svc.ventas.models.mapstruct.mappers.UMedidaMapper;
-import com.svc.ventas.models.specifications.ProductSpecifications;
+import com.svc.ventas.models.specifications.ProductStockSpecifications;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -22,8 +21,6 @@ import org.springframework.stereotype.Service;
 import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.response.ProductoSearchResponse;
 import com.svc.ventas.message.response.Response;
-import com.svc.ventas.models.dao.ProductoRepo;
-import com.svc.ventas.models.entity.Producto;
 import com.svc.ventas.models.mapstruct.mappers.ProductoMapper;
 import com.svc.ventas.service.IProductoService;
 import com.svc.ventas.util.Constantes;
@@ -31,20 +28,22 @@ import com.svc.ventas.util.Constantes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.CollectionUtils;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductoServiceImpl implements IProductoService {
 
 	private final ProductoRepo productoRepo;
 
+	private final ProductoStockRepo productoStockRepo;
+
 	private final ProductoMapper productoMapper;
 
-	private final MarcaMapper marcaMapper;
+	private final MarcaRepo marcaRepo;
 
-	private final CategoriaMapper categoriaMapper;
+	private final UnidadMedidaRepo unidadMedidaRepo;
 
-	private final UMedidaMapper uMedidaMapper;
-	
+	private final CategoriaRepo categoriaRepo;
 
 	@Override
 	public List<ProductoDTO> lista() {
@@ -55,8 +54,25 @@ public class ProductoServiceImpl implements IProductoService {
 	}
 
 	@Override
-	public Response agregar(ProductoDTO productoDto) {
-		productoRepo.save(productoMapper.mapToProducto(productoDto));
+	public Response agregar(ProductoRequest producto) {
+		log.info("Iniciando registro de producto...");
+
+		log.info("Obtener Marca ::");
+		Marca marca = marcaRepo.findById(producto.getIdMarca())
+						.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Marca",
+										producto.getIdMarca())));;
+
+		log.info("Obtener Categoria ::");
+		Categoria categoria = categoriaRepo.findById(producto.getIdCategoria())
+						.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Categoria",
+										producto.getIdCategoria())));
+
+		log.info("Obtener Unidad Medida ::");
+		UnidadMedida unidadMedida = unidadMedidaRepo.findById(producto.getIdUnidadMedida())
+						.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "UnidadMedida",
+										producto.getIdUnidadMedida())));
+
+		productoRepo.save(productoMapper.mapToProducto(producto, marca,categoria, unidadMedida));
 		return Response
 				.builder()
 				.mensaje(Constantes.MENSAJE_SAVE)
@@ -64,26 +80,41 @@ public class ProductoServiceImpl implements IProductoService {
 	}
 
 	@Override
-	public Response modificar(Long id, ProductoDTO productoDto) {
-		productoRepo.findById(id)
-				.map(producto ->{
-					producto.setNombre(productoDto.getNombre());
-					producto.setDescripcion(productoDto.getDescripcion());
-					producto.setMaxCantidad(productoDto.getMaxCantidad());
-					producto.setMinCantidad(productoDto.getMinCantidad());
-					producto.setImagen(productoDto.getImagen());
-					producto.setPrecio(productoDto.getPrecio());
-					producto.setStock(productoDto.getStock());
-					producto.setMarca(marcaMapper.mapMarca(productoDto.getMarca()));
-					producto.setCategoria(categoriaMapper.mapToCategoria(productoDto.getCategoria()));
-					producto.setUnidadMedida(uMedidaMapper.mapToUnidadMedida(productoDto.getUnidadMedida()));
-					return productoRepo.save(producto);
-				}).orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Producto", id)));
+	public Response modificar(Long id, ProductoRequest producto) {
+
+		log.info("Iniciando modificación de producto...");
+
+		log.info("Valida si existe producto...");
+		Producto productoBD = productoRepo.findById(id)
+						.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Producto", id)));
+
+		log.info("Obtener Marca ::");
+		Marca marca = marcaRepo.findById(producto.getIdMarca())
+						.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Marca",
+										producto.getIdMarca())));;
+
+		log.info("Obtener Categoria ::");
+		Categoria categoria = categoriaRepo.findById(producto.getIdCategoria())
+						.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Categoria",
+										producto.getIdCategoria())));
+
+		log.info("Obtener Unidad Medida ::");
+		UnidadMedida unidadMedida = unidadMedidaRepo.findById(producto.getIdUnidadMedida())
+						.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "UnidadMedida",
+										producto.getIdUnidadMedida())));
+
+		productoBD.setNombre(producto.getNombre());
+		productoBD.setDescripcion(producto.getDescripcion());
+		productoBD.setImagen(producto.getImagen());
+		productoBD.setMarca(marca);
+		productoBD.setCategoria(categoria);
+		productoBD.setUnidadMedida(unidadMedida);
+		productoRepo.save(productoBD);
 
 		return Response
-				.builder()
-				.mensaje(Constantes.MENSAJE_MOD)
-				.build();
+						.builder()
+						.mensaje(Constantes.MENSAJE_MOD)
+						.build();
 	}
 
 	@Override
@@ -103,30 +134,30 @@ public class ProductoServiceImpl implements IProductoService {
 	}
 
 	@Override
-	public Map<String, Object> searchProductos(String nombre, Long catergoriaId,
+	public Map<String, Object> searchProductos(String nombre, Integer categoriaId,
 																						 Boolean estado, int page, int size) {
 
-		Specification<Producto> spec =  Specification.where(null);
+		Specification<ProductoStock> spec =  Specification.where(null);
 
 		if(Objects.nonNull(nombre) && !nombre.isEmpty()) {
-			spec = spec.and(ProductSpecifications.hasName(nombre));
+			spec = spec.and(ProductStockSpecifications.hasName(nombre));
 		}
 
-		if(Objects.nonNull(catergoriaId)){
-			spec = spec.and(ProductSpecifications.hasCategory(catergoriaId));
+		if(Objects.nonNull(categoriaId)){
+			spec = spec.and(ProductStockSpecifications.hasCategory(categoriaId));
 		}
 
 		if(Objects.nonNull(estado)){
-			spec = spec.and(ProductSpecifications.hasStatus(estado));
+			spec = spec.and(ProductStockSpecifications.hasStatus(estado));
 		}
 
 		Pageable pageable = PageRequest.of(page, size);
 
-		Page<Producto> pageProductos = productoRepo.findAll(spec, pageable);
+		Page<ProductoStock> pageProductos = productoStockRepo.findAll(spec, pageable);
 
 		List<ProductoDTO> listProducts = pageProductos.getContent()
 						.stream()
-						.map(productoMapper::map)
+						.map(productoMapper::mapProductoStock)
 						.toList();
 
 		return Map.of(

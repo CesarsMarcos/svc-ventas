@@ -1,5 +1,7 @@
 package com.svc.ventas.util;
 
+import java.math.BigDecimal;
+
 public class Constantes {
 
   public static final String MENSAJE_SAVE = ":: Registro guardado con éxito";
@@ -41,6 +43,8 @@ public class Constantes {
   public static final String MSJ_MOVIMIENTO_AGREGADO = "Movimiento agregado correctamente a la caja con ID '%s'";
 
   public static final String MSJ_CAJA_CERRADA = "La caja se encuentra cerrada";
+
+  public static final BigDecimal IGV = new BigDecimal("0.18");
 
   public static final String BASE_URL_SERVICIO_EXTERNO = "https://api.apis.net.pe/";
   public static final String SERVICIO_EXTERNO_NAME_CLIENT = "apis-client";
@@ -89,6 +93,7 @@ public class Constantes {
 
   public static final String ROL_ADMIN = "ROLE_ADMIN";
   public static final String ROL_USER = "ROLE_USER";
+  public static final String ROLE_SUPER_ADMIN = "ROLE_SUPER_ADMIN";
 
   public static final String URL_BASE_CLIENT = "http://localhost:4200";
   public static final String[] ALLOWED_METHODS = {

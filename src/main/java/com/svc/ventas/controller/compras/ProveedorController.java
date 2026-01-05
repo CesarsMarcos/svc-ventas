@@ -33,17 +33,17 @@ public class ProveedorController {
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<?> modificar(@PathVariable int id, @RequestBody ProveedorDto proveedorDto) {
+	public ResponseEntity<?> modificar(@PathVariable Long id, @RequestBody ProveedorDto proveedorDto) {
 		return new ResponseEntity<>(proveedorService.modificar(id, proveedorDto), HttpStatus.OK);
 	}
 
 	@GetMapping("{id}")
-	public ResponseEntity<?> obtener(@PathVariable int id) {
+	public ResponseEntity<?> obtener(@PathVariable Long id) {
 		return new ResponseEntity<>(proveedorService.obtener(id), HttpStatus.OK);
 	}
 
 	@DeleteMapping("{id}")
-	public ResponseEntity<?> eliminar(@PathVariable int id) {
+	public ResponseEntity<?> eliminar(@PathVariable Long id) {
 		proveedorService.eliminar(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 

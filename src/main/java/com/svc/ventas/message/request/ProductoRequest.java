@@ -1,9 +1,10 @@
-package com.svc.ventas.models.mapstruct.dto;
+package com.svc.ventas.message.request;
 
-import lombok.*;
-
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.*;
+
 import java.math.BigDecimal;
 
 @Setter
@@ -11,18 +12,18 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductoDTO {
+public class ProductoRequest {
 
 	private Long idProducto;
-	
-	@NotNull
-	private CategoriaDto categoria;
 
 	@NotNull
-	private MarcaDto marca;
+	private Integer idCategoria;
 
 	@NotNull
-	private UnidadMedidaDto unidadMedida;
+	private Integer idMarca;
+
+	@NotNull
+	private Integer idUnidadMedida;
 
 	@NotBlank
 	private String descripcion;
@@ -33,8 +34,7 @@ public class ProductoDTO {
 	private String imagen;
 
 	@NotNull
-	private BigDecimal precioReferencial;
-
-	private Boolean indEstado;
+	@Min(0)
+	private BigDecimal precioBase;
 
 }

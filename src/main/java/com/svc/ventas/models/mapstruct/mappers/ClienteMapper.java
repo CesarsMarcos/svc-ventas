@@ -21,7 +21,7 @@ public interface ClienteMapper {
 
 	ClienteDto mapClienteDto (Cliente cliente);
 
-	@Mapping(source = "persona.tipoDocumento.descripcion", target = "tipoDocumento")
+	//@Mapping(source = "persona.tipoDocumento.descripcion", target = "tipoDocumento")
 	@Mapping(target = "nombreCompleto", expression = "java(cliente.getPersona().getNombre().concat(\" \").concat(cliente.getPersona().getApePaterno()))")
 	@Mapping(source = "persona.numDocumento", target="numDocumento")
 	@Mapping(source = "persona.telefono", target="telefono")

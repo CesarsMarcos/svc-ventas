@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.*;
 
@@ -21,18 +20,18 @@ public class Producto implements Serializable {
 	@Column(name = "id_producto")
 	private Long idProducto;
 
-	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-	@ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
+	//@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_categoria", foreignKey = @ForeignKey(name = "fk_articulo_categoria"))
 	private Categoria categoria;
 
-	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-	@ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
+	//@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_marca", foreignKey = @ForeignKey(name = "fk_articulo_marca"))
 	private Marca marca;
 
-	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+	//@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_umedida", foreignKey = @ForeignKey(name = "fk_articulo_unidad_medida"))
 	private UnidadMedida unidadMedida;
 
@@ -44,37 +43,20 @@ public class Producto implements Serializable {
 
 	private String imagen;
 
-	private BigDecimal precio;
-
-	private BigDecimal precioDescuento;
-
-	private BigDecimal precioProveedor;
-
-	private Integer maxCantidad;
-
-	private Integer minCantidad;
-
-	private Integer stock;
+	//precio de referencia
+	private BigDecimal precioBase;
 
 	@Transient
 	private Integer cantidad;
 
-	/*
-	 * private double costoCompra;
-	 * 
-	 * private double costoVenta;
-	 */
-
 	@Column(name = "ind_estado")
 	private Boolean indEstado;
 
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "COD_USUARIO_REGISTRO", foreignKey = @ForeignKey(name = "FK_PRODUCTO_USUARIO_REG"))
-	private Usuario usuRegistro;
+	@Column(name = "created_by")
+	private String  createdBy;
 
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "COD_USUARIO_MOD", foreignKey = @ForeignKey(name = "FK_PRODUCTO_USUARIO_MOD"))
-	private Usuario usuMod;
+	@Column(name = "updated_by")
+	private String  updatedBy;
 
 	@Column(name = "fec_add")
 	private LocalDateTime fecAdd;

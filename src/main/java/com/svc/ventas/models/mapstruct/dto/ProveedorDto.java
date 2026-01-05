@@ -1,5 +1,6 @@
 package com.svc.ventas.models.mapstruct.dto;
 
+import com.svc.ventas.models.enums.TipoDocumentoPersona;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -14,7 +15,7 @@ public class ProveedorDto {
 	private Integer idProveedor;
 
 	@NotNull
-	private TipoDocumentoDto tipoDocumento;
+	private TipoDocumentoPersona tipoDocumento;
 
 	@NotBlank
 	private String numDocumento;

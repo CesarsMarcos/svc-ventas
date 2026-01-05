@@ -24,4 +24,10 @@ public class UnidadMedida implements Serializable {
 
 	private Boolean indEstado;
 
+	@Column(name = "created_by")
+	private String  createdBy;
+
+	@Column(name = "updated_by")
+	private String  updatedBy;
+
 }

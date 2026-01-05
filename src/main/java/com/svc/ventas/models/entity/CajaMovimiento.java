@@ -42,6 +42,12 @@ public class CajaMovimiento {
 
     private String descripcion;
 
+    @Column(name = "created_by")
+    private String  createdBy;
+
+    @Column(name = "updated_by")
+    private String  updatedBy;
+
     @Column(name = "fec_add")
     private LocalDateTime fecAdd;
 

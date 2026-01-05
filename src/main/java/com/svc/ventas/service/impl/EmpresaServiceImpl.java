@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.response.Response;
-import com.svc.ventas.models.dao.GlobalRepository;
+import com.svc.ventas.models.dao.EmpresaRepository;
 import com.svc.ventas.service.IEmpresaService;
 import com.svc.ventas.util.Constantes;
 
@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EmpresaServiceImpl implements IEmpresaService {
 
-	private final GlobalRepository globalRepo;
+	private final EmpresaRepository globalRepo;
 
 	private final Empresamapper globalMapper;
 

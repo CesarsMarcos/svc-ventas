@@ -1,11 +1,11 @@
 package com.svc.ventas.controller.ventas;
 
+import com.svc.ventas.message.request.VentaRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.svc.ventas.models.mapstruct.dto.VentaDto;
 import com.svc.ventas.service.IVentaService;
 
 import lombok.RequiredArgsConstructor;
@@ -18,8 +18,8 @@ public class VentaController {
 	private final IVentaService ventaService;
 
 	@PostMapping
-	public ResponseEntity<?> registrar (@Valid @RequestBody VentaDto ventaDto) {
-		return  ResponseEntity.status(HttpStatus.CREATED).body(ventaService.registrar(ventaDto));
+	public ResponseEntity<?> registrar (@Valid @RequestBody VentaRequest ventarRequest) {
+		return  ResponseEntity.status(HttpStatus.CREATED).body(ventaService.registrar(ventarRequest));
 	}
 
 	@GetMapping
