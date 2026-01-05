@@ -1,12 +1,17 @@
 package com.svc.ventas.service.impl;
 
+import static com.svc.ventas.util.Constantes.IGV;
+
 import com.svc.ventas.exception.EntityNotFoundException;
+import com.svc.ventas.message.request.CompraRequest;
 import com.svc.ventas.message.request.ProductoParaComprar;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.CompraRepository;
 import com.svc.ventas.models.dao.ProductoCompradoRepository;
+import com.svc.ventas.models.dao.ProductoStockRepo;
 import com.svc.ventas.models.entity.Compra;
 import com.svc.ventas.models.entity.ProductoComprado;
+import com.svc.ventas.models.entity.ProductoStock;
 import com.svc.ventas.models.entity.Proveedor;
 import com.svc.ventas.models.mapstruct.dto.*;
 import com.svc.ventas.models.mapstruct.mappers.*;
@@ -32,172 +37,180 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CompraServiceImpl implements ICompraService {
 
-	private final ProductoCompradoRepository productoCompradoRepo;
+  private final ProductoCompradoRepository productoCompradoRepo;
 
-	private final CompraRepository compraRepo;
+  private final CompraRepository compraRepo;
 
-	private final ITipoDocumentoService tipoDocumentoService;
+  private final ProductoStockRepo productoStockRepo;
 
-	private final IProductoService productoService;
+  //private final ITipoDocumentoService tipoDocumentoService;
 
-	private final IProveedorService proveedorService;
+  private final IProductoService productoService;
 
-	private final ProductoMapper productoMapper;
+  private final ISucursalService sucursalService;
 
-	private final UsuarioMapper usuarioMapper;
+  private final IProveedorService proveedorService;
 
-	private final TipoDocumentoMapper tipoDocumentoMapper;
+  private final ProductoMapper productoMapper;
 
-	private final CompraMapper compraMapper;
+  private final UsuarioMapper usuarioMapper;
 
-	private final SecurityUtils securityUtils;
+  private final CompraMapper compraMapper;
 
-	@Transactional
-	@Override
-	public Response registrar(CompraDto compra) {
+  private final SecurityUtils securityUtils;
 
-		log.info("Iniciando registro de compra...");
+  @Transactional
+  @Override
+  public Response registrar(CompraRequest compra) {
 
-		log.info("Busca proveedor :: ");
-		proveedorService.obtener(compra.getProveedor().getIdProveedor());
+    log.info("Iniciando registro de compra...");
 
-		log.info("Busca tipo de documento existente :: ");
-		tipoDocumentoService.obtener(compra.getTipoDocumento().getIdTipoDocumento());
+    log.info("Busca proveedor :: ");
+    proveedorService.obtener(compra.getIdProveedor());
 
-		log.info("Obtiene usuario logueado :: ");
-		UsuarioDto usuarioLogueado =  securityUtils.obtenerUsuarioLogueado();
+    log.info("Busca sucursal existente ::");
+    sucursalService.obtener(compra.getIdSucursal());
 
-		log.info("Valida montos ::");
-		CompraMontosDto compraMontosDto = validarYCalcularMontos(compra);
+    log.info("Obtiene usuario logueado :: ");
+    UsuarioDto usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
 
-		log.info("Registra los datos del comprobante :: ");
+    log.info("Valida montos ::");
+    CompraMontosDto compraMontosDto = validarYCalcularMontos(compra);
 
-		Compra compraNew = Compra.builder()
-				.fecha(AppUtils.convert(compra.getFecha()))
-				.serie(compra.getSerie())
-				.correlativo(compra.getCorrelativo())
-				.tipoDocumento(tipoDocumentoMapper.mapTipoDocumento(compra.getTipoDocumento()))
-				.proveedor(Proveedor.builder().idProveedor(compra.getProveedor().getIdProveedor()).build())
-				.tipoPago(compra.getTipoPago())
-				.igv(compraMontosDto.getIgv())
-				.subTotal(compraMontosDto.getSubTotal())
-				.total(compraMontosDto.getTotal())
-				.estado(Constantes.STATUS_CREADO)
-				//.usuRegistro(usuarioMapper.mapToUsuarioGet(usuarioLogueado))
-				.build();
+    log.info("Registra los datos del comprobante :: ");
 
-		Compra compraEntity = compraRepo.save(compraNew);
+    Compra compraNew = Compra.builder()
+            .fecha(AppUtils.convert(compra.getFecha()))
+            .serie(compra.getSerie())
+            .correlativo(compra.getCorrelativo())
+            .tipoDocumento(compra.getTipoDocumento())
+            .proveedor(Proveedor.builder().idProveedor(compra.getIdProveedor()).build())
+            .tipoPago(compra.getTipoPago())
+            .igv(compraMontosDto.getIgv())
+            .subTotal(compraMontosDto.getSubTotal())
+            .total(compraMontosDto.getTotal())
+            .estado(Constantes.STATUS_CREADO)
+            .createdBy(usuarioLogueado.getUsuario())
+            .build();
+
+    Compra compraEntity = compraRepo.save(compraNew);
     log.info("Compra guardada con ID: {}", compraEntity.getIdCompra());
 
-		log.info("Registra los productos a comprar :: ");
+    log.info("Registra los productos a comprar :: ");
 
-		compra.getProductos()
-				.forEach(ppc -> {
-					log.info("Busca producto y actualiza el stock del producto ::");
-					ProductoDTO productoBD = productoService.obtener(ppc.getIdProducto());
-					productoBD.sumarStock(ppc.getCantidad());
+    compra.getProductos()
+            .forEach(ppc -> {
+              log.info("Busca producto ::");
+              ProductoDTO productoBD = productoService.obtener(ppc.getIdProducto());
 
-					productoService.modificar(productoBD.getIdProducto(), productoMapper.mapToGet(productoBD));
+              log.info("Busca stock de producto en sucursal ::");
+              ProductoStock productoStock = productoStockRepo.buscar(ppc.getIdProducto(), compra.getIdSucursal())
+                      .orElseThrow(() -> new EntityNotFoundException(":: No existe producto registrado"));
 
-					productoCompradoRepo.save(ProductoComprado
-							.builder()
-							.compra(compraEntity)
-							.idProducto(productoBD.getIdProducto())
-							.nombre(productoBD.getNombre())
-							.precio(productoBD.getPrecio())
-							.cantidad(ppc.getCantidad())
-							.build());
-				});
+              log.info("Aumenta existencia para producto :: {} ", productoBD.getNombre());
+              productoStock.sumarStock(ppc.getCantidad());
 
-		String numeroDocumento = compra.getSerie() + "-" + compra.getCorrelativo();
-		log.info("Compra registrada correctamente con número {}", numeroDocumento);
+              log.info("Actualiza stock de producto :: {}, en local {} ", productoBD.getNombre(),
+                      productoStock.getSucursal().getCodigo());
 
-		return Response
-				.builder()
-				.mensaje(Constantes.MENSAJE_SAVE)
-				.build();
+              productoStockRepo.save(productoStock);
 
-	}
+              productoCompradoRepo.save(ProductoComprado
+                      .builder()
+                      .compra(compraEntity)
+                      .idProducto(productoBD.getIdProducto())
+                      .nombre(productoBD.getNombre())
+                      .cantidad(ppc.getCantidad())
+                      .precioCompra(ppc.getPrecioCompra())
+                      .subTotal(ppc.getPrecioCompra().multiply(BigDecimal.valueOf(ppc.getCantidad())))
+                      .build());
+            });
 
-	@Override
-	public List<CompraGetDto> listado(Boolean isViewMore) {
-		LocalDate dateToday = LocalDate.now();
-		LocalDate sevenDaysAgo = dateToday.minusWeeks(1);
+    String numeroDocumento = compra.getSerie() + "-" + compra.getCorrelativo();
+    log.info("Compra registrada correctamente con número {}", numeroDocumento);
 
-		return compraRepo.findAll().stream()
-				.filter(compra -> {
-					if (isViewMore) {
-						return compra.getFecha().isAfter(sevenDaysAgo.minusDays(1)) && compra.getFecha().isBefore(dateToday.plusDays(1));
-					} else {
-						return compra.getFecha().isEqual(dateToday);
-					}
-				})
-				.map(compraMapper::mapCompraToDto)
-				.collect(Collectors.toList());
-	}
+    return Response
+            .builder()
+            .mensaje(Constantes.MENSAJE_SAVE)
+            .build();
 
-	@Override
-	public Object details(Long id) {
-		return compraRepo.findById(id)
-				.map(compraMapper::mapCompraToDto)
-				.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Compra", id)));
+  }
 
-	}
+  @Override
+  public List<CompraGetDto> listado(Boolean isViewMore) {
+    LocalDate dateToday = LocalDate.now();
+    LocalDate sevenDaysAgo = dateToday.minusWeeks(1);
 
-	/**
-	 * Valida que los montos enviados por el cliente coincidan con los calculados
-	 * y devuelve los valores correctos desde backend.
-	 */
-	private CompraMontosDto validarYCalcularMontos(CompraDto compra) {
+    return compraRepo.findAll().stream()
+            .filter(compra -> {
+              if (isViewMore) {
+                return compra.getFecha().isAfter(sevenDaysAgo.minusDays(1)) && compra.getFecha().isBefore(dateToday.plusDays(1));
+              } else {
+                return compra.getFecha().isEqual(dateToday);
+              }
+            })
+            .map(compraMapper::mapCompraToDto)
+            .collect(Collectors.toList());
+  }
 
-		BigDecimal subtotalCalculado = BigDecimal.ZERO;
-		BigDecimal porcentajeIGV = new BigDecimal("0.18");
+  @Override
+  public Object details(Long id) {
+    return compraRepo.findById(id)
+            .map(compraMapper::mapCompraToDto)
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Compra", id)));
 
-		for (ProductoParaComprar p : compra.getProductos()) {
-			ProductoDTO productoBD = productoService.obtener(p.getIdProducto());
+  }
 
-			if (Objects.isNull(p.getCantidad()) || p.getCantidad() <= 0) {
-				throw new IllegalArgumentException("Cantidad inválida para el producto ID: " + p.getIdProducto());
-			}
+  /**
+   * Valida que los montos enviados por el cliente coincidan con los calculados
+   * y devuelve los valores correctos desde backend.
+   */
+  private CompraMontosDto validarYCalcularMontos(CompraRequest compra) {
 
-			// Subtotal del producto según su precio real
-			BigDecimal subtotalProducto = productoBD.getPrecio()
-							.multiply(BigDecimal.valueOf(p.getCantidad()));
+    BigDecimal subtotalCalculado = BigDecimal.ZERO;
 
-			subtotalCalculado = subtotalCalculado.add(subtotalProducto);
-		}
+    for (ProductoParaComprar p : compra.getProductos()) {
 
-		BigDecimal igvCalculado = BigDecimal.ZERO;
-		BigDecimal totalCalculado = subtotalCalculado;
+      if (Objects.isNull(p.getCantidad()) || p.getCantidad() <= 0) {
+        throw new IllegalArgumentException("Cantidad inválida para el producto ID: " + p.getIdProducto());
+      }
 
-		//if (Boolean.TRUE.equals(compra.getAplicarImpuesto())) {
-			igvCalculado = subtotalCalculado.multiply(porcentajeIGV).setScale(2, RoundingMode.HALF_UP);
-			totalCalculado = subtotalCalculado.add(igvCalculado);
-		//}
+      BigDecimal subtotalProducto = p.getPrecioCompra()
+              .multiply(BigDecimal.valueOf(p.getCantidad()));
 
-		if (Objects.isNull(compra.getSubTotal()) ||
-						compra.getSubTotal().setScale(2, RoundingMode.HALF_UP).compareTo(subtotalCalculado) != 0) {
-			log.info("subtotal servidor: {}", subtotalCalculado);
-			throw new IllegalArgumentException("El subtotal no coincide con el cálculo del servidor.");
-		}
+      subtotalCalculado = subtotalCalculado.add(subtotalProducto);
+    }
 
-		if (Objects.isNull(compra.getIgv()) ||
-						compra.getIgv().setScale(2, RoundingMode.HALF_UP).compareTo(igvCalculado) != 0) {
-			log.info("IGV servidor: {}", igvCalculado);
-			throw new IllegalArgumentException("El IGV no coincide con el cálculo del servidor.");
-		}
+    BigDecimal igvCalculado;
+    BigDecimal totalCalculado;
 
-		if (Objects.isNull(compra.getTotal()) ||
-						compra.getTotal().setScale(2, RoundingMode.HALF_UP).compareTo(totalCalculado) != 0) {
-			log.info("total servidor: {}", totalCalculado);
-			throw new IllegalArgumentException("El total no coincide con el cálculo del servidor.");
-		}
+    //if (Boolean.TRUE.equals(compra.getAplicarImpuesto())) {
+    igvCalculado = subtotalCalculado.multiply(IGV).setScale(2, RoundingMode.HALF_UP);
+    totalCalculado = subtotalCalculado.add(igvCalculado);
+    //}
 
-		log.info("Montos validados correctamente: Subtotal={}, IGV={}, Total={}",
-						subtotalCalculado, igvCalculado, totalCalculado);
+    if (Objects.isNull(compra.getSubTotal()) ||
+            compra.getSubTotal().setScale(2, RoundingMode.HALF_UP).compareTo(subtotalCalculado) != 0) {
+      log.info("subtotal servidor: {}", subtotalCalculado);
+      throw new IllegalArgumentException("El subtotal no coincide con el cálculo del servidor.");
+    }
 
-		return new CompraMontosDto(subtotalCalculado, igvCalculado, totalCalculado);
-	}
+    if (Objects.isNull(compra.getIgv()) ||
+            compra.getIgv().setScale(2, RoundingMode.HALF_UP).compareTo(igvCalculado) != 0) {
+      log.info("IGV servidor: {}", igvCalculado);
+      throw new IllegalArgumentException("El IGV no coincide con el cálculo del servidor.");
+    }
 
+    if (Objects.isNull(compra.getTotal()) ||
+            compra.getTotal().setScale(2, RoundingMode.HALF_UP).compareTo(totalCalculado) != 0) {
+      log.info("total servidor: {}", totalCalculado);
+      throw new IllegalArgumentException("El total no coincide con el cálculo del servidor.");
+    }
+
+    log.info("Montos validados correctamente: Subtotal={}, IGV={}, Total={}",
+            subtotalCalculado, igvCalculado, totalCalculado);
+
+    return new CompraMontosDto(subtotalCalculado, igvCalculado, totalCalculado);
+  }
 
 }

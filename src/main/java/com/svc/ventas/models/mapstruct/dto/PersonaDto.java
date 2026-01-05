@@ -1,5 +1,6 @@
 package com.svc.ventas.models.mapstruct.dto;
 
+import com.svc.ventas.models.enums.TipoDocumentoPersona;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,7 @@ public class PersonaDto {
 	private Integer idPersona;
 
 	@NotNull
-	private TipoDocumentoDto tipoDocumento;
+	private TipoDocumentoPersona tipoDocumento;
 
 	@NotBlank
 	private String numDocumento;

@@ -1,6 +1,7 @@
 package com.svc.ventas.controller.mantenimiento;
 
 import com.svc.ventas.models.entity.Serie;
+import com.svc.ventas.models.enums.TipoDocumento;
 import com.svc.ventas.service.ISerieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,7 @@ public class SerieController {
   }
 
   @GetMapping("documentType")
-  public ResponseEntity<?> getByIdDocumentType (@RequestParam Integer tipoDocumento){
+  public ResponseEntity<?> getByIdDocumentType (@RequestParam TipoDocumento tipoDocumento){
     return ResponseEntity.ok(serieService.getByIdDocumentType(tipoDocumento));
   }
 

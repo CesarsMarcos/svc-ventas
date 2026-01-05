@@ -1,5 +1,7 @@
 package com.svc.ventas.models.mapstruct.mappers;
 
+import com.svc.ventas.message.request.SucursalRequest;
+import com.svc.ventas.models.entity.Empresa;
 import com.svc.ventas.models.mapstruct.dto.SucursalDto;
 import org.mapstruct.Mapper;
 
@@ -11,10 +13,14 @@ public interface SucursalMapper {
 
 	SucursalDto mapToSucursalDTO(Sucursal sucursal);
 
-	@Mapping(target = "idSucursal", ignore = true)
+	@Mapping(target = "empresa", source = "empresa")
+	@Mapping(target = "direccion", source = "sucursal.direccion")
+	@Mapping(target = "email", source = "sucursal.email")
+	@Mapping(target = "razonSocial", source = "sucursal.razonSocial")
+	@Mapping(target = "telefono", source = "sucursal.telefono")
 	@Mapping(target = "indEstado", constant = "true")
-	Sucursal mapToSucursalPost(SucursalDto sucursalDto);
+	Sucursal mapRequestToSucursalPost(SucursalRequest sucursal, Empresa empresa);
 
-	Sucursal mapToSucursalGet(SucursalDto sucursalDto);
+	Sucursal mapToSucursalPost(SucursalDto sucursalDto);
 
 }

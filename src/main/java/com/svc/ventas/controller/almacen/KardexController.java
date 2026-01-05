@@ -1,6 +1,5 @@
 package com.svc.ventas.controller.almacen;
 
-import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.models.mapstruct.dto.KardexDetalleDTO;
 import com.svc.ventas.models.mapstruct.dto.KardexResumenDTO;
 import com.svc.ventas.service.IKardexService;

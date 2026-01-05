@@ -19,20 +19,18 @@ public class ProductoParaVender extends ProductoDTO {
 
 	private Integer cantidad;
 
+	private BigDecimal precioVenta;
+
 	public ProductoParaVender(Long idProducto,
 														@NotNull CategoriaDto categoria, @NotNull MarcaDto marca,
 														@NotNull UnidadMedidaDto unidadMedida, @NotBlank String descripcion,
 														@NotBlank String nombre, @NotBlank String imagen, @NotNull BigDecimal precio,
-														@NotNull BigDecimal precioDescuento, @NotNull BigDecimal precioProveedor,
-														@NotNull Integer maxCantidad, @NotNull Integer minCantidad,
-														@NotNull Integer stock, @NotNull Integer cantidad, Boolean indEstado) {
-		super(idProducto, categoria, marca, unidadMedida, descripcion, nombre, imagen, precio, precioDescuento,
-				precioProveedor, maxCantidad, minCantidad, stock, indEstado);
-		this.cantidad = cantidad;
-	}
+														@NotNull Integer maxCantidad, @NotNull Integer minCantidad, Boolean indEstado) {
+		super(idProducto, categoria, marca, unidadMedida, descripcion, nombre, imagen, precio,indEstado);
+  }
 
 	public BigDecimal getTotal() {
-		return this.getPrecio().multiply(new BigDecimal(this.cantidad));
+		return this.getPrecioReferencial().multiply(new BigDecimal(this.cantidad));
 	}
 
 }

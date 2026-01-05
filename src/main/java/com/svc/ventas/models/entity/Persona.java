@@ -3,8 +3,8 @@ package com.svc.ventas.models.entity;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import com.svc.ventas.models.enums.TipoDocumentoPersona;
 import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.*;
 
@@ -21,10 +21,9 @@ public class Persona implements Serializable {
 	@Column(name = "id_persona")
 	private Integer idPersona;
 
-	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "id_tipo_documento", foreignKey = @ForeignKey(name = "fk_persona_tipo_documento"))
-	private TipoDocumento tipoDocumento;
+	@Column(name = "tipo_documento")
+	@Enumerated(EnumType.STRING)
+	private TipoDocumentoPersona tipoDocumento;
 
 	private String numDocumento;
 
@@ -55,13 +54,11 @@ public class Persona implements Serializable {
 	@Column(name = "ind_estado")
 	private Boolean indEstado;
 
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "COD_USUARIO_REGISTRO", foreignKey = @ForeignKey(name = "FK_PERSONA_USUARIO_REG"))
-	private Usuario usuRegistro;
+	@Column(name = "created_by")
+	private String  createdBy;
 
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "COD_USUARIO_MOD", foreignKey = @ForeignKey(name = "FK_PERSONA_USUARIO_MOD"))
-	private Usuario usuMod;
+	@Column(name = "updated_by")
+	private String  updatedBy;
 
 	@Column(name = "fec_add")
 	private LocalDateTime fecAdd;

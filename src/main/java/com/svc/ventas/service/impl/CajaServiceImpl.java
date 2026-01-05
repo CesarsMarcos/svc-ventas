@@ -1,5 +1,6 @@
 package com.svc.ventas.service.impl;
 
+import com.svc.ventas.exception.BusinessException;
 import com.svc.ventas.exception.ConflictException;
 import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.response.Response;
@@ -43,7 +44,7 @@ public class CajaServiceImpl implements ICajaService {
     UsuarioDto currentUsuario = securityUtils.obtenerUsuarioLogueado();
     return cajaRepo.findByFechaAndUsuarioUsuario(AppUtils.obtenerFechaActual(), currentUsuario.getUsuario())
             .map(cajaMapper::toModelDto)
-            .orElseThrow(() -> new EntityNotFoundException(
+            .orElseThrow(() -> new BusinessException(
                     String.format(Constantes.MENSAJE_NOT_FOUND_CAJA, "Caja")));
   }
 

@@ -51,16 +51,16 @@ public interface VentaMapper {
 			return null;
 		}
 		return productos.stream()
-				.map(producto ->
-                     ProductoDetalleDto.builder()
-                            .idProducto(producto.getIdProducto())
-							 .descripcion(producto.getDescripcion())
-							 .total(producto.getPrecio().multiply(BigDecimal.valueOf(producto.getCantidad())))
-							 .precio(producto.getPrecio())
-							 .cantidad(producto.getCantidad())
-							 .nombre(producto.getNombre())
-                            .build()
-		).collect(Collectors.toList());
+						.map(producto ->
+										ProductoDetalleDto.builder()
+														.idProducto(producto.getIdProducto())
+														.descripcion(producto.getDescripcion())
+														.total(producto.getPrecio().multiply(BigDecimal.valueOf(producto.getCantidad())))
+														.precioBase(producto.getPrecio())
+														.cantidad(producto.getCantidad())
+														.nombre(producto.getNombre())
+														.build()
+						).collect(Collectors.toList());
 	}
 
 }

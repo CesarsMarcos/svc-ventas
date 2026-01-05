@@ -18,6 +18,6 @@ public class EmpleadoDto {
 
 	private SucursalDto sucursal;
 
-	private  Boolean indEstado;
+	private Boolean indEstado;
 
 }

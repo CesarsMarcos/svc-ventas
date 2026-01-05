@@ -6,6 +6,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.svc.ventas.models.enums.TipoDocumento;
 import com.svc.ventas.models.enums.TipoPagoCompra;
 import jakarta.persistence.*;
 
@@ -30,8 +33,14 @@ public class Compra implements Serializable {
 	@JoinColumn(name = "id_proveedor", foreignKey = @ForeignKey(name = "fk_compra_proveedor"))
 	private Proveedor proveedor;
 
+	@JsonIgnore
+	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "id_tipo_documento", foreignKey = @ForeignKey(name = "fk_compra_tipo_documento"))
+	@JoinColumn(name = "id_sucursal", foreignKey = @ForeignKey(name = "fk_compra_sucursal"))
+	private Sucursal sucursal;
+
+	@Column(name = "tipo_documento")
+	@Enumerated(EnumType.STRING)
 	private TipoDocumento tipoDocumento;
 
 	@JsonManagedReference
@@ -59,16 +68,11 @@ public class Compra implements Serializable {
 	@Column(name = "estado", nullable = false)
 	private String estado;
 
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "COD_USUARIO_REGISTRO", foreignKey = @ForeignKey(name = "FK_COMPRA_USUARIO_REG"))
-	private Usuario usuRegistro;
+	@Column(name = "created_by")
+	private String  createdBy;
 
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "COD_USUARIO_MOD", foreignKey = @ForeignKey(name = "FK_COMPRA_USUARIO_MOD"))
-	private Usuario usuMod;
-
-	@Column(name = "user_update")
-	private String userUpdate;
+	@Column(name = "updated_by")
+	private String  updatedBy;
 
 	@Column(name = "fec_add")
 	private LocalDateTime fecAdd;

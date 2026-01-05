@@ -47,6 +47,8 @@ public class ProductoVendido {
 	
 	private Integer cantidad;
 
+	private BigDecimal precioDescuento;
+
 	private BigDecimal precio;
 
 }

@@ -3,6 +3,7 @@ package com.svc.ventas.service.impl;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.SerieRepository;
 import com.svc.ventas.models.entity.Serie;
+import com.svc.ventas.models.enums.TipoDocumento;
 import com.svc.ventas.service.ISerieService;
 import com.svc.ventas.util.Constantes;
 import lombok.RequiredArgsConstructor;
@@ -38,8 +39,8 @@ public class SerieServiceImpl implements ISerieService {
   }
 
   @Override
-  public Serie getByIdDocumentType(Integer idTipoDocumento) {
-    return serieRepo.findByTipoDocumentoIdTipoDocumento(idTipoDocumento)
-            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Serie", idTipoDocumento)));
+  public Serie getByIdDocumentType(TipoDocumento tipoDocumento) {
+    return serieRepo.findByTipoDocumento(tipoDocumento)
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Serie", tipoDocumento)));
   }
 }

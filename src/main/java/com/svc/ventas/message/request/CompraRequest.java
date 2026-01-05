@@ -1,14 +1,13 @@
-package com.svc.ventas.models.mapstruct.dto;
+package com.svc.ventas.message.request;
 
-import com.svc.ventas.message.request.ProductoParaComprar;
 import com.svc.ventas.models.enums.TipoDocumento;
 import com.svc.ventas.models.enums.TipoPagoCompra;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -16,7 +15,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CompraDto {
+public class CompraRequest {
 
   private String fecha;
 
@@ -27,13 +26,13 @@ public class CompraDto {
   @NotNull
   private TipoDocumento tipoDocumento;
 
-  private TipoPagoCompra tipoPago;
+  private TipoPagoCompra TipoPago;
 
   @NotNull
-  private ProveedorDto proveedor;
+  private Long idProveedor;
 
   @NotNull
-  private Integer idSucursal;
+  private Long idSucursal;
 
   @NotNull
   private List<ProductoParaComprar> productos;

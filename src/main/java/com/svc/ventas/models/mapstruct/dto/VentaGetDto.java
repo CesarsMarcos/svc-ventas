@@ -1,5 +1,6 @@
 package com.svc.ventas.models.mapstruct.dto;
 
+import com.svc.ventas.models.enums.TipoDocumento;
 import lombok.*;
 
 import jakarta.validation.constraints.NotNull;
@@ -26,7 +27,7 @@ public class VentaGetDto {
 	private ClienteGetVentaDto cliente;
 
 	@NotNull
-	private TipoDocumentoDto tipoDocumento;
+	private TipoDocumento tipoDocumento;
 
 	@NotNull
 	private List<ProductoDetalleDto> productos;

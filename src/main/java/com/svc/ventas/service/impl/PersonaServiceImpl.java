@@ -7,7 +7,6 @@ import com.svc.ventas.models.entity.Persona;
 import com.svc.ventas.models.mapstruct.dto.PersonaDto;
 import com.svc.ventas.models.mapstruct.dto.PersonaListDto;
 import com.svc.ventas.models.mapstruct.mappers.PersonaMapper;
-import com.svc.ventas.models.mapstruct.mappers.TipoDocumentoMapper;
 import com.svc.ventas.models.specifications.PersonaSpecifications;
 import com.svc.ventas.service.IPersonaService;
 import com.svc.ventas.util.Constantes;
@@ -27,8 +26,6 @@ public class PersonaServiceImpl implements IPersonaService {
   private final PersonaRepository personaRepo;
 
   private final PersonaMapper personaMapper;
-
-  private final TipoDocumentoMapper tipoDocMapper;
 
   @Override
   public List<PersonaDto> personas() {
@@ -79,7 +76,7 @@ public class PersonaServiceImpl implements IPersonaService {
     personaSave.setFoto(personaDto.getFoto());
     personaSave.setNumDocumento(personaDto.getNumDocumento());
     personaSave.setTelefono(personaDto.getTelefono());
-    personaSave.setTipoDocumento(tipoDocMapper.mapTipoDocumento(personaDto.getTipoDocumento()));
+    personaSave.setTipoDocumento(personaDto.getTipoDocumento());
     personaRepo.save(personaSave);
 
     return Response

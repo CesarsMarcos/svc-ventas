@@ -1,12 +1,20 @@
 package com.svc.ventas.service.impl;
 
+import static com.svc.ventas.util.Constantes.IGV;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.svc.ventas.exception.BusinessException;
 import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.request.ProductoParaVender;
+import com.svc.ventas.message.request.VentaRequest;
+import com.svc.ventas.models.dao.ProductoRepo;
+import com.svc.ventas.models.dao.ProductoStockRepo;
 import com.svc.ventas.models.entity.*;
 import com.svc.ventas.models.enums.TipoMovimiento;
 import com.svc.ventas.models.enums.TipoPago;
@@ -34,11 +42,11 @@ public class VentaServiceImpl implements IVentaService {
 
   private final IClienteService clienteService;
 
+  private final ISucursalService sucursalService;
+
   private final IProductoService productoService;
 
-  private final ITipoDocumentoService tipoDocumentoService;
-
-  private final IUsuarioService usuarioService;
+  private final ProductoStockRepo productoStockRepo;
 
   private final ISerieService serieService;
 
@@ -48,36 +56,41 @@ public class VentaServiceImpl implements IVentaService {
 
   private final VentaRepo ventaRepo;
 
-  private final ProductoMapper productoMapper;
+  private final ProductoRepo productoRepo;
 
   private final VentaMapper ventaMapper;
 
   private final ClienteMapper clienteMapper;
 
-  private final TipoDocumentoMapper tipoDocumentoMapper;
+  private final SucursalMapper sucursalMapper;
+
+  private final ProductoMapper productoMapper;
 
   private final SecurityUtils securityUtils;
 
   @Override
   @Transactional
-  public Response registrar(VentaDto ventaDto) {
+  public Response registrar(VentaRequest venta) {
 
     log.info("Iniciando registro de venta...");
+
+    log.info("Valida montos ::");
+    VentaMontosDto ventaMontosDto = validarStockYCalcularMontos(venta);
 
     log.info("Obtener caja activa ::");
     CajaDetalleDTO cajaDet = cajaService.findByFechaAndUsuario();
 
     log.info("Busca cliente :: ");
-    clienteService.obtener(ventaDto.getCliente().getIdCliente());
+    ClienteDto clienteDto = clienteService.obtener(venta.getIdCliente());
 
-    log.info("Busca tipo de documento existente :: ");
-    tipoDocumentoService.obtener(ventaDto.getTipoDocumento().getIdTipoDocumento());
+    log.info("Busca sucursal existente ::");
+    SucursalDto sucursal = sucursalService.obtener(venta.getIdSucursal());
 
     log.info("Obtiene usuario logueado ::");
     UsuarioDto usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
 
     log.info("Validar correlativo ::");
-    Serie serieBD = serieService.getByIdDocumentType(ventaDto.getTipoDocumento().getIdTipoDocumento());
+    Serie serieBD = serieService.getByIdDocumentType(venta.getTipoDocumento());
     int nextCorrelativo = serieBD.getCorrelativo() + 1;
 
     String numeroDocumento = serieBD.getSerie() + "-" + String.format("%05d", nextCorrelativo);
@@ -88,17 +101,18 @@ public class VentaServiceImpl implements IVentaService {
     serieService.save(serieBD);
 
     Venta ventaNew = Venta.builder()
-            .cliente(clienteMapper.mapDtoToEntity(ventaDto.getCliente()))
-            .tipoDocumento(tipoDocumentoMapper.mapTipoDocumento(ventaDto.getTipoDocumento()))
-            .tipoPago(ventaDto.getTipoPago())
+            .cliente(clienteMapper.mapDtoToEntity(clienteDto))
+            .sucursal(sucursalMapper.mapToSucursalPost(sucursal))
+            .tipoDocumento(venta.getTipoDocumento())
+            .tipoPago(TipoPago.valueOf(venta.getTipoPago()))
             .serie(serieBD.getSerie())
             .correlativo(nextCorrelativo)
-            .igv(ventaDto.getIgv())
-            .subTotal(ventaDto.getSubTotal())
-            .total(ventaDto.getTotal())
-            .fecha(AppUtils.convert(ventaDto.getFecha()))
+            .igv(ventaMontosDto.getIgv())
+            .subTotal(ventaMontosDto.getSubTotal())
+            .total(ventaMontosDto.getTotal())
+            .fecha(AppUtils.convert(venta.getFecha()))
             .estado(Constantes.STATUS_CREADO)
-            //.usuRegistro(usuarioMapper.mapToUsuarioGet(usuarioLogueado))
+            .createdBy(usuarioLogueado.getUsuario())
             .build();
 
     Venta ventaEntity = ventaRepo.save(ventaNew);
@@ -106,26 +120,34 @@ public class VentaServiceImpl implements IVentaService {
 
     log.info("Registra los productos a vender :: ");
 
-    ventaDto.getProductos()
+    venta.getProductos()
             .forEach(ppv -> {
               log.info("Busca producto y actualiza el stock del producto ::");
-              ProductoDTO productoBD = productoService.obtener(ppv.getIdProducto());
+              Producto productoBD = productoRepo.findById(ppv.getIdProducto())
+                      .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Producto", ppv.getIdProducto())));
 
-              log.info("Valida disponibilidad de stock para producto :: {} ", productoBD.getNombre() );
-              validarStock(ppv, productoBD);
+              log.info("Busca stock de producto en sucursal ::");
+              ProductoStock productoStock = productoStockRepo.buscar(ppv.getIdProducto(), venta.getIdSucursal())
+                      .orElseThrow(() -> new EntityNotFoundException(":: No existe producto registrado"));
 
-              productoBD.restarStock(ppv.getCantidad());
+              log.info("Valida disponibilidad de stock para producto :: {} ", productoBD.getNombre());
+              validarStock(ppv, productoStock);
 
-              productoService.modificar(productoBD.getIdProducto(), productoMapper.mapToGet(productoBD));
+              productoStock.restarStock(ppv.getCantidad());
+
+              log.info("Actualiza stock de producto :: {}, en local {} ", productoBD.getNombre(),
+                      productoStock.getSucursal().getCodigo());
+              productoStockRepo.save(productoStock);
 
               productoVendidoRepo.save(ProductoVendido
                       .builder()
+                      .venta(ventaEntity)
                       .idProducto(productoBD.getIdProducto())
                       .descripcion(productoBD.getDescripcion())
                       .nombre(productoBD.getNombre())
-                      .precio(productoBD.getPrecio())
+                      .precio(productoStock.getPrecioVenta().multiply(BigDecimal.valueOf(ppv.getCantidad())))
+                      .precioDescuento(BigDecimal.ZERO)
                       .cantidad(ppv.getCantidad())
-                      .venta(ventaEntity)
                       .build());
             });
 
@@ -174,16 +196,69 @@ public class VentaServiceImpl implements IVentaService {
     return ventaRepo.ventasPorDocumentoCliente(dni);
   }
 
-  private static void validarStock(ProductoParaVender ppv, ProductoDTO productoBD) {
-    if(productoBD.sinStock()){
-      throw new BusinessException("Stock insuficiente para el producto: " + productoBD.getNombre() +
-              ". Disponible: " + productoBD.getStock() + ", Solicitado: " + ppv.getCantidad());
+  private static void validarStock(ProductoParaVender ppv,  ProductoStock productoStock ) {
+
+  }
+
+  /**
+   * Valida que los montos enviados por el cliente coincidan con los calculados
+   * y devuelve los valores correctos desde backend.
+   */
+  private VentaMontosDto validarStockYCalcularMontos(VentaRequest venta) {
+
+    BigDecimal subtotalCalculado = BigDecimal.ZERO;
+
+    for (ProductoParaVender p : venta.getProductos()) {
+
+      ProductoStock productoStock = productoStockRepo.buscar(p.getIdProducto(), venta.getIdSucursal())
+              .orElseThrow(() -> new EntityNotFoundException(":: No existe producto registrado"));
+
+      if(productoStock.sinStock()){
+        throw new BusinessException("Stock insuficiente para el producto: " + productoStock.getProducto().getNombre() +
+                ". Disponible: " + productoStock.getStock() + ", Solicitado: " + p.getCantidad());
+      }
+
+      if (productoStock.getStock() < p.getCantidad()) {
+        throw new BusinessException("Stock insuficiente para el producto: " + productoStock.getProducto().getNombre() +
+                ". Disponible: " + productoStock.getStock() + ", Solicitado: " + p.getCantidad());
+      }
+
+      BigDecimal subtotalProducto = p.getPrecioVenta()
+              .multiply(BigDecimal.valueOf(p.getCantidad()));
+
+      subtotalCalculado = subtotalCalculado.add(subtotalProducto);
     }
 
-    if (productoBD.getStock() < ppv.getCantidad()) {
-      throw new BusinessException("Stock insuficiente para el producto: " + productoBD.getNombre() +
-              ". Disponible: " + productoBD.getStock() + ", Solicitado: " + ppv.getCantidad());
+    BigDecimal igvCalculado;
+    BigDecimal totalCalculado;
+
+    //if (Boolean.TRUE.equals(compra.getAplicarImpuesto())) {
+    igvCalculado = subtotalCalculado.multiply(IGV).setScale(2, RoundingMode.HALF_UP);
+    totalCalculado = subtotalCalculado.add(igvCalculado);
+    //}
+
+    if (Objects.isNull(venta.getSubTotal()) ||
+            venta.getSubTotal().setScale(2, RoundingMode.HALF_UP).compareTo(subtotalCalculado) != 0) {
+      log.info("subtotal servidor: {}", subtotalCalculado);
+      throw new IllegalArgumentException("El subtotal no coincide con el cálculo del servidor.");
     }
+
+    if (Objects.isNull(venta.getIgv()) ||
+            venta.getIgv().setScale(2, RoundingMode.HALF_UP).compareTo(igvCalculado) != 0) {
+      log.info("IGV servidor: {}", igvCalculado);
+      throw new IllegalArgumentException("El IGV no coincide con el cálculo del servidor.");
+    }
+
+    if (Objects.isNull(venta.getTotal()) ||
+            venta.getTotal().setScale(2, RoundingMode.HALF_UP).compareTo(totalCalculado) != 0) {
+      log.info("total servidor: {}", totalCalculado);
+      throw new IllegalArgumentException("El total no coincide con el cálculo del servidor.");
+    }
+
+    log.info("Montos validados correctamente: Subtotal={}, IGV={}, Total={}",
+            subtotalCalculado, igvCalculado, totalCalculado);
+
+    return new VentaMontosDto(subtotalCalculado, igvCalculado, totalCalculado);
   }
 
 }

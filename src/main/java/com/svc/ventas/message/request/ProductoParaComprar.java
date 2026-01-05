@@ -22,13 +22,12 @@ public class ProductoParaComprar extends ProductoDTO {
 
   private Integer cantidadRecibida;
 
+  private BigDecimal precioCompra;
+
   public ProductoParaComprar(Long idProducto,
                              @NotNull CategoriaDto categoria, @NotNull MarcaDto marca,
                              @NotNull UnidadMedidaDto unidadMedida, @NotBlank String descripcion,
-                             @NotBlank String nombre, String imagen, @NotNull BigDecimal precio,
-                             @NotNull BigDecimal precioDescuento, @NotNull BigDecimal precioProveedor,
-                             @NotNull Integer maxCantidad, @NotNull Integer minCantidad, @NotNull Integer stock, Boolean indEstado) {
-    super(idProducto, categoria, marca, unidadMedida, descripcion, nombre, imagen, precio,
-            precioDescuento, precioProveedor, maxCantidad, minCantidad, stock, indEstado);
+                             @NotBlank String nombre, String imagen, @NotNull BigDecimal precio, Boolean indEstado) {
+    super(idProducto, categoria, marca, unidadMedida, descripcion, nombre, imagen, precio, indEstado);
   }
 }

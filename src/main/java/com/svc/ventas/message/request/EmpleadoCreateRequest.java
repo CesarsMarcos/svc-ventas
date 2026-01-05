@@ -16,6 +16,6 @@ public class EmpleadoCreateRequest {
   private Integer idPersona;
 
   @NotNull
-  private Integer idSucursal;
+  private Long idSucursal;
 
 }

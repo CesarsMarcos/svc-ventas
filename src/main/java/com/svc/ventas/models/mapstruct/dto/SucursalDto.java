@@ -23,9 +23,6 @@ public class SucursalDto {
   @Email
   private String email;
 
-  private String logo;
-
-  @NotBlank
   private String numDocumento;
 
   @NotBlank
@@ -36,9 +33,6 @@ public class SucursalDto {
 
   @NotBlank
   private String telefono;
-
-  @NotBlank
-  private TipoDocumentoDto tipoDocumento;
 
   private Boolean indEstado;
 

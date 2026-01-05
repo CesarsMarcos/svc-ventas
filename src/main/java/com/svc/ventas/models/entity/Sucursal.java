@@ -20,7 +20,14 @@ public class Sucursal implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="id_sucursal")
-	private Integer idSucursal;
+	private Long idSucursal;
+
+	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+	@JoinColumn(name = "id_empresa", foreignKey = @ForeignKey(name = "fk_sucursal_empresa"))
+	private Empresa empresa;
+
+	private String codigo;
 
 	private String direccion;
 
@@ -28,8 +35,6 @@ public class Sucursal implements Serializable {
 
 	@Column(name="ind_estado")
 	private Boolean indEstado;
-
-	private String logo;
 
 	@Column(name="num_documento")
 	private String numDocumento;
@@ -41,18 +46,11 @@ public class Sucursal implements Serializable {
 
 	private String telefono;
 
-	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "id_tipo_documento", foreignKey = @ForeignKey(name = "fk_sucursal_tipo_documento"))
-	private TipoDocumento tipoDocumento;
+	@Column(name = "created_by")
+	private String  createdBy;
 
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "COD_USUARIO_REGISTRO", foreignKey = @ForeignKey(name = "FK_SUCURSAL_USUARIO_REG"))
-	private Usuario usuRegistro;
-
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "COD_USUARIO_MOD", foreignKey = @ForeignKey(name = "FK_SUCURSAL_USUARIO_MOD"))
-	private Usuario usuMod;
+	@Column(name = "updated_by")
+	private String  updatedBy;
 
 	@Column(name="fec_add")
 	private LocalDateTime fecAdd;

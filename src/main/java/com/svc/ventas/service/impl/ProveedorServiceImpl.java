@@ -44,21 +44,21 @@ public class ProveedorServiceImpl implements IProveedorService {
 	}
 
 	@Override
-	public Response modificar(Integer id, ProveedorDto proveedorDto) {
+	public Response modificar(Long id, ProveedorDto proveedorDto) {
 		proveedorRepo.findById(id)
 		.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Proveedor", id)));
 		return Response.builder().mensaje(Constantes.MENSAJE_MOD).build();
 	}
 
 	@Override
-	public ProveedorDto obtener(int id) {
+	public ProveedorDto obtener(Long id) {
 		return proveedorRepo.findById(id)
 				.map(proveedorMapper::mapToProveedorDto)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Proveedor", id)));
 	}
 
 	@Override
-	public void eliminar(int id) {
+	public void eliminar(Long id) {
 		Proveedor proveedorSave = proveedorRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Proveedor", id)));
 		proveedorSave.setIndEstado(Constantes.IND_ACTIVO);

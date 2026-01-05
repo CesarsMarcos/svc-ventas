@@ -1,8 +1,8 @@
 package com.svc.ventas.controller.compras;
 
+import com.svc.ventas.message.request.CompraRequest;
 import jakarta.validation.Valid;
 
-import com.svc.ventas.models.mapstruct.dto.CompraDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +22,7 @@ public class CompraController {
 	}
 
 	@PostMapping
-	public ResponseEntity<?> registrar(@Valid @RequestBody CompraDto compra){
+	public ResponseEntity<?> registrar(@Valid @RequestBody CompraRequest compra){
 		return new ResponseEntity<>(compraService.registrar(compra),HttpStatus.CREATED);
 	}
 

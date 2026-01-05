@@ -1,6 +1,6 @@
 package com.svc.ventas.models.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.svc.ventas.models.enums.TipoDocumento;
 import lombok.*;
 
 import jakarta.persistence.*;
@@ -18,9 +18,8 @@ public class Serie {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer idSerie;
 
-  @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "id_tipo_documento", foreignKey = @ForeignKey(name = "fk_serie_tipo_documento"))
+  @Column(name = "tipo_documento")
+  @Enumerated(EnumType.STRING)
   private TipoDocumento tipoDocumento;
 
   private String serie;
@@ -29,5 +28,11 @@ public class Serie {
 
   @Column(name="ind_estado")
   private Boolean indEstado;
+
+  @Column(name = "created_by")
+  private String  createdBy;
+
+  @Column(name = "updated_by")
+  private String  updatedBy;
 
 }

@@ -14,7 +14,7 @@ public interface ProductoVendidoRepository extends JpaRepository<ProductoVendido
           "pv.nombre, " +
           "SUM(pv.cantidad), " +
           "SUM(pv.cantidad * pv.precio),  " +
-          "(SELECT p.stock FROM Producto p WHERE p.idProducto = pv.idProducto), " +
+         // "(SELECT p.stock FROM Producto p WHERE p.idProducto = pv.idProducto), " +
           "(SELECT p.indEstado FROM Producto p WHERE p.idProducto = pv.idProducto)) " +
           "FROM ProductoVendido pv " +
           "GROUP BY pv.idProducto, pv.nombre")

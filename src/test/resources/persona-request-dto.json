@@ -9,9 +9,7 @@
     "celular": "123456",
     "fechaNacimiento": "22/11/1989",
     "foto": "foto",
-    "tipoDocumento": {
-      "idTipoDocumento": 1
-    },
+    "tipoDocumento": "DNI",
     "numDocumento": "12345678"
   },
   "indEstado": true

@@ -31,11 +31,13 @@ public class ProductoComprado {
 	private String nombre;
 
 	private String descripcion;
-	
+
+	//precio de compra de producto
+	private BigDecimal precioCompra;
+
 	private Integer cantidad;
 
 	private Integer cantidadRecibida;
 
-	private BigDecimal precio;
-
+	private BigDecimal subTotal;
 }

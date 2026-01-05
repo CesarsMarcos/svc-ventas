@@ -3,6 +3,9 @@ package com.svc.ventas.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.svc.ventas.message.request.SucursalRequest;
+import com.svc.ventas.models.dao.EmpresaRepository;
+import com.svc.ventas.models.entity.Empresa;
 import com.svc.ventas.models.mapstruct.dto.SucursalDto;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,8 @@ import lombok.RequiredArgsConstructor;
 public class SucursalServiceImpl implements ISucursalService {
 
 	private final SucursalRepo sucursalRepo;
+
+	private final EmpresaRepository empresaRepo;
 	
 	private final SucursalMapper sucursalMapper;
 
@@ -33,8 +38,13 @@ public class SucursalServiceImpl implements ISucursalService {
 	}
 
 	@Override
-	public Response agregar(SucursalDto sucursalDto) {
-		sucursalRepo.save(sucursalMapper.mapToSucursalPost(sucursalDto));
+	public Response agregar(SucursalRequest sucursal) {
+		Empresa empresaSave = empresaRepo.findById(sucursal.getIdEmpresa())
+						.orElseThrow(() ->
+										new EntityNotFoundException(String.
+														format(Constantes.MENSAJE_NOT_FOUND, "Sucursal", sucursal.getIdEmpresa())));
+
+		sucursalRepo.save(sucursalMapper.mapRequestToSucursalPost(sucursal, empresaSave));
 
 		return Response.builder()
 				.mensaje(Constantes.MENSAJE_SAVE)
@@ -42,7 +52,7 @@ public class SucursalServiceImpl implements ISucursalService {
 	}
 
 	@Override
-	public Response modificar(int id, SucursalDto sucursalDto) {
+	public Response modificar(Long id, SucursalDto sucursalDto) {
 		sucursalRepo.findById(id)
 				.map(sucursal -> {
 					sucursal = sucursalMapper.mapToSucursalPost(sucursalDto);
@@ -55,14 +65,14 @@ public class SucursalServiceImpl implements ISucursalService {
 	}
 
 	@Override
-	public SucursalDto obtener(int id) {
+	public SucursalDto obtener(Long id) {
 		return sucursalRepo.findById(id)
 				.map(sucursalMapper::mapToSucursalDTO)
 				.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Sucursal", id)));
 	}
 
 	@Override
-	public void eliminar(int id) {
+	public void eliminar(Long id) {
 		Sucursal sucursalSave = sucursalRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Sucursal", id)));
 

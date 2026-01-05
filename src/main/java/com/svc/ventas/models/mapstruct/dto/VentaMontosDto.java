@@ -5,14 +5,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TipoDocumentoDto {
+public class VentaMontosDto {
 
-  private Integer idTipoDocumento;
-
-  private String descripcion;
+  private BigDecimal subTotal;
+  private BigDecimal igv;
+  private BigDecimal total;
 
 }
