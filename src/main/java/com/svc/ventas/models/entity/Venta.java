@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import com.svc.ventas.models.enums.EstadoVenta;
 import com.svc.ventas.models.enums.TipoDocumento;
 import com.svc.ventas.models.enums.TipoPago;
 import jakarta.persistence.*;
@@ -74,8 +75,8 @@ public class Venta implements Serializable {
 	@Column(name = "total")
 	private BigDecimal total;
 
-	@Column(name = "estado", nullable = false)
-	private String estado;
+	@Enumerated(EnumType.STRING)
+	private EstadoVenta estado;
 
 	@Column(name = "created_by")
 	private String  createdBy;

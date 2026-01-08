@@ -12,14 +12,16 @@ import lombok.Setter;
 public class ProductoSearchResponse {
 
 	private Integer idProducto;
-	
-	private String descripcion;
-	
+
+	private String categoria;
+
+	private String marca;
+
 	private String nombre;
 	
-	private float precio;
+	private float precioVenta;
 	
 	private float stock;
 	
-	
+	private Boolean estado;
 }

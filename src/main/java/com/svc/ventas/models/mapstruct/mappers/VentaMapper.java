@@ -24,15 +24,19 @@ public interface VentaMapper {
 	@Mapping(source = "idVenta", target = "id" )
 	@Mapping(source = "fecha",  target = "fecha")
 	@Mapping(source = "estado",  target = "estado")
-	@Mapping(source = "serie",  target = "serie")
-	@Mapping(source = "correlativo",  target = "correlativo")
-	@Mapping(target = "cliente", expression = "java(dataCliente(venta))")
-	@Mapping(target = "productos",  expression = "java(mapProductosDetalle(venta.getProductos()))")
+	@Mapping(source = "tipoPago",  target = "tipoPago")
+	@Mapping(target = "cliente", expression = "java(dataNombreCliente(venta))")
 	@Mapping(source = "igv",  target = "igv")
 	@Mapping(source = "subTotal",  target = "subTotal")
 	@Mapping(source = "total",  target = "total")
-
 	VentaGetDto mapToVentaGetDto(Venta venta);
+
+	default String dataNombreCliente(Venta venta) {
+		Cliente cliente = venta.getCliente();
+		return cliente.getPersona().getNombre().concat(" ")
+										.concat(cliente.getPersona().getApePaterno().concat(" ")
+														.concat(cliente.getPersona().getApeMaterno()));
+	}
 
 	default ClienteGetVentaDto dataCliente(Venta venta) {
 			Cliente cliente = venta.getCliente();

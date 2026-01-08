@@ -155,7 +155,7 @@ public class ProductoServiceImpl implements IProductoService {
 
 		Page<ProductoStock> pageProductos = productoStockRepo.findAll(spec, pageable);
 
-		List<ProductoDTO> listProducts = pageProductos.getContent()
+		List<ProductoSearchResponse> listProducts = pageProductos.getContent()
 						.stream()
 						.map(productoMapper::mapProductoStock)
 						.toList();

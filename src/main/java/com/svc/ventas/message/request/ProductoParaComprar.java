@@ -27,7 +27,8 @@ public class ProductoParaComprar extends ProductoDTO {
   public ProductoParaComprar(Long idProducto,
                              @NotNull CategoriaDto categoria, @NotNull MarcaDto marca,
                              @NotNull UnidadMedidaDto unidadMedida, @NotBlank String descripcion,
-                             @NotBlank String nombre, String imagen, @NotNull BigDecimal precio, Boolean indEstado) {
-    super(idProducto, categoria, marca, unidadMedida, descripcion, nombre, imagen, precio, indEstado);
+                             @NotBlank String nombre, String imagen, @NotNull BigDecimal precioReferencial,
+                             @NotNull BigDecimal precioVenta, Boolean indEstado) {
+    super(idProducto, categoria, marca, unidadMedida, descripcion, nombre, imagen, precioReferencial,precioVenta, indEstado);
   }
 }

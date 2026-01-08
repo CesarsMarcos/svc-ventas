@@ -6,13 +6,8 @@ import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.request.CompraRequest;
 import com.svc.ventas.message.request.ProductoParaComprar;
 import com.svc.ventas.message.response.Response;
-import com.svc.ventas.models.dao.CompraRepository;
-import com.svc.ventas.models.dao.ProductoCompradoRepository;
-import com.svc.ventas.models.dao.ProductoStockRepo;
-import com.svc.ventas.models.entity.Compra;
-import com.svc.ventas.models.entity.ProductoComprado;
-import com.svc.ventas.models.entity.ProductoStock;
-import com.svc.ventas.models.entity.Proveedor;
+import com.svc.ventas.models.dao.*;
+import com.svc.ventas.models.entity.*;
 import com.svc.ventas.models.mapstruct.dto.*;
 import com.svc.ventas.models.mapstruct.mappers.*;
 import com.svc.ventas.service.*;
@@ -43,6 +38,10 @@ public class CompraServiceImpl implements ICompraService {
 
   private final ProductoStockRepo productoStockRepo;
 
+  private final ProveedorRepo proveedorRepo;
+
+  private final SucursalRepo sucursalRepo;
+
   //private final ITipoDocumentoService tipoDocumentoService;
 
   private final IProductoService productoService;
@@ -66,10 +65,14 @@ public class CompraServiceImpl implements ICompraService {
     log.info("Iniciando registro de compra...");
 
     log.info("Busca proveedor :: ");
-    proveedorService.obtener(compra.getIdProveedor());
+    Proveedor proveedorBD = proveedorRepo.findById(compra.getIdProveedor())
+            .orElseThrow(() -> new EntityNotFoundException(String.format(
+                    Constantes.MENSAJE_NOT_FOUND, "Proveedor", compra.getIdProveedor())));
 
     log.info("Busca sucursal existente ::");
-    sucursalService.obtener(compra.getIdSucursal());
+    Sucursal sucursalBD = sucursalRepo.findById(compra.getIdSucursal())
+            .orElseThrow(() -> new EntityNotFoundException(String.format(
+                    Constantes.MENSAJE_NOT_FOUND, "Sucursal", compra.getIdSucursal())));
 
     log.info("Obtiene usuario logueado :: ");
     UsuarioDto usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
@@ -84,7 +87,8 @@ public class CompraServiceImpl implements ICompraService {
             .serie(compra.getSerie())
             .correlativo(compra.getCorrelativo())
             .tipoDocumento(compra.getTipoDocumento())
-            .proveedor(Proveedor.builder().idProveedor(compra.getIdProveedor()).build())
+            .proveedor(proveedorBD)
+            .sucursal(sucursalBD)
             .tipoPago(compra.getTipoPago())
             .igv(compraMontosDto.getIgv())
             .subTotal(compraMontosDto.getSubTotal())
@@ -121,6 +125,7 @@ public class CompraServiceImpl implements ICompraService {
                       .idProducto(productoBD.getIdProducto())
                       .nombre(productoBD.getNombre())
                       .cantidad(ppc.getCantidad())
+                      .cantidadRecibida(ppc.getCantidadRecibida())
                       .precioCompra(ppc.getPrecioCompra())
                       .subTotal(ppc.getPrecioCompra().multiply(BigDecimal.valueOf(ppc.getCantidad())))
                       .build());
@@ -139,14 +144,14 @@ public class CompraServiceImpl implements ICompraService {
   @Override
   public List<CompraGetDto> listado(Boolean isViewMore) {
     LocalDate dateToday = LocalDate.now();
-    LocalDate sevenDaysAgo = dateToday.minusWeeks(1);
-
+    LocalDate sevenDaysAgo = dateToday.minusWeeks(2);
     return compraRepo.findAll().stream()
             .filter(compra -> {
               if (isViewMore) {
-                return compra.getFecha().isAfter(sevenDaysAgo.minusDays(1)) && compra.getFecha().isBefore(dateToday.plusDays(1));
-              } else {
                 return compra.getFecha().isEqual(dateToday);
+              } else {
+                return compra.getFecha().isAfter(sevenDaysAgo.minusDays(1)) && compra.getFecha()
+                        .isBefore(dateToday.plusDays(1));
               }
             })
             .map(compraMapper::mapCompraToDto)
