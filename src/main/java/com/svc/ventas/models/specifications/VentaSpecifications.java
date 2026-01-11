@@ -22,9 +22,8 @@ public class VentaSpecifications {
 
       Expression<String> nombreCompleto = cb.concat(
               cb.concat(personaJoin.get("nombre"), " "),
-              personaJoin.get("apellido")
+              personaJoin.get("apePaterno")
       );
-
       return cb.like(
               cb.upper(nombreCompleto),
               "%" + nombre.toUpperCase() + "%"
@@ -39,7 +38,7 @@ public class VentaSpecifications {
       }
       Join<Venta, Cliente> clienteJoin = root.join("cliente", JoinType.INNER);
       Join<Cliente, Persona> personaJoin = clienteJoin.join("persona", JoinType.INNER);
-      return cb.like(cb.upper(personaJoin.get("numDocumento")), documento);
+      return cb.equal(personaJoin.get("numDocumento"), documento);
     };
   }
 

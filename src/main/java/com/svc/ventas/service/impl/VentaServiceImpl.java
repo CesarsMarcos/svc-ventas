@@ -184,12 +184,11 @@ public class VentaServiceImpl implements IVentaService {
   public Map<String, Object> searchVenta(String nombre, String documentoCliente,
                                        String documentoVenta, LocalDate inicio,
                                        LocalDate fin,  Pageable pageable) {
-    LocalDate dateToday = LocalDate.now();
-    LocalDate sevenDaysAgo = dateToday.minusWeeks(2);
 
     Specification<Venta> spec =  Specification
             .where(VentaSpecifications.hasClienteNombre(nombre))
             .and(VentaSpecifications.hasClienteDNI(documentoCliente))
+            //.and(VentaSpecifications.hasDocumento(documentoVenta))
             .and(VentaSpecifications.hasFechaBetween(inicio, fin));
 
     Page<Venta> pageVenta = ventaRepo.findAll(spec, pageable);
@@ -212,7 +211,7 @@ public class VentaServiceImpl implements IVentaService {
   @Override
   public Object details(Long id) {
     return ventaRepo.findById(id)
-            .map(ventaMapper::mapToVentaGetDto)
+            .map(ventaMapper::mapToVentaDetailDto)
             .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Venta", id)));
   }
 

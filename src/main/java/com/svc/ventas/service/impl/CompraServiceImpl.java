@@ -10,12 +10,16 @@ import com.svc.ventas.models.dao.*;
 import com.svc.ventas.models.entity.*;
 import com.svc.ventas.models.mapstruct.dto.*;
 import com.svc.ventas.models.mapstruct.mappers.*;
+import com.svc.ventas.models.specifications.CompraSpecifications;
 import com.svc.ventas.service.*;
 import com.svc.ventas.util.AppUtils;
 import com.svc.ventas.util.Constantes;
 import com.svc.ventas.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -42,17 +48,7 @@ public class CompraServiceImpl implements ICompraService {
 
   private final SucursalRepo sucursalRepo;
 
-  //private final ITipoDocumentoService tipoDocumentoService;
-
   private final IProductoService productoService;
-
-  private final ISucursalService sucursalService;
-
-  private final IProveedorService proveedorService;
-
-  private final ProductoMapper productoMapper;
-
-  private final UsuarioMapper usuarioMapper;
 
   private final CompraMapper compraMapper;
 
@@ -142,34 +138,38 @@ public class CompraServiceImpl implements ICompraService {
   }
 
   @Override
-  public List<CompraGetDto> listado(Boolean isViewMore) {
-    LocalDate dateToday = LocalDate.now();
-    LocalDate sevenDaysAgo = dateToday.minusWeeks(2);
-    return compraRepo.findAll().stream()
-            .filter(compra -> {
-              if (isViewMore) {
-                return compra.getFecha().isEqual(dateToday);
-              } else {
-                return compra.getFecha().isAfter(sevenDaysAgo.minusDays(1)) && compra.getFecha()
-                        .isBefore(dateToday.plusDays(1));
-              }
-            })
-            .map(compraMapper::mapCompraToDto)
+  public Map<String, Object> searchCompras(String ruc, String proveedor,
+                                           String documentoCompra, LocalDate inicio,
+                                           LocalDate fin, Pageable pageable) {
+    Specification<Compra> spec = Specification
+            .where(CompraSpecifications.hasRUC(ruc))
+            .and(CompraSpecifications.hasProveedor(proveedor))
+            //.and(CompraSpecifications.hasDocumento(documentoCompra))
+            .and(CompraSpecifications.hasFechaBetween(inicio, fin));
+
+    Page<Compra> pageCompra = compraRepo.findAll(spec, pageable);
+    List<CompraGetDto> compraDto = pageCompra.getContent()
+            .stream().map(compraMapper::mapCompraToDto)
             .collect(Collectors.toList());
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("compras", compraDto);
+    response.put("currentPage", pageCompra.getNumber());
+    response.put("totalItems", pageCompra.getTotalElements());
+    response.put("totalPages", pageCompra.getTotalPages());
+
+    return response;
+
   }
 
   @Override
   public Object details(Long id) {
     return compraRepo.findById(id)
-            .map(compraMapper::mapCompraToDto)
+            .map(compraMapper::mapCompraToDetailDto)
             .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Compra", id)));
 
   }
 
-  /**
-   * Valida que los montos enviados por el cliente coincidan con los calculados
-   * y devuelve los valores correctos desde backend.
-   */
   private CompraMontosDto validarYCalcularMontos(CompraRequest compra) {
 
     BigDecimal subtotalCalculado = BigDecimal.ZERO;

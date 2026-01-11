@@ -33,7 +33,7 @@ public class VentaDetailsDto {
 	private TipoDocumento tipoDocumento;
 
 	@NotNull
-	private List<ProductoDetalleDto> productos;
+	private List<ProductoDetalleCompraDto> productos;
 
 	@NotNull
 	private float igv;

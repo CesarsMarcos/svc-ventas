@@ -1,14 +1,9 @@
 package com.svc.ventas.models.mapstruct.dto;
 
-import com.svc.ventas.models.enums.TipoDocumento;
-import com.svc.ventas.models.enums.TipoPagoCompra;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -17,7 +12,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CompraGetDto {
+public class CompraDetailDto {
 
   private Long id;
 
@@ -25,21 +20,20 @@ public class CompraGetDto {
 
   private String estado;
 
-  @NotNull
-  private TipoDocumento tipoDocumento;
+  private String tipoPago;
 
-  private TipoPagoCompra tipoPago;
+  private String tipoDocumento;
 
-  @NotNull
+  private String serieCorrelativo;
+
   private String proveedor;
 
-  @NotNull
+  private List<ProductoDetalleCompraDto> productos;
+
   private BigDecimal igv;
 
-  @NotNull
   private BigDecimal subTotal;
 
-  @NotNull
   private BigDecimal total;
 
 }
