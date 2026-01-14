@@ -95,7 +95,7 @@ public class VentaServiceImpl implements IVentaService {
     SucursalDto sucursal = sucursalService.obtener(venta.getIdSucursal());
 
     log.info("Obtiene usuario logueado ::");
-    UsuarioDto usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
+    Usuario usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
 
     log.info("Validar correlativo ::");
     Serie serieBD = serieService.getByIdDocumentType(venta.getTipoDocumento());

@@ -8,12 +8,15 @@ import com.svc.ventas.models.dao.CajaRepo;
 import com.svc.ventas.models.dao.MovimientoRepo;
 import com.svc.ventas.models.entity.Caja;
 import com.svc.ventas.models.entity.CajaMovimiento;
+import com.svc.ventas.models.entity.Usuario;
 import com.svc.ventas.models.enums.EstadoCaja;
+import com.svc.ventas.models.enums.OrigenMovimiento;
 import com.svc.ventas.models.enums.TipoMovimiento;
 import com.svc.ventas.models.enums.TipoPago;
 import com.svc.ventas.models.mapstruct.dto.*;
 import com.svc.ventas.models.mapstruct.mappers.CajaMapper;
 import com.svc.ventas.models.mapstruct.mappers.MovimientoMapper;
+import com.svc.ventas.models.mapstruct.mappers.UsuarioMapper;
 import com.svc.ventas.service.ICajaService;
 import com.svc.ventas.util.AppUtils;
 import com.svc.ventas.util.Constantes;
@@ -37,25 +40,36 @@ public class CajaServiceImpl implements ICajaService {
 
   private final CajaMapper cajaMapper;
 
+  private final UsuarioMapper usuarioMapper;
+
   private final SecurityUtils securityUtils;
 
   @Override
   public CajaDetalleDTO findByFechaAndUsuario() {
-    UsuarioDto currentUsuario = securityUtils.obtenerUsuarioLogueado();
-    return cajaRepo.findByFechaAndUsuarioUsuario(AppUtils.obtenerFechaActual(), currentUsuario.getUsuario())
-            .map(cajaMapper::toModelDto)
-            .orElseThrow(() -> new BusinessException(
-                    String.format(Constantes.MENSAJE_NOT_FOUND_CAJA, "Caja")));
+    Usuario currentUsuario = securityUtils.obtenerUsuarioLogueado();
+    Caja caja = cajaRepo.findByFechaAndUsuarioUsuario(AppUtils.obtenerFechaActual(), currentUsuario.getUsuario())
+            .orElse(Caja.builder()
+                    .usuario(currentUsuario)
+                    .estado(EstadoCaja.CERRADA)
+                    .montoApertura(BigDecimal.ZERO)
+                    .montoCierre(BigDecimal.ONE)
+                    .build());
+
+    Map<TipoPago, BigDecimal> totalesPorPago = inicializarTotalesPorPago();
+    Map<TipoMovimiento, BigDecimal> totalesPorMovimiento = inicializarTotalesPorMovimiento();
+
+    TotalesCaja totales = procesarMovimientos(caja, totalesPorPago, totalesPorMovimiento);
+    return cajaMapper.toModelDto(caja, totales);
   }
 
   @Override
   public Response aperturaCaja(CajaDTO caja) {
-    UsuarioDto currentUsuario = securityUtils.obtenerUsuarioLogueado();
+    Usuario currentUsuario = securityUtils.obtenerUsuarioLogueado();
     String fechaActual = AppUtils.obtenerFechaActual();
 
     validarCajaExistenteParaUsuario(fechaActual,currentUsuario.getUsuario());
 
-    caja.setUsuario(currentUsuario);
+    caja.setUsuario(usuarioMapper.map(currentUsuario));
     caja.setEstado(String.valueOf(EstadoCaja.ABIERTA));
     cajaRepo.save(CajaMapper.INSTANCE.toEntity(caja));
     return Response.builder().mensaje(Constantes.MENSAJE_SAVE).build();
@@ -144,6 +158,7 @@ public class CajaServiceImpl implements ICajaService {
           Map<TipoPago, BigDecimal> totalesPorPago,
           Map<TipoMovimiento, BigDecimal> totalesPorMovimiento) {
 
+    BigDecimal totalVentas = BigDecimal.ZERO;
     BigDecimal totalIngresos = BigDecimal.ZERO;
     BigDecimal totalEgresos = BigDecimal.ZERO;
 
@@ -157,6 +172,9 @@ public class CajaServiceImpl implements ICajaService {
           if (m.getTipoMovimiento() == TipoMovimiento.INGRESO) {
             totalIngresos = totalIngresos.add(monto);
 
+            if (m.getOrigen() == OrigenMovimiento.VENTA) {
+              totalVentas = totalVentas.add(monto);
+            }
             if (Objects.nonNull(m.getTipoPago())) {
               totalesPorPago.merge(m.getTipoPago(), monto, BigDecimal::add);
             }
@@ -167,8 +185,7 @@ public class CajaServiceImpl implements ICajaService {
         }
       }
     }
-
-    return new TotalesCaja(totalIngresos, totalEgresos);
+    return new TotalesCaja(totalVentas, totalIngresos, totalEgresos);
   }
 
   private TotalesFinales calcularTotales(

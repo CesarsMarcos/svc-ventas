@@ -15,6 +15,8 @@ public class CajaDetalleDTO {
 
     private BigDecimal montoApertura;
 
+    private TotalesCaja totales;
+
     private BigDecimal montoCierre;
 
     private String horaApertura;

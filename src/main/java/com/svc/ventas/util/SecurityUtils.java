@@ -1,5 +1,6 @@
 package com.svc.ventas.util;
 
+import com.svc.ventas.models.entity.Usuario;
 import com.svc.ventas.models.mapstruct.dto.UsuarioDto;
 import com.svc.ventas.service.IUsuarioService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class SecurityUtils {
   /**
    * Retorna el usuario logueado actualmente desde el contexto de Spring Security.
    */
-  public UsuarioDto obtenerUsuarioLogueado() {
+  public Usuario obtenerUsuarioLogueado() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     if (auth == null || !auth.isAuthenticated()) {
       throw new IllegalStateException("No hay usuario autenticado actualmente");

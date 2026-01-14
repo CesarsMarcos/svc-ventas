@@ -71,7 +71,7 @@ public class CompraServiceImpl implements ICompraService {
                     Constantes.MENSAJE_NOT_FOUND, "Sucursal", compra.getIdSucursal())));
 
     log.info("Obtiene usuario logueado :: ");
-    UsuarioDto usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
+    Usuario usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
 
     log.info("Valida montos ::");
     CompraMontosDto compraMontosDto = validarYCalcularMontos(compra);

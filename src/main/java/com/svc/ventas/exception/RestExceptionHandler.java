@@ -67,7 +67,7 @@ public class RestExceptionHandler {
 	}
 
 	@ExceptionHandler({ HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class })
-	public ResponseEntity<Map<String, Object>> handleEnumErrors(Exception ex) {
+		public ResponseEntity<Map<String, Object>> handleEnumErrors(Exception ex) {
 		return new ResponseEntity<>(Collections.singletonMap("mensaje", ex.getMessage()), HttpStatus.BAD_REQUEST);
 	}
 

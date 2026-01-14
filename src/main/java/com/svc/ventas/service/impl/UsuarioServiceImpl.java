@@ -124,9 +124,9 @@ public class UsuarioServiceImpl implements IUsuarioService {
 	}
 
 	@Override
-	public UsuarioDto getPorUserName(String username) {
+	public Usuario getPorUserName(String username) {
 		return usuarioRepo.findByUsuario(username)
-				.map(usuarioMapper::map)
+				//.map(usuarioMapper::map)
 				.orElseThrow(() ->
 						new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Usuario", username)));
 	}
