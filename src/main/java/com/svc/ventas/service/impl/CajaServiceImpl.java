@@ -47,19 +47,10 @@ public class CajaServiceImpl implements ICajaService {
   @Override
   public CajaDetalleDTO findByFechaAndUsuario() {
     Usuario currentUsuario = securityUtils.obtenerUsuarioLogueado();
-    Caja caja = cajaRepo.findByFechaAndUsuarioUsuario(AppUtils.obtenerFechaActual(), currentUsuario.getUsuario())
-            .orElse(Caja.builder()
-                    .usuario(currentUsuario)
-                    .estado(EstadoCaja.CERRADA)
-                    .montoApertura(BigDecimal.ZERO)
-                    .montoCierre(BigDecimal.ONE)
-                    .build());
+    return cajaRepo.findByFechaAndUsuarioUsuario(AppUtils.obtenerFechaActual(), currentUsuario.getUsuario())
+            .map(caja -> construirCajaAbiertaDTO(caja))
+            .orElseGet(this::construirCajaCerradaDTO);
 
-    Map<TipoPago, BigDecimal> totalesPorPago = inicializarTotalesPorPago();
-    Map<TipoMovimiento, BigDecimal> totalesPorMovimiento = inicializarTotalesPorMovimiento();
-
-    TotalesCaja totales = procesarMovimientos(caja, totalesPorPago, totalesPorMovimiento);
-    return cajaMapper.toModelDto(caja, totales);
   }
 
   @Override
@@ -236,4 +227,29 @@ public class CajaServiceImpl implements ICajaService {
             totalesPorMovimiento, saldo, montoInicialMasSaldo, totales, finales);
   }
 
+
+  private CajaDetalleDTO construirCajaAbiertaDTO (Caja caja){
+
+    Map<TipoPago, BigDecimal> totalesPorPago = inicializarTotalesPorPago();
+
+    Map<TipoMovimiento, BigDecimal> totalesPorMovimiento = inicializarTotalesPorMovimiento();
+
+    TotalesCaja totales = procesarMovimientos(caja, totalesPorPago, totalesPorMovimiento);
+
+    return CajaDetalleDTO.builder()
+            .IdCaja(caja.getIdCaja())
+            .estado(caja.getEstado())
+            .existeCajaActiva(true)
+            .dataCaja(cajaMapper.toModelDto(caja, totales))
+            .build();
+  }
+
+  private CajaDetalleDTO construirCajaCerradaDTO(){
+    return CajaDetalleDTO.builder()
+            .IdCaja(null)
+            .estado(EstadoCaja.CERRADA)
+            .existeCajaActiva(false)
+            .dataCaja(null)
+            .build();
+  }
 }

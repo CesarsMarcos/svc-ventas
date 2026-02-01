@@ -1,5 +1,6 @@
 package com.svc.ventas.models.mapstruct.dto;
 
+import com.svc.ventas.models.enums.OrigenMovimiento;
 import com.svc.ventas.models.enums.TipoMovimiento;
 import com.svc.ventas.models.enums.TipoPago;
 import jakarta.validation.constraints.Min;
@@ -19,6 +20,8 @@ public class CajaMovimientosDTO {
 
     @NotBlank
     private TipoMovimiento tipoMovimiento;
+
+    private OrigenMovimiento origen;
 
     private String documento;
 

@@ -7,6 +7,7 @@ import java.util.Map;
 import com.svc.ventas.message.request.VentaRequest;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.entity.Venta;
+import com.svc.ventas.models.mapstruct.dto.EnumDto;
 import com.svc.ventas.models.mapstruct.dto.VentaGetDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,4 +26,10 @@ public interface IVentaService {
 	List<Venta> listadoVentasPorCliente (String dni);
 	
 	Object details(Long id);
+
+	List<EnumDto> tipoPago();
+
+	List<EnumDto> tipoDocumento();
+
+	List<EnumDto> tipoDocumentoPersona();
 }

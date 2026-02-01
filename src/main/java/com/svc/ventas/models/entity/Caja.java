@@ -1,5 +1,6 @@
 package com.svc.ventas.models.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.svc.ventas.models.enums.EstadoCaja;
 import jakarta.persistence.*;
@@ -27,6 +28,10 @@ public class Caja implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "COD_USUARIO", foreignKey = @ForeignKey(name = "FK_CAJA_USUARIO"), nullable = false)
     private Usuario usuario;
+
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
+    @JoinColumn(name = "id_sucursal",foreignKey=@ForeignKey(name="fk_caja_sucursal"))
+    private Sucursal sucursal;
 
     @JsonManagedReference
     @OneToMany(mappedBy = "caja", cascade = CascadeType.ALL)

@@ -1,6 +1,7 @@
 package com.svc.ventas.controller.compras;
 
 import com.svc.ventas.message.request.CompraRequest;
+import com.svc.ventas.models.mapstruct.dto.EnumDto;
 import jakarta.validation.Valid;
 
 import org.springframework.data.domain.PageRequest;
@@ -12,6 +13,7 @@ import com.svc.ventas.service.ICompraService;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,5 +43,10 @@ public class CompraController {
   @GetMapping("{id}")
   public ResponseEntity<?> details(@PathVariable Long id) {
     return new ResponseEntity<>(compraService.details(id), HttpStatus.OK);
+  }
+
+  @GetMapping("tipoPagoCompras")
+  public ResponseEntity<List<EnumDto>> tipoPagoCompras() {
+    return ResponseEntity.ok(compraService.tipoPagoCompra());
   }
 }

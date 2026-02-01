@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.svc.ventas.message.request.ProductoRequest;
+import com.svc.ventas.message.response.ProductoSearchResponse;
 import jakarta.validation.Valid;
 import com.svc.ventas.models.mapstruct.dto.ProductoDTO;
 import com.svc.ventas.service.IProductoService;
@@ -53,7 +54,7 @@ public class ProductoController {
 	}
 
 	@GetMapping("search")
-	public ResponseEntity<?> searchProducto(
+	public ResponseEntity<?> searchProductsNameCategoryState(
 											@RequestParam(required = false) String nombre,
 											@RequestParam(required = false) Integer categoriaId,
 											@RequestParam(required = false) Boolean estado,
@@ -65,10 +66,16 @@ public class ProductoController {
 	}
 
 	@GetMapping("search-sales")
-	public ResponseEntity<?> searchProductSales(@RequestParam(required = false) String nombre,
+	public ResponseEntity<?> searchProductNameCode(@RequestParam(required = false) String termino,
 																					@RequestParam(defaultValue = "0") int page,
 																					@RequestParam(defaultValue = "5") int size){
-		Map<String, Object> response = articuloService.searchProductsSales(nombre, page, size);
+		Map<String, Object> response = articuloService.searchProductsSales(termino, page, size);
+		return ResponseEntity.ok(response);
+	}
+
+	@GetMapping("search-products")
+	public ResponseEntity<?> searchProducts(@RequestParam(required = false) String termino){
+		List<ProductoSearchResponse> response = articuloService.buscarPorNombreOCodigo(termino);
 		return ResponseEntity.ok(response);
 	}
 

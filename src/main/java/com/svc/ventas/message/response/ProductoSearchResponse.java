@@ -18,6 +18,8 @@ public class ProductoSearchResponse {
 	private String marca;
 
 	private String nombre;
+
+	private String imagen;
 	
 	private float precioVenta;
 	

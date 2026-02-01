@@ -5,10 +5,7 @@ import static com.svc.ventas.util.Constantes.IGV;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.svc.ventas.exception.BusinessException;
@@ -16,12 +13,9 @@ import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.exception.ValidationException;
 import com.svc.ventas.message.request.ProductoParaVender;
 import com.svc.ventas.message.request.VentaRequest;
-import com.svc.ventas.models.dao.ProductoRepo;
-import com.svc.ventas.models.dao.ProductoStockRepo;
+import com.svc.ventas.models.dao.*;
 import com.svc.ventas.models.entity.*;
-import com.svc.ventas.models.enums.EstadoVenta;
-import com.svc.ventas.models.enums.TipoMovimiento;
-import com.svc.ventas.models.enums.TipoPago;
+import com.svc.ventas.models.enums.*;
 import com.svc.ventas.models.mapstruct.dto.*;
 import com.svc.ventas.models.specifications.VentaSpecifications;
 import com.svc.ventas.util.AppUtils;
@@ -36,9 +30,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.svc.ventas.message.response.Response;
-import com.svc.ventas.models.dao.VentaRepo;
 import com.svc.ventas.util.Constantes;
-import com.svc.ventas.models.dao.ProductoVendidoRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,6 +57,8 @@ public class VentaServiceImpl implements IVentaService {
   private final VentaRepo ventaRepo;
 
   private final ProductoRepo productoRepo;
+
+  private final SerieRepository serieRepo;
 
   private final VentaMapper ventaMapper;
 
@@ -98,11 +92,13 @@ public class VentaServiceImpl implements IVentaService {
     Usuario usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
 
     log.info("Validar correlativo ::");
-    Serie serieBD = serieService.getByIdDocumentType(venta.getTipoDocumento());
-    int nextCorrelativo = serieBD.getCorrelativo() + 1;
+    Serie serieBD = serieRepo.findForUpdateBySucursalIdSucursalAndTipoDocumento
+            (usuarioLogueado.getEmpleado().getSucursal().getIdSucursal(), venta.getTipoDocumento())
+            .orElseThrow(() -> new EntityNotFoundException(
+                    String.format(Constantes.MENSAJE_NOT_FOUND, "Serie", venta.getTipoDocumento())));
 
-    String numeroDocumento = serieBD.getSerie() + "-" + String.format("%05d", nextCorrelativo);
-    log.info("Número de documento generado: {}", numeroDocumento);
+    int nextCorrelativo = serieBD.getCorrelativo() + 1 ;
+    log.info("Número de documento generado: {}", nextCorrelativo);
 
     log.info("Actualizar correlativo en series ::");
     serieBD.setCorrelativo(nextCorrelativo);
@@ -114,7 +110,7 @@ public class VentaServiceImpl implements IVentaService {
             .tipoDocumento(venta.getTipoDocumento())
             .tipoPago(TipoPago.valueOf(venta.getTipoPago()))
             .serie(serieBD.getSerie())
-            .correlativo(nextCorrelativo)
+            .correlativo(serieBD.getCorrelativo())
             .igv(ventaMontosDto.getIgv())
             .subTotal(ventaMontosDto.getSubTotal())
             .total(ventaMontosDto.getTotal())
@@ -162,12 +158,13 @@ public class VentaServiceImpl implements IVentaService {
     CajaMovimientosDTO mov = CajaMovimientosDTO
             .builder()
             .tipoMovimiento(TipoMovimiento.INGRESO)
-            .documento(numeroDocumento)
+            .documento(serieBD.getSerie().concat("-").concat(AppUtils.formatearSunat(nextCorrelativo)))
             .monto(ventaNew.getTotal())
             .tipoPago(TipoPago.EFECTIVO)
+            .origen(OrigenMovimiento.VENTA)
             .build();
     cajaService.agregarMovimiento(cajaDet.getIdCaja(), mov);
-    log.info("Venta registrada correctamente con número {}", numeroDocumento);
+    log.info("Venta registrada correctamente con número {}", serieBD.getCorrelativo());
 
     return Response
             .builder()
@@ -280,5 +277,36 @@ public class VentaServiceImpl implements IVentaService {
 
     return new VentaMontosDto(subtotalCalculado, igvCalculado, totalCalculado);
   }
+
+  @Override
+  public List<EnumDto> tipoPago() {
+    return Arrays.stream(TipoPago.values())
+            .map(tp ->  EnumDto.builder()
+                    .value(tp.getValue())
+                    .label(tp.getLabel())
+                    .build())
+            .toList();
+  }
+
+  @Override
+  public List<EnumDto> tipoDocumento() {
+    return Arrays.stream(TipoDocumento.values())
+            .map(td -> EnumDto.builder()
+                    .label(td.getLabel())
+                    .value(td.getValue())
+                    .build())
+            .toList();
+  }
+
+  @Override
+  public List<EnumDto> tipoDocumentoPersona() {
+    return Arrays.stream(TipoDocumentoPersona.values())
+            .map(td -> EnumDto.builder()
+                    .label(td.getLabel())
+                    .value(td.getValue())
+                    .build())
+            .toList();
+  }
+
 
 }

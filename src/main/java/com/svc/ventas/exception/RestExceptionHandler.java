@@ -7,6 +7,7 @@ import com.svc.ventas.util.Constantes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -58,11 +59,13 @@ public class RestExceptionHandler {
 
 	@ExceptionHandler(BusinessException.class)
 	public ResponseEntity<?> handleBusinessException(BusinessException ex) {
+		log.error("handleBusinessException:: {}", ex.getMessage());
 		return new ResponseEntity<>(Collections.singletonMap("mensaje", ex.getMessage()), HttpStatus.BAD_REQUEST);
 	}
 
 	@ExceptionHandler(ValidationException.class)
 	public ResponseEntity<?> handleValidationException(ValidationException ex) {
+		log.error("handleValidationException:: {}", ex.getMessage());
 		return new ResponseEntity<>(Collections.singletonMap("mensaje", ex.getMessage()), HttpStatus.BAD_REQUEST);
 	}
 
@@ -71,15 +74,15 @@ public class RestExceptionHandler {
 		return new ResponseEntity<>(Collections.singletonMap("mensaje", ex.getMessage()), HttpStatus.BAD_REQUEST);
 	}
 
-	@ExceptionHandler(Exception.class)
-	public final ResponseEntity<?> handleGeneralExceptions(Exception ex) {
-		log.error("Exception:: {}", ex.getMessage());
-		return new ResponseEntity<>(Collections.singletonMap("mensaje", Constantes.RESPONSE_ERROR_500), HttpStatus.INTERNAL_SERVER_ERROR);
+	@ExceptionHandler(DataIntegrityViolationException.class)
+	public ResponseEntity<?> handleDuplicateVenta(Exception ex) {
+		log.error("handleDuplicateVenta:: {}", ex.getMessage());
+		return new ResponseEntity<>(Collections.singletonMap("mensaje", "Ya se registró un documento con ese correlativo"), HttpStatus.CONFLICT);
 	}
 
-	@ExceptionHandler(RuntimeException.class)
-	public final ResponseEntity<?> handleRuntimeExceptions(RuntimeException ex) {
-		log.error("Exception:: {}", ex.getMessage());
+	@ExceptionHandler(Exception.class)
+	public final ResponseEntity<?> handleGeneralExceptions(Exception ex) {
+		log.error("handleGeneralExceptions:: {}", ex.getMessage());
 		return new ResponseEntity<>(Collections.singletonMap("mensaje", Constantes.RESPONSE_ERROR_500), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 

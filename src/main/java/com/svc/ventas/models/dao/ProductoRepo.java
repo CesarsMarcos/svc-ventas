@@ -19,13 +19,4 @@ public interface ProductoRepo extends CrudRepository<Producto, Long>, JpaSpecifi
 
 	List<Producto> findByNombreContaining(String nombre);
 
-	@Query("""
-					SELECT p FROM Producto p
-					WHERE LOWER(p.nombre) LIKE LOWER(CONCAT('%', :termino, '%'))
-					  OR LOWER(p.codigo) LIKE LOWER(CONCAT('%', :termino, '%'))
-					""")
-	Page<Producto> buscarPorNombreOCodigo(@Param("termino") String termino, Pageable pageable);
-
-
-
 }

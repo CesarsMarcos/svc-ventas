@@ -27,7 +27,19 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "tb_ventas")
+@Table(name = "tb_ventas",
+				uniqueConstraints = {
+								@UniqueConstraint(
+												name = "uk_venta_documento",
+												columnNames = {
+																"id_sucursal",
+																"tipo_documento",
+																"serie",
+																"correlativo"
+												}
+								)
+				}
+)
 public class Venta implements Serializable {
 
 	@Id

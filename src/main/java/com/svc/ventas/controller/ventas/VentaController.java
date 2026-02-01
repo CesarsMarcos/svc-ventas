@@ -1,6 +1,8 @@
 package com.svc.ventas.controller.ventas;
 
 import com.svc.ventas.message.request.VentaRequest;
+import com.svc.ventas.models.enums.TipoPago;
+import com.svc.ventas.models.mapstruct.dto.EnumDto;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +14,7 @@ import com.svc.ventas.service.IVentaService;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -48,6 +51,21 @@ public class VentaController {
   @GetMapping("cliente")
   public ResponseEntity<?> searchVentas(@RequestParam String dni/*, @RequestParam String fecha*/) {
     return ResponseEntity.ok(ventaService.listadoVentasPorCliente(dni/*,fecha*/));
+  }
+
+  @GetMapping("tipoPago")
+  public ResponseEntity<List<EnumDto>> tipoPagoEnums() {
+    return ResponseEntity.ok(ventaService.tipoPago());
+  }
+
+  @GetMapping("tipoDocumentoVenta")
+  public ResponseEntity<List<EnumDto>> tipoDocumentoEnums() {
+    return ResponseEntity.ok(ventaService.tipoDocumento());
+  }
+
+  @GetMapping("tipoDocumentoPersona")
+  public ResponseEntity<List<EnumDto>> tipoDocumentoPersonaEnums() {
+    return ResponseEntity.ok(ventaService.tipoDocumentoPersona());
   }
 
 }

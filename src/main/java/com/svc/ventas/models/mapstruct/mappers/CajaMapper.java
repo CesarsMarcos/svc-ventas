@@ -33,7 +33,7 @@ public interface CajaMapper {
     @Mapping(target = "movimiento.salidas", expression = "java(filtrarPorTipoMovimiento(caja.getMovimientos(), \"GASTOS\"))")
     @Mapping(target = "movimiento.prestamos", expression = "java(filtrarPorTipoMovimiento(caja.getMovimientos(), \"PRESTAMOS\"))")
     @Mapping(target = "totales", source = "totales")
-    CajaDetalleDTO toModelDto (Caja caja, TotalesCaja totales);
+    CajaDataDto toModelDto (Caja caja, TotalesCaja totales);
 
     @Mapping(target = "cajero", expression = "java(caja.getUsuario().getUsuario())")
     @Mapping(target = "fecApertura", source = "caja.fecha")

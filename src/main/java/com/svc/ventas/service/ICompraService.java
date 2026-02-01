@@ -3,6 +3,7 @@ package com.svc.ventas.service;
 import com.svc.ventas.message.request.CompraRequest;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.mapstruct.dto.CompraGetDto;
+import com.svc.ventas.models.mapstruct.dto.EnumDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,5 +21,7 @@ public interface ICompraService {
 																		LocalDate fin, Pageable pageable) ;
 
 	Object details (Long id);
+
+	List<EnumDto> tipoPagoCompra ();
 	
 }

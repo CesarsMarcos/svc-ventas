@@ -8,6 +8,8 @@ import com.svc.ventas.message.request.ProductoParaComprar;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.*;
 import com.svc.ventas.models.entity.*;
+import com.svc.ventas.models.enums.TipoPago;
+import com.svc.ventas.models.enums.TipoPagoCompra;
 import com.svc.ventas.models.mapstruct.dto.*;
 import com.svc.ventas.models.mapstruct.mappers.*;
 import com.svc.ventas.models.specifications.CompraSpecifications;
@@ -27,10 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -168,6 +167,16 @@ public class CompraServiceImpl implements ICompraService {
             .map(compraMapper::mapCompraToDetailDto)
             .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Compra", id)));
 
+  }
+
+  @Override
+  public List<EnumDto> tipoPagoCompra() {
+    return Arrays.stream(TipoPagoCompra.values())
+            .map(tpc-> EnumDto.builder()
+                      .value(tpc.getValue())
+                      .label(tpc.getLabel())
+                      .build())
+            .toList();
   }
 
   private CompraMontosDto validarYCalcularMontos(CompraRequest compra) {
