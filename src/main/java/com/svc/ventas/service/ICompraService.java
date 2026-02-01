@@ -3,17 +3,25 @@ package com.svc.ventas.service;
 import com.svc.ventas.message.request.CompraRequest;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.mapstruct.dto.CompraGetDto;
+import com.svc.ventas.models.mapstruct.dto.EnumDto;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface ICompraService {
 
 	@Transactional
 	Response registrar(CompraRequest compra);
 
-	List<CompraGetDto> listado(Boolean isViewMore);
+	Map<String, Object> searchCompras(String ruc, String proveedor,
+																		String documentoCompra, LocalDate inicio,
+																		LocalDate fin, Pageable pageable) ;
 
 	Object details (Long id);
+
+	List<EnumDto> tipoPagoCompra ();
 	
 }

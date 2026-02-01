@@ -5,32 +5,32 @@ import static com.svc.ventas.util.Constantes.IGV;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.svc.ventas.exception.BusinessException;
 import com.svc.ventas.exception.EntityNotFoundException;
+import com.svc.ventas.exception.ValidationException;
 import com.svc.ventas.message.request.ProductoParaVender;
 import com.svc.ventas.message.request.VentaRequest;
-import com.svc.ventas.models.dao.ProductoRepo;
-import com.svc.ventas.models.dao.ProductoStockRepo;
+import com.svc.ventas.models.dao.*;
 import com.svc.ventas.models.entity.*;
-import com.svc.ventas.models.enums.TipoMovimiento;
-import com.svc.ventas.models.enums.TipoPago;
+import com.svc.ventas.models.enums.*;
 import com.svc.ventas.models.mapstruct.dto.*;
+import com.svc.ventas.models.specifications.VentaSpecifications;
 import com.svc.ventas.util.AppUtils;
 import com.svc.ventas.util.SecurityUtils;
 import jakarta.transaction.Transactional;
 
 import com.svc.ventas.models.mapstruct.mappers.*;
 import com.svc.ventas.service.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.svc.ventas.message.response.Response;
-import com.svc.ventas.models.dao.VentaRepo;
 import com.svc.ventas.util.Constantes;
-import com.svc.ventas.models.dao.ProductoVendidoRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +57,8 @@ public class VentaServiceImpl implements IVentaService {
   private final VentaRepo ventaRepo;
 
   private final ProductoRepo productoRepo;
+
+  private final SerieRepository serieRepo;
 
   private final VentaMapper ventaMapper;
 
@@ -87,14 +89,16 @@ public class VentaServiceImpl implements IVentaService {
     SucursalDto sucursal = sucursalService.obtener(venta.getIdSucursal());
 
     log.info("Obtiene usuario logueado ::");
-    UsuarioDto usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
+    Usuario usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
 
     log.info("Validar correlativo ::");
-    Serie serieBD = serieService.getByIdDocumentType(venta.getTipoDocumento());
-    int nextCorrelativo = serieBD.getCorrelativo() + 1;
+    Serie serieBD = serieRepo.findForUpdateBySucursalIdSucursalAndTipoDocumento
+            (usuarioLogueado.getEmpleado().getSucursal().getIdSucursal(), venta.getTipoDocumento())
+            .orElseThrow(() -> new EntityNotFoundException(
+                    String.format(Constantes.MENSAJE_NOT_FOUND, "Serie", venta.getTipoDocumento())));
 
-    String numeroDocumento = serieBD.getSerie() + "-" + String.format("%05d", nextCorrelativo);
-    log.info("Número de documento generado: {}", numeroDocumento);
+    int nextCorrelativo = serieBD.getCorrelativo() + 1 ;
+    log.info("Número de documento generado: {}", nextCorrelativo);
 
     log.info("Actualizar correlativo en series ::");
     serieBD.setCorrelativo(nextCorrelativo);
@@ -106,12 +110,12 @@ public class VentaServiceImpl implements IVentaService {
             .tipoDocumento(venta.getTipoDocumento())
             .tipoPago(TipoPago.valueOf(venta.getTipoPago()))
             .serie(serieBD.getSerie())
-            .correlativo(nextCorrelativo)
+            .correlativo(serieBD.getCorrelativo())
             .igv(ventaMontosDto.getIgv())
             .subTotal(ventaMontosDto.getSubTotal())
             .total(ventaMontosDto.getTotal())
             .fecha(AppUtils.convert(venta.getFecha()))
-            .estado(Constantes.STATUS_CREADO)
+            .estado(EstadoVenta.CREADO)
             .createdBy(usuarioLogueado.getUsuario())
             .build();
 
@@ -154,12 +158,13 @@ public class VentaServiceImpl implements IVentaService {
     CajaMovimientosDTO mov = CajaMovimientosDTO
             .builder()
             .tipoMovimiento(TipoMovimiento.INGRESO)
-            .documento(numeroDocumento)
+            .documento(serieBD.getSerie().concat("-").concat(AppUtils.formatearSunat(nextCorrelativo)))
             .monto(ventaNew.getTotal())
             .tipoPago(TipoPago.EFECTIVO)
+            .origen(OrigenMovimiento.VENTA)
             .build();
     cajaService.agregarMovimiento(cajaDet.getIdCaja(), mov);
-    log.info("Venta registrada correctamente con número {}", numeroDocumento);
+    log.info("Venta registrada correctamente con número {}", serieBD.getCorrelativo());
 
     return Response
             .builder()
@@ -168,26 +173,42 @@ public class VentaServiceImpl implements IVentaService {
   }
 
   @Override
-  public List<VentaGetDto> listado(Boolean isViewMore) {
-    LocalDate dateToday = LocalDate.now();
-    LocalDate sevenDaysAgo = dateToday.minusWeeks(1);
+  public List<VentaGetDto> searchVenta(Boolean isViewMore) {
+    return List.of();
+  }
 
-    return ventaRepo.findAll().stream()
-            .filter(compra -> {
-              if (isViewMore) {
-                return compra.getFecha().isAfter(sevenDaysAgo.minusDays(1)) && compra.getFecha().isBefore(dateToday.plusDays(1));
-              } else {
-                return compra.getFecha().isEqual(dateToday);
-              }
-            })
+  @Override
+  public Map<String, Object> searchVenta(String nombre, String documentoCliente,
+                                       String documentoVenta, LocalDate inicio,
+                                       LocalDate fin,  Pageable pageable) {
+
+    Specification<Venta> spec =  Specification
+            .where(VentaSpecifications.hasClienteNombre(nombre))
+            .and(VentaSpecifications.hasClienteDNI(documentoCliente))
+            //.and(VentaSpecifications.hasDocumento(documentoVenta))
+            .and(VentaSpecifications.hasFechaBetween(inicio, fin));
+
+    Page<Venta> pageVenta = ventaRepo.findAll(spec, pageable);
+
+    List<VentaGetDto> ventaDto = pageVenta.getContent()
+            .stream()
             .map(ventaMapper::mapToVentaGetDto)
             .collect(Collectors.toList());
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("ventas", ventaDto);
+    response.put("currentPage", pageVenta.getNumber());
+    response.put("totalItems", pageVenta.getTotalElements());
+    response.put("totalPages", pageVenta.getTotalPages());
+
+    return response;
+
   }
 
   @Override
   public Object details(Long id) {
     return ventaRepo.findById(id)
-            .map(ventaMapper::mapToVentaGetDto)
+            .map(ventaMapper::mapToVentaDetailDto)
             .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Venta", id)));
   }
 
@@ -200,10 +221,6 @@ public class VentaServiceImpl implements IVentaService {
 
   }
 
-  /**
-   * Valida que los montos enviados por el cliente coincidan con los calculados
-   * y devuelve los valores correctos desde backend.
-   */
   private VentaMontosDto validarStockYCalcularMontos(VentaRequest venta) {
 
     BigDecimal subtotalCalculado = BigDecimal.ZERO;
@@ -223,7 +240,7 @@ public class VentaServiceImpl implements IVentaService {
                 ". Disponible: " + productoStock.getStock() + ", Solicitado: " + p.getCantidad());
       }
 
-      BigDecimal subtotalProducto = p.getPrecioVenta()
+      BigDecimal subtotalProducto = productoStock.getPrecioVenta()
               .multiply(BigDecimal.valueOf(p.getCantidad()));
 
       subtotalCalculado = subtotalCalculado.add(subtotalProducto);
@@ -240,19 +257,19 @@ public class VentaServiceImpl implements IVentaService {
     if (Objects.isNull(venta.getSubTotal()) ||
             venta.getSubTotal().setScale(2, RoundingMode.HALF_UP).compareTo(subtotalCalculado) != 0) {
       log.info("subtotal servidor: {}", subtotalCalculado);
-      throw new IllegalArgumentException("El subtotal no coincide con el cálculo del servidor.");
+      throw new ValidationException("El subtotal no coincide con el cálculo del servidor.");
     }
 
     if (Objects.isNull(venta.getIgv()) ||
             venta.getIgv().setScale(2, RoundingMode.HALF_UP).compareTo(igvCalculado) != 0) {
       log.info("IGV servidor: {}", igvCalculado);
-      throw new IllegalArgumentException("El IGV no coincide con el cálculo del servidor.");
+      throw new ValidationException("El IGV no coincide con el cálculo del servidor.");
     }
 
     if (Objects.isNull(venta.getTotal()) ||
             venta.getTotal().setScale(2, RoundingMode.HALF_UP).compareTo(totalCalculado) != 0) {
       log.info("total servidor: {}", totalCalculado);
-      throw new IllegalArgumentException("El total no coincide con el cálculo del servidor.");
+      throw new ValidationException("El total no coincide con el cálculo del servidor.");
     }
 
     log.info("Montos validados correctamente: Subtotal={}, IGV={}, Total={}",
@@ -260,5 +277,36 @@ public class VentaServiceImpl implements IVentaService {
 
     return new VentaMontosDto(subtotalCalculado, igvCalculado, totalCalculado);
   }
+
+  @Override
+  public List<EnumDto> tipoPago() {
+    return Arrays.stream(TipoPago.values())
+            .map(tp ->  EnumDto.builder()
+                    .value(tp.getValue())
+                    .label(tp.getLabel())
+                    .build())
+            .toList();
+  }
+
+  @Override
+  public List<EnumDto> tipoDocumento() {
+    return Arrays.stream(TipoDocumento.values())
+            .map(td -> EnumDto.builder()
+                    .label(td.getLabel())
+                    .value(td.getValue())
+                    .build())
+            .toList();
+  }
+
+  @Override
+  public List<EnumDto> tipoDocumentoPersona() {
+    return Arrays.stream(TipoDocumentoPersona.values())
+            .map(td -> EnumDto.builder()
+                    .label(td.getLabel())
+                    .value(td.getValue())
+                    .build())
+            .toList();
+  }
+
 
 }

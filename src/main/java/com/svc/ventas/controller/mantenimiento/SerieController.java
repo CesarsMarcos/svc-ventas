@@ -31,9 +31,9 @@ public class SerieController {
       return ResponseEntity.status(HttpStatus.CREATED).body(serieService.save(serie));
   }
 
-  @GetMapping("documentType")
-  public ResponseEntity<?> getByIdDocumentType (@RequestParam TipoDocumento tipoDocumento){
-    return ResponseEntity.ok(serieService.getByIdDocumentType(tipoDocumento));
+  @GetMapping("documentType/{idSucursal}")
+  public ResponseEntity<?> getByIdDocumentType (@PathVariable Long idSucursal, @RequestParam TipoDocumento tipoDocumento){
+    return ResponseEntity.ok(serieService.getByIdDocumentType(idSucursal, tipoDocumento));
   }
 
 }

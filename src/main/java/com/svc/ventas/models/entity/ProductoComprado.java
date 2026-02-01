@@ -33,11 +33,14 @@ public class ProductoComprado {
 	private String descripcion;
 
 	//precio de compra de producto
+	@Column(name = "precio_compra")
 	private BigDecimal precioCompra;
 
 	private Integer cantidad;
 
+	@Column(name = "cantidad_recibida")
 	private Integer cantidadRecibida;
 
+	@Column(name = "sub_total")
 	private BigDecimal subTotal;
 }

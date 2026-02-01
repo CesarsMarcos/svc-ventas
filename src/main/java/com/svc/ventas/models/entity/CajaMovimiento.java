@@ -1,6 +1,7 @@
 package com.svc.ventas.models.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.svc.ventas.models.enums.OrigenMovimiento;
 import com.svc.ventas.models.enums.TipoMovimiento;
 import com.svc.ventas.models.enums.TipoPago;
 import jakarta.persistence.*;
@@ -31,6 +32,9 @@ public class CajaMovimiento {
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_movimiento")
     private TipoMovimiento tipoMovimiento;
+
+    @Enumerated(EnumType.STRING)
+    private OrigenMovimiento origen;
 
     private String documento;
 

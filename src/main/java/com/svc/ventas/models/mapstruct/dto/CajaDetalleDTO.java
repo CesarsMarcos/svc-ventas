@@ -1,8 +1,9 @@
 package com.svc.ventas.models.mapstruct.dto;
+
+import com.svc.ventas.models.enums.EstadoCaja;
 import lombok.*;
 
-import java.math.BigDecimal;
-
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor
@@ -11,18 +12,12 @@ public class CajaDetalleDTO {
 
     private Long IdCaja;
 
-    private String usuario;
+    private Boolean existeCajaActiva;
 
-    private BigDecimal montoApertura;
+    private EstadoCaja estado;
 
-    private BigDecimal montoCierre;
+    private CajaDataDto dataCaja;
 
-    private String horaApertura;
 
-    private String horaCierre;
-
-    private String estado;
-
-    private CajaMovimientoDetalleDTO movimiento;
 
 }

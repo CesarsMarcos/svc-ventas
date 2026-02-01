@@ -12,7 +12,6 @@ import com.svc.ventas.models.mapstruct.dto.ProductoDTO;
 import com.svc.ventas.models.specifications.ProductStockSpecifications;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -26,7 +25,6 @@ import com.svc.ventas.service.IProductoService;
 import com.svc.ventas.util.Constantes;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.util.CollectionUtils;
 
 @Slf4j
 @Service
@@ -155,7 +153,7 @@ public class ProductoServiceImpl implements IProductoService {
 
 		Page<ProductoStock> pageProductos = productoStockRepo.findAll(spec, pageable);
 
-		List<ProductoDTO> listProducts = pageProductos.getContent()
+		List<ProductoSearchResponse> listProducts = pageProductos.getContent()
 						.stream()
 						.map(productoMapper::mapProductoStock)
 						.toList();
@@ -191,35 +189,18 @@ public class ProductoServiceImpl implements IProductoService {
 	}
 
 	@Override
-	public Page<ProductoSearchResponse> searchProductoPorNombre(String nombre, Pageable pageable) {
-		final Page<ProductoSearchResponse> contratoSearch;
-
-		List<ProductoSearchResponse> productos = productoRepo.findByNombreContaining(nombre)
-				.stream()
-				.map(productoMapper::mapToSearch)
-				.collect(Collectors.toList());
-
-		final int start = (int) pageable.getOffset();
-		final int end = Math.min((start + pageable.getPageSize()), productos.size());
-
-		if (!CollectionUtils.isEmpty(productos)) {
-			contratoSearch = new PageImpl<>(productos.subList(start, end), pageable, productos.size());
-		} else {
-			contratoSearch = new PageImpl<>(productos, pageable, 0);
+	public List<ProductoSearchResponse> buscarPorNombreOCodigo(String termino) {
+		if (termino == null || termino.isEmpty()) {
+			return List.of();
 		}
-		return contratoSearch;
+		return productoStockRepo.buscarPorNombreOCodigo(termino)
+						.stream().map(productoMapper::mapToSearch)
+						.collect(Collectors.toList());
 	}
 
 	public Page<ProductoSearchResponse> buscarPorNombreOCodigo(String termino, Pageable pageable) {
-		return productoRepo.buscarPorNombreOCodigo(termino, pageable)
+		return productoStockRepo.buscarPorNombreOCodigoPage(termino, pageable)
 						.map(productoMapper::mapToSearch);
-	}
-	@Override
-	public List<ProductoSearchResponse> listaParaCompra() {
-		return productoRepo.listaActivos()
-				.stream()
-				.map(productoMapper::mapToSearch)
-				.collect(Collectors.toList());
 	}
 
 }

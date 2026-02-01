@@ -33,15 +33,23 @@ public interface ProductoMapper {
 	ProductoDTO map(Producto producto);
 
 	@Mapping(target = "idProducto", source = "producto.idProducto")
-	@Mapping(target = "categoria.desCategoria", source = "producto.categoria.desCategoria")
-	@Mapping(target = "descripcion", source = "producto.descripcion")
+	@Mapping(target = "categoria", source = "producto.categoria.desCategoria")
+	@Mapping(target = "marca", source = "producto.marca.descripcion")
 	@Mapping(target = "nombre", source = "producto.nombre")
-	@Mapping(target = "precio", source = "producto.precio")
-	@Mapping(target = "indEstado", source = "producto.indEstado")
-	ProductoDTO mapProductoStock(ProductoStock producto);
+	@Mapping(target = "precioVenta", source = "producto.precioVenta")
+	@Mapping(target = "imagen", source = "producto.imagen")
+	@Mapping(target = "estado", source = "producto.indEstado")
+	ProductoSearchResponse mapProductoStock(ProductoStock producto);
 
 	ProductoDTO mapToGet (ProductoDTO productoGetDto);
 
-	ProductoSearchResponse mapToSearch(Producto producto);
+	@Mapping(target = "idProducto", source = "producto.idProducto")
+	@Mapping(target = "categoria", source = "producto.categoria.desCategoria")
+	@Mapping(target = "marca", source = "producto.marca.descripcion")
+	@Mapping(target = "precioVenta", source = "producto.precioVenta")
+	@Mapping(target = "nombre", source = "producto.nombre")
+	@Mapping(target = "imagen", source = "producto.imagen")
+	@Mapping(target = "estado", source = "producto.indEstado")
+	ProductoSearchResponse mapToSearch(ProductoStock producto);
 
 }

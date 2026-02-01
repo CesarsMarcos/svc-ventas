@@ -3,6 +3,7 @@ package com.svc.ventas.util;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+
 public final class AppUtils {
 
     public AppUtils() {
@@ -22,6 +23,17 @@ public final class AppUtils {
         LocalTime hora = LocalTime.now();
         DateTimeFormatter formatoHora = DateTimeFormatter.ofPattern("HH:mm:ss");
         return hora.format(formatoHora);
+    }
+
+    public static String formatear(Integer correlativo, int longitud) {
+        if (correlativo == null) {
+            throw new IllegalArgumentException("El correlativo no puede ser null");
+        }
+        return String.format("%0" + longitud + "d", correlativo);
+    }
+
+    public static String formatearSunat(Integer correlativo) {
+        return formatear(correlativo, 6);
     }
 
 }

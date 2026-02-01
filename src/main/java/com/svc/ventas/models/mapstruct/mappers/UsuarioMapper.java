@@ -27,6 +27,7 @@ public interface UsuarioMapper {
 
 
 
+
 	@Mapping(target = "clave", ignore = true)
 	UsuarioDto map (Usuario usuario);
 	

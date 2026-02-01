@@ -1,17 +1,16 @@
 package com.svc.ventas.models.mapstruct.dto;
 
-import com.svc.ventas.models.enums.TipoDocumento;
-import com.svc.ventas.models.enums.TipoPago;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import jakarta.validation.constraints.NotNull;
+import java.util.List;
 
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class VentaGetDto {
+public class VentaDetailDto {
 
 	private Long id;
 
@@ -19,11 +18,15 @@ public class VentaGetDto {
 
 	private String tipoPago;
 
-	private String documento;
+	private String tipoDocumento;
+
+	private String serieCorrelativo;
 
 	private String cliente;
 
 	private String estado;
+
+	private List<ProductoDetalleVentaDto> productos;
 
 	@NotNull
 	private float igv;

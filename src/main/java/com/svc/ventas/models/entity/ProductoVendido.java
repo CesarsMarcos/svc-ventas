@@ -51,4 +51,7 @@ public class ProductoVendido {
 
 	private BigDecimal precio;
 
+	@Column(name = "sub_total")
+	private BigDecimal subTotal;
+
 }

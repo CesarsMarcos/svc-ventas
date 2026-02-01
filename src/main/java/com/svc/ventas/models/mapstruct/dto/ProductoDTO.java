@@ -35,6 +35,8 @@ public class ProductoDTO {
 	@NotNull
 	private BigDecimal precioReferencial;
 
+	private BigDecimal precioVenta;
+
 	private Boolean indEstado;
 
 }

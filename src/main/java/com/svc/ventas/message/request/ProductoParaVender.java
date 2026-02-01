@@ -24,9 +24,9 @@ public class ProductoParaVender extends ProductoDTO {
 	public ProductoParaVender(Long idProducto,
 														@NotNull CategoriaDto categoria, @NotNull MarcaDto marca,
 														@NotNull UnidadMedidaDto unidadMedida, @NotBlank String descripcion,
-														@NotBlank String nombre, @NotBlank String imagen, @NotNull BigDecimal precio,
-														@NotNull Integer maxCantidad, @NotNull Integer minCantidad, Boolean indEstado) {
-		super(idProducto, categoria, marca, unidadMedida, descripcion, nombre, imagen, precio,indEstado);
+														@NotBlank String nombre, String imagen, @NotNull BigDecimal precioReferencial,
+														@NotNull BigDecimal precioVenta, Boolean indEstado) {
+		super(idProducto, categoria, marca, unidadMedida, descripcion, nombre, imagen, precioReferencial,precioVenta, indEstado);
   }
 
 	public BigDecimal getTotal() {

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.svc.ventas.message.request.UsuarioCreateRequest;
 import com.svc.ventas.message.response.Response;
+import com.svc.ventas.models.entity.Usuario;
 import com.svc.ventas.models.mapstruct.dto.UsuarioDto;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,6 @@ public interface IUsuarioService {
 
 	UserDetailsService userDetailsService();
 
-	UsuarioDto getPorUserName(String username);
+	Usuario getPorUserName(String username);
 
 }
