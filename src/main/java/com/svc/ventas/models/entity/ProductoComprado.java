@@ -32,7 +32,6 @@ public class ProductoComprado {
 
 	private String descripcion;
 
-	//precio de compra de producto
 	@Column(name = "precio_compra")
 	private BigDecimal precioCompra;
 

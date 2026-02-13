@@ -1,10 +1,13 @@
 package com.svc.ventas.service.impl;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.svc.ventas.exception.BusinessException;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.mapstruct.dto.ProveedorSelectedDto;
+import com.svc.ventas.service.IServicioExterno;
 import org.springframework.stereotype.Service;
 
 import com.svc.ventas.exception.EntityNotFoundException;
@@ -24,6 +27,8 @@ public class ProveedorServiceImpl implements IProveedorService {
 	private final  ProveedorRepo proveedorRepo;
 	
 	private final ProveedorMapper proveedorMapper;
+
+	private final IServicioExterno iServicioExterno;
 
 	@Override
 	public List<ProveedorDto> proveedores() {
@@ -63,6 +68,36 @@ public class ProveedorServiceImpl implements IProveedorService {
                 .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Proveedor", id)));
 		proveedorSave.setIndEstado(Constantes.IND_ACTIVO);
 		proveedorRepo.save(proveedorSave);
+	}
+
+	@Override
+	public Object searchProveedor(String tipoDocuento, String numDocumento) {
+		validarLongtudDocumento(tipoDocuento, numDocumento);
+		if("DNI".equalsIgnoreCase(tipoDocuento)) {
+			return iServicioExterno.getInfoReniec(numDocumento);
+		} else {
+			return iServicioExterno.getInfoSunat(numDocumento);
+		}
+	}
+
+	private void validarLongtudDocumento(String tipoDocumento, String numDocumento) {
+		int longitud = numDocumento.trim().length();
+		if (Objects.isNull(numDocumento) || numDocumento.isBlank()) {
+			throw new BusinessException("El número de documento es obligatorio");
+		}
+		switch (tipoDocumento.toUpperCase()) {
+			case "DNI" -> {
+				if (longitud != 8) {
+					throw new BusinessException("El DNI debe tener 8 dígitos");
+				}
+			}
+			case "RUC" -> {
+				if (longitud != 11) {
+					throw new BusinessException("El RUC debe tener 11 dígitos");
+				}
+			}
+			default -> throw new BusinessException("Tipo de documento no válido");
+		}
 	}
 
 }

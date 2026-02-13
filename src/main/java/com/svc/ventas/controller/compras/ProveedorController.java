@@ -46,7 +46,12 @@ public class ProveedorController {
 	public ResponseEntity<?> eliminar(@PathVariable Long id) {
 		proveedorService.eliminar(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
 
+	@GetMapping("search")
+	public ResponseEntity<?> search (@RequestParam String tipoDocumento,
+																	 	@RequestParam String numDocumento){
+		return ResponseEntity.ok(proveedorService.searchProveedor(tipoDocumento, numDocumento));
 	}
 
 }

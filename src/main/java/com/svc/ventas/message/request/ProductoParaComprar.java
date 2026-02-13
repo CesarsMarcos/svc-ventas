@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import jakarta.validation.constraints.*;
+
 import java.math.BigDecimal;
 
 @Setter
@@ -24,11 +25,13 @@ public class ProductoParaComprar extends ProductoDTO {
 
   private BigDecimal precioCompra;
 
+  private BigDecimal subTotal;
+
   public ProductoParaComprar(Long idProducto,
                              @NotNull CategoriaDto categoria, @NotNull MarcaDto marca,
                              @NotNull UnidadMedidaDto unidadMedida, @NotBlank String descripcion,
                              @NotBlank String nombre, String imagen, @NotNull BigDecimal precioReferencial,
                              @NotNull BigDecimal precioVenta, Boolean indEstado) {
-    super(idProducto, categoria, marca, unidadMedida, descripcion, nombre, imagen, precioReferencial,precioVenta, indEstado);
+    super(idProducto, categoria, marca, unidadMedida, descripcion, nombre, imagen, precioReferencial, precioVenta, indEstado);
   }
 }

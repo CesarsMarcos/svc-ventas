@@ -22,5 +22,7 @@ public interface IProveedorService {
 	ProveedorDto obtener(Long codigo);
 	
 	void eliminar(Long codigo);
+
+	Object searchProveedor(String tipoDocuento, String numDocumento);
 	
 }
