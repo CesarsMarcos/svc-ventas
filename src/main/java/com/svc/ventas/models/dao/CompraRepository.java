@@ -6,4 +6,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface CompraRepository extends JpaRepository<Compra, Long>,
         JpaSpecificationExecutor<Compra> {
+
+  Boolean existsBySerieAndCorrelativoAndSucursalIdSucursal(String serie, String correlativo, Long idSucursal);
+
 }

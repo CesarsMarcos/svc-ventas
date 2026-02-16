@@ -6,6 +6,7 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
 
+import javax.swing.*;
 import java.time.LocalDate;
 
 public class CompraSpecifications {
@@ -34,7 +35,16 @@ public class CompraSpecifications {
   }
 
   public static Specification<Compra> hasDocumento(String documento) {
-    return (root, query, cb) -> cb.equal(root.get("numDocumento"), documento);
+    return (root, query, cb) -> {
+      if (documento == null) {
+        return cb.conjunction();
+      }
+      Expression<String> serie  = root.get("serie");
+      Expression<String> correlativo = root.get("correlativo");
+      Expression<String> serieCorrelativo = cb.concat(serie,  cb.concat("-",  correlativo));
+      return cb.like(cb.lower(serieCorrelativo), "%" + documento.toLowerCase() + "%"
+      );
+    };
   }
 
   public static Specification<Compra> hasFechaBetween(LocalDate inicio, LocalDate fin) {
