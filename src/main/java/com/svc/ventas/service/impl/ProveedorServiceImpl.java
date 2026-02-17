@@ -1,13 +1,22 @@
 package com.svc.ventas.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.svc.ventas.exception.BusinessException;
 import com.svc.ventas.message.response.Response;
+import com.svc.ventas.models.entity.ProductoStock;
 import com.svc.ventas.models.mapstruct.dto.ProveedorSelectedDto;
+import com.svc.ventas.models.specifications.ProductStockSpecifications;
+import com.svc.ventas.models.specifications.ProveedorSpecifications;
 import com.svc.ventas.service.IServicioExterno;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.svc.ventas.exception.EntityNotFoundException;
@@ -31,9 +40,36 @@ public class ProveedorServiceImpl implements IProveedorService {
 	private final IServicioExterno iServicioExterno;
 
 	@Override
+	public Map<String, Object> searchProveedor(String razonSocial, Pageable pageable) {
+
+		Specification<Proveedor> spec =  Specification.where(null);
+
+		if(Objects.nonNull(razonSocial) && !razonSocial.isEmpty()) {
+			spec = spec.and(ProveedorSpecifications.hasRazonSocial(razonSocial));
+		}
+
+		Page<Proveedor> proveedorPage = proveedorRepo.findAll(spec, pageable);
+
+		List<ProveedorDto> proveedoresDto = proveedorPage.getContent()
+						.stream()
+						.map(proveedorMapper::mapToProveedorDto)
+						.collect(Collectors.toList());
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("proveedores", proveedoresDto);
+		response.put("currentPage", proveedorPage.getNumber());
+		response.put("totalItems", proveedorPage.getTotalElements());
+		response.put("totalPages", proveedorPage.getTotalPages());
+
+		return response;
+	}
+
+	@Override
 	public List<ProveedorDto> proveedores() {
 		return proveedorRepo.findAll()
-						.stream().map(proveedorMapper::mapToProveedorDto).collect(Collectors.toList());
+						.stream()
+						.map(proveedorMapper::mapToProveedorDto)
+						.collect(Collectors.toList());
 	}
 
 	public List<ProveedorSelectedDto> proveedoresListSelected() {
