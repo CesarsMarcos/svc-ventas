@@ -1,4 +1,4 @@
-package com.svc.ventas.controller.almacen;
+package com.svc.ventas.controller.mantenimiento;
 
 import java.util.List;
 import java.util.Map;
@@ -23,7 +23,7 @@ public class ProductoController {
 	private final IProductoService articuloService;
 
 	@GetMapping
-	public ResponseEntity<?> articulos() {
+	public ResponseEntity<List<ProductoDTO>> articulos() {
 		List<ProductoDTO> productos = articuloService.lista();
 		if(productos.isEmpty()){
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -40,12 +40,16 @@ public class ProductoController {
 	@PutMapping("{id}")
 	public ResponseEntity<?> modificar(@PathVariable Long id, @Valid @RequestBody ProductoRequest producto) {
 		return new ResponseEntity<>( articuloService.modificar(id, producto), HttpStatus.OK);
-
 	}
 
 	@GetMapping("{id}")
 	public ResponseEntity<?> obtener(@PathVariable Long id) {
 		return new ResponseEntity<>(articuloService.obtener(id), HttpStatus.OK);
+	}
+
+	@GetMapping("details/{id}")
+	public ResponseEntity<?> details(@PathVariable Long id) {
+		return new ResponseEntity<>(articuloService.details(id), HttpStatus.OK);
 	}
 
 	@DeleteMapping("{id}")
@@ -54,19 +58,18 @@ public class ProductoController {
 	}
 
 	@GetMapping("search")
-	public ResponseEntity<?> searchProductsNameCategoryState(
+	public ResponseEntity<Map<String, Object>> searchProductsNameCategoryState(
 											@RequestParam(required = false) String nombre,
 											@RequestParam(required = false) Integer categoriaId,
 											@RequestParam(required = false) Boolean estado,
 											@RequestParam(defaultValue = "0") int page,
 											@RequestParam(defaultValue = "10") int size){
-		log.info("searchProducto parametros:  nombre {} catergoriaId {} estado {} que se recibe ", nombre, categoriaId, estado);
 		Map<String, Object> response = articuloService.searchProductos(nombre, categoriaId, estado, page, size);
 		return ResponseEntity.ok(response);
 	}
 
 	@GetMapping("search-sales")
-	public ResponseEntity<?> searchProductNameCode(@RequestParam(required = false) String termino,
+	public ResponseEntity<Map<String, Object>> searchProductNameCode(@RequestParam(required = false) String termino,
 																					@RequestParam(defaultValue = "0") int page,
 																					@RequestParam(defaultValue = "5") int size){
 		Map<String, Object> response = articuloService.searchProductsSales(termino, page, size);
@@ -74,9 +77,15 @@ public class ProductoController {
 	}
 
 	@GetMapping("search-products")
-	public ResponseEntity<?> searchProducts(@RequestParam(required = false) String termino){
+	public ResponseEntity<List<ProductoSearchResponse>> searchProducts(@RequestParam(required = false) String termino){
 		List<ProductoSearchResponse> response = articuloService.buscarPorNombreOCodigo(termino);
 		return ResponseEntity.ok(response);
+	}
+
+	@PutMapping("{idProducto}/update-estado")
+	public ResponseEntity<Void> updateEstado (@PathVariable Long idProducto){
+		articuloService.updateEstado(idProducto);
+		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 
 }

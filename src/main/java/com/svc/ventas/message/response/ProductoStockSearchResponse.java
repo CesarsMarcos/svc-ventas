@@ -5,11 +5,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
-public class ProductoSearchResponse {
+public class ProductoStockSearchResponse {
 
 	private Integer idProducto;
 
@@ -19,11 +21,18 @@ public class ProductoSearchResponse {
 
 	private String marca;
 
+	private String sucursal;
+
 	private String nombre;
 
-	private String imagen;
-	
-	private float precioBase;
+	private float stock;
 
-	private Boolean estado;
+	private Integer maxCantidad;
+
+	private Integer minCantidad;
+
+	private BigDecimal precioDescuento;
+
+	private BigDecimal precioVenta;
+
 }

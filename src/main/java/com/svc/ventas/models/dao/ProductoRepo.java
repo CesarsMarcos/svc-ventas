@@ -2,21 +2,25 @@ package com.svc.ventas.models.dao;
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.svc.ventas.models.entity.ProductoStock;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-
 import com.svc.ventas.models.entity.Producto;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
 
-public interface ProductoRepo extends CrudRepository<Producto, Long>, JpaSpecificationExecutor<Producto> {
+public interface ProductoRepo extends CrudRepository<Producto, Long>,
+				JpaSpecificationExecutor<Producto> {
 
 	@Query("SELECT a FROM Producto a WHERE a.indEstado = true")
-	public List<Producto> listaActivos();
+	List<Producto> listaActivos();
 
 	List<Producto> findByNombreContaining(String nombre);
+
+	@Query("""
+          SELECT ps FROM ProductoStock ps
+          WHERE ps.producto.codigo = :termino
+             OR LOWER(ps.producto.nombre) LIKE LOWER(CONCAT('%', :termino, '%'))
+          """)
+	List<ProductoStock> buscarPorNombreOCodigo(String termino);
 
 }

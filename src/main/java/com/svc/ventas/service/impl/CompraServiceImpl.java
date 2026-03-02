@@ -59,6 +59,12 @@ public class CompraServiceImpl implements ICompraService {
 
     log.info("Iniciando registro de compra...");
 
+    log.info("Valida montos ::");
+    CompraMontosDto compraMontosDto = validarYCalcularMontos(compra);
+
+    log.info("Valida si ya se registro documento ::");
+    valiaRegistroDocumento(compra);
+
     log.info("Busca proveedor :: ");
     Proveedor proveedorBD = proveedorRepo.findById(compra.getIdProveedor())
             .orElseThrow(() -> new EntityNotFoundException(String.format(
@@ -71,12 +77,6 @@ public class CompraServiceImpl implements ICompraService {
 
     log.info("Obtiene usuario logueado :: ");
     Usuario usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
-
-    log.info("Valida montos ::");
-    CompraMontosDto compraMontosDto = validarYCalcularMontos(compra);
-
-    log.info("Valida si ya se registro documento ::");
-    valiaRegistroDocumento(compra);
 
     log.info("Registra los datos del comprobante :: ");
 
@@ -175,10 +175,10 @@ public class CompraServiceImpl implements ICompraService {
   @Override
   public List<EnumDto> tipoPagoCompra() {
     return Arrays.stream(TipoPagoCompra.values())
-            .map(tpc-> EnumDto.builder()
-                      .value(tpc.getValue())
-                      .label(tpc.getLabel())
-                      .build())
+            .map(tpc -> EnumDto.builder()
+                    .value(tpc.getValue())
+                    .label(tpc.getLabel())
+                    .build())
             .toList();
   }
 

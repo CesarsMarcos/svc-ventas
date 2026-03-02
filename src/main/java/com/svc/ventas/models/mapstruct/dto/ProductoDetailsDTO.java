@@ -1,10 +1,8 @@
 package com.svc.ventas.models.mapstruct.dto;
 
-import lombok.*;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.bouncycastle.pqc.legacy.math.linearalgebra.BigEndianConversions;
+import lombok.*;
 
 import java.math.BigDecimal;
 
@@ -13,18 +11,20 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductoDTO {
+public class ProductoDetailsDTO {
 
 	private Long idProducto;
 
+	private String codigo;
+	
 	@NotNull
-	private CategoriaDto categoria;
+	private String categoria;
 
 	@NotNull
-	private MarcaDto marca;
+	private String marca;
 
 	@NotNull
-	private UnidadMedidaDto unidadMedida;
+	private String unidadMedida;
 
 	@NotBlank
 	private String descripcion;
@@ -35,9 +35,7 @@ public class ProductoDTO {
 	private String imagen;
 
 	@NotNull
-	private BigDecimal precioReferencial;
-
-	private BigDecimal precioVenta;
+	private BigDecimal precioBase;
 
 	private Boolean estado;
 
