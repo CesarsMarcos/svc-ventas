@@ -13,7 +13,8 @@ public interface ProveedorMapper {
 	@Mapping(target = "idProveedor", ignore = true)
 	@Mapping(target = "indEstado", constant = "true")
 	Proveedor mapToProveedor (ProveedorDto proveedorDto);
-	
+
+	@Mapping(source = "indEstado", target = "estado")
 	ProveedorDto mapToProveedorDto (Proveedor proveedor);
 
 	@Mapping(source = "idProveedor", target = "idProveedor")

@@ -1,39 +1,24 @@
 version: "3.9"
+
 services:
-  mysql8:
-    container_name: mysql8
-    image: mysql:8
-    ports:
-      - "3307:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABSE: bd_ventas
-    volumes:
-      - data-mysql:/var/lib/mysql
-    restart: always
-    networks:
-      - spring
-      
   svc-ventas:
+    image: eclipse-temurin:17-jre
     container_name: svc-ventas
-    #image: ventas
-    build:
-      context: ./
-      dockerfile: ./Dockerfile
-    ports:
-      - "8081:8089"
-    #env_file: .env
-    networks:
-      - spring
-    depends_on:
-      - mysql8
     restart: always
+    working_dir: /opt/app
+    volumes:
+      - ./svc-ventas.jar:/opt/app/svc-ventas.jar
+      - ./config:/config
+    env_file:
+      - .env
+    ports:
+      - "8085:8085"
+    command: >
+      java -jar svc-ventas.jar
+      --spring.config.location=file:/config/
+    networks:
+      - app-net
 
 networks:
-  spring:
-    name: spring
-volumes:
-  data-mysql:
-    name: data-mysql
-  
-  
+  app-net:
+    driver: bridge

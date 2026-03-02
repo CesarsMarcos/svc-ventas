@@ -9,7 +9,10 @@ import com.svc.ventas.message.request.ProductoRequest;
 import com.svc.ventas.models.dao.*;
 import com.svc.ventas.models.entity.*;
 import com.svc.ventas.models.mapstruct.dto.ProductoDTO;
-import com.svc.ventas.models.specifications.ProductStockSpecifications;
+import com.svc.ventas.models.mapstruct.dto.ProductoDetailsDTO;
+import com.svc.ventas.models.mapstruct.mappers.ProductoStockMapper;
+import com.svc.ventas.models.specifications.ProductSpecifications;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,6 +39,8 @@ public class ProductoServiceImpl implements IProductoService {
 	private final ProductoStockRepo productoStockRepo;
 
 	private final ProductoMapper productoMapper;
+
+	private final ProductoStockMapper productoStockMapper;
 
 	private final MarcaRepo marcaRepo;
 
@@ -118,7 +123,14 @@ public class ProductoServiceImpl implements IProductoService {
 	@Override
 	public ProductoDTO obtener(Long id) {
 		return productoRepo.findById(id)
-				.map(productoMapper::map)
+						.map(productoMapper::map)
+						.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Producto", id)));
+	}
+
+	@Override
+	public ProductoDetailsDTO details(Long id) {
+		return productoRepo.findById(id)
+				.map(productoMapper::mapDetails)
 				.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Producto", id)));
 	}
 
@@ -135,27 +147,26 @@ public class ProductoServiceImpl implements IProductoService {
 	public Map<String, Object> searchProductos(String nombre, Integer categoriaId,
 																						 Boolean estado, int page, int size) {
 
-		Specification<ProductoStock> spec =  Specification.where(null);
-
+		Specification<Producto> spec = Specification.where(null);
 		if(Objects.nonNull(nombre) && !nombre.isEmpty()) {
-			spec = spec.and(ProductStockSpecifications.hasName(nombre));
+			spec = spec.and(ProductSpecifications.hasName(nombre));
 		}
 
 		if(Objects.nonNull(categoriaId)){
-			spec = spec.and(ProductStockSpecifications.hasCategory(categoriaId));
+			spec = spec.and(ProductSpecifications.hasCategory(categoriaId));
 		}
 
 		if(Objects.nonNull(estado)){
-			spec = spec.and(ProductStockSpecifications.hasStatus(estado));
+			spec = spec.and(ProductSpecifications.hasStatus(estado));
 		}
 
 		Pageable pageable = PageRequest.of(page, size);
 
-		Page<ProductoStock> pageProductos = productoStockRepo.findAll(spec, pageable);
+		Page<Producto> pageProductos = productoRepo.findAll(spec, pageable);
 
 		List<ProductoSearchResponse> listProducts = pageProductos.getContent()
 						.stream()
-						.map(productoMapper::mapProductoStock)
+						.map(productoMapper::mapProductoSearch)
 						.toList();
 
 		return Map.of(
@@ -186,6 +197,17 @@ public class ProductoServiceImpl implements IProductoService {
 						"totalPages", pageProductos.getTotalPages(),
 						"empty", pageProductos.isEmpty()
 		);
+	}
+
+	@Override
+	public void updateEstado(Long idProducto) {
+		productoRepo.findById(idProducto)
+						.map(p -> {
+							Boolean estado = !p.getIndEstado();
+							p.setIndEstado(estado);
+							return productoRepo.save(p);
+						}).orElseThrow(() -> new EntityNotFoundException
+										(String.format(Constantes.MENSAJE_NOT_FOUND, "Producto", idProducto)));
 	}
 
 	@Override

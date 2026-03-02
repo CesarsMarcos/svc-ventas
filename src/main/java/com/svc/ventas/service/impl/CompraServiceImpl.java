@@ -2,13 +2,13 @@ package com.svc.ventas.service.impl;
 
 import static com.svc.ventas.util.Constantes.IGV;
 
+import com.svc.ventas.exception.BusinessException;
 import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.request.CompraRequest;
 import com.svc.ventas.message.request.ProductoParaComprar;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.*;
 import com.svc.ventas.models.entity.*;
-import com.svc.ventas.models.enums.TipoPago;
 import com.svc.ventas.models.enums.TipoPagoCompra;
 import com.svc.ventas.models.mapstruct.dto.*;
 import com.svc.ventas.models.mapstruct.mappers.*;
@@ -59,6 +59,12 @@ public class CompraServiceImpl implements ICompraService {
 
     log.info("Iniciando registro de compra...");
 
+    log.info("Valida montos ::");
+    CompraMontosDto compraMontosDto = validarYCalcularMontos(compra);
+
+    log.info("Valida si ya se registro documento ::");
+    valiaRegistroDocumento(compra);
+
     log.info("Busca proveedor :: ");
     Proveedor proveedorBD = proveedorRepo.findById(compra.getIdProveedor())
             .orElseThrow(() -> new EntityNotFoundException(String.format(
@@ -71,9 +77,6 @@ public class CompraServiceImpl implements ICompraService {
 
     log.info("Obtiene usuario logueado :: ");
     Usuario usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
-
-    log.info("Valida montos ::");
-    CompraMontosDto compraMontosDto = validarYCalcularMontos(compra);
 
     log.info("Registra los datos del comprobante :: ");
 
@@ -143,7 +146,7 @@ public class CompraServiceImpl implements ICompraService {
     Specification<Compra> spec = Specification
             .where(CompraSpecifications.hasRUC(ruc))
             .and(CompraSpecifications.hasProveedor(proveedor))
-            //.and(CompraSpecifications.hasDocumento(documentoCompra))
+            .and(CompraSpecifications.hasDocumento(documentoCompra))
             .and(CompraSpecifications.hasFechaBetween(inicio, fin));
 
     Page<Compra> pageCompra = compraRepo.findAll(spec, pageable);
@@ -172,10 +175,10 @@ public class CompraServiceImpl implements ICompraService {
   @Override
   public List<EnumDto> tipoPagoCompra() {
     return Arrays.stream(TipoPagoCompra.values())
-            .map(tpc-> EnumDto.builder()
-                      .value(tpc.getValue())
-                      .label(tpc.getLabel())
-                      .build())
+            .map(tpc -> EnumDto.builder()
+                    .value(tpc.getValue())
+                    .label(tpc.getLabel())
+                    .build())
             .toList();
   }
 
@@ -227,4 +230,9 @@ public class CompraServiceImpl implements ICompraService {
     return new CompraMontosDto(subtotalCalculado, igvCalculado, totalCalculado);
   }
 
+  private void valiaRegistroDocumento(CompraRequest compra){
+    if(compraRepo.existsBySerieAndCorrelativoAndSucursalIdSucursal(compra.getSerie(), compra.getCorrelativo(), compra.getIdSucursal())){
+      throw new BusinessException("El numero de serie y documento ya fue registrado");
+    }
+  }
 }

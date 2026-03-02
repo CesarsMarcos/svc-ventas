@@ -41,6 +41,10 @@ public class Proveedor implements Serializable {
 
 	@Column(name = "telefono_contacto")
 	private String telefonoContacto;
+
+	private String banco;
+
+	private String nroCuenta;
 	
 	@Column(name = "ind_estado")
 	private Boolean indEstado;

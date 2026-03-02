@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,13 +26,13 @@ public class CompraController {
   @GetMapping("searchCompras")
   public ResponseEntity<?> searchCompras(@RequestParam(required = false) String ruc,
 																				 @RequestParam(required = false) String proveedor,
-                                         @RequestParam(required = false) String documentoCompra,
+                                         @RequestParam(required = false) String documento,
                                          @RequestParam(required = false) LocalDate inicio,
                                          @RequestParam(required = false) LocalDate fin,
                                          @RequestParam(defaultValue = "0") int page,
                                          @RequestParam(defaultValue = "15") int size) {
-    Pageable pageable = PageRequest.of(page, size);
-    return new ResponseEntity<>(compraService.searchCompras(ruc, proveedor, documentoCompra, inicio,
+    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "idCompra"));
+    return new ResponseEntity<>(compraService.searchCompras(ruc, proveedor, documento, inicio,
             fin, pageable), HttpStatus.OK);
   }
 

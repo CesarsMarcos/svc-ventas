@@ -38,4 +38,10 @@ public class ProveedorDto {
 	@NotBlank
 	private String telefonoContacto;
 
+	private String banco;
+
+	private String nroCuenta;
+
+	private Boolean estado;
+
 }
