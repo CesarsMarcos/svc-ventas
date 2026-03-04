@@ -5,6 +5,13 @@ import org.springframework.data.jpa.domain.Specification;
 
 public class ProductStockSpecifications {
 
+  public static Specification<ProductoStock> hasCodigo(String codigo) {
+    return (root, query, criteriaBuilder) ->
+            criteriaBuilder.or(
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("producto").get("codigo")),"%" + codigo.toLowerCase() + "%"),
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("producto").get("codigo")), "%" + codigo.toLowerCase() + "%"));
+  }
+
   public static Specification<ProductoStock> hasName(String name) {
     return (root, query, criteriaBuilder) ->
             criteriaBuilder.or(

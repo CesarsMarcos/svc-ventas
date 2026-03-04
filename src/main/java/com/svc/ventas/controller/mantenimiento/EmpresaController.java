@@ -15,13 +15,19 @@ public class EmpresaController {
   private final IEmpresaService empresaService;
 
   @GetMapping
-  public ResponseEntity listar(){
+  public ResponseEntity<?> listar(){
     return ResponseEntity.ok(empresaService.listar());
   }
 
   @PostMapping
-  public ResponseEntity guardar(@RequestBody EmpresaDto empresa){
+  public ResponseEntity<?> guardar(@RequestBody EmpresaDto empresa){
       return ResponseEntity.status(HttpStatus.CREATED).body(empresaService.guardar(empresa));
+  }
+
+  @GetMapping("{id}")
+  public ResponseEntity<EmpresaDto> obtener(@PathVariable Integer id) {
+    EmpresaDto empresaDto = empresaService.obtener(id);
+    return new ResponseEntity<>(empresaDto, HttpStatus.OK);
   }
 
 }

@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.svc.ventas.message.request.ProductoRequest;
+import com.svc.ventas.message.response.ProductoSearchParaVenderResponse;
 import com.svc.ventas.models.dao.*;
 import com.svc.ventas.models.entity.*;
 import com.svc.ventas.models.mapstruct.dto.ProductoDTO;
@@ -208,16 +209,6 @@ public class ProductoServiceImpl implements IProductoService {
 							return productoRepo.save(p);
 						}).orElseThrow(() -> new EntityNotFoundException
 										(String.format(Constantes.MENSAJE_NOT_FOUND, "Producto", idProducto)));
-	}
-
-	@Override
-	public List<ProductoSearchResponse> buscarPorNombreOCodigo(String termino) {
-		if (termino == null || termino.isEmpty()) {
-			return List.of();
-		}
-		return productoStockRepo.buscarPorNombreOCodigo(termino)
-						.stream().map(productoMapper::mapToSearch)
-						.collect(Collectors.toList());
 	}
 
 	public Page<ProductoSearchResponse> buscarPorNombreOCodigo(String termino, Pageable pageable) {

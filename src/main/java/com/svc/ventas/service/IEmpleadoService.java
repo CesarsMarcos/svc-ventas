@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.svc.ventas.message.request.EmpleadoCreateRequest;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.mapstruct.dto.EmpleadoDto;
+import com.svc.ventas.models.mapstruct.dto.EmpleadoGetDto;
 import com.svc.ventas.models.mapstruct.dto.EmpleadoListDto;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +22,7 @@ public interface IEmpleadoService {
 	@Transactional
 	Response modificar(int id, EmpleadoDto empleado);
 	
-	Optional<EmpleadoDto> obtener (int id);
+	EmpleadoGetDto obtener (int id);
 	
 	void eliminar(int id);
 

@@ -47,7 +47,6 @@ public class PersonaDto {
 
 	private String fechaNacimiento;
 
-	@NotBlank
 	private String foto;
 
 	private Boolean indEstado;

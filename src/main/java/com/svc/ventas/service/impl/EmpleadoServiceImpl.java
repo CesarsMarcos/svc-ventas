@@ -11,6 +11,7 @@ import com.svc.ventas.models.dao.SucursalRepo;
 import com.svc.ventas.models.entity.Persona;
 import com.svc.ventas.models.entity.Sucursal;
 import com.svc.ventas.models.mapstruct.dto.EmpleadoDto;
+import com.svc.ventas.models.mapstruct.dto.EmpleadoGetDto;
 import com.svc.ventas.models.mapstruct.dto.EmpleadoListDto;
 import com.svc.ventas.models.mapstruct.mappers.PersonaMapper;
 import com.svc.ventas.service.IPersonaService;
@@ -92,10 +93,10 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
 	}
 
 	@Override
-	public Optional<EmpleadoDto> obtener(int id) {
-		return Optional.ofNullable(empleadoRepo.findById(id)
-            .map(empleadoMapper::mapToEmpleadoDto)
-            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Empleado", id))));
+	public EmpleadoGetDto obtener(int id) {
+		return empleadoRepo.findById(id)
+            .map(empleadoMapper::mapToDto)
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Empleado", id)));
 	}
 
 	@Override

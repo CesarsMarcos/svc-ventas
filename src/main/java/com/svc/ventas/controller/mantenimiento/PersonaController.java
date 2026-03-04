@@ -1,18 +1,13 @@
 package com.svc.ventas.controller.mantenimiento;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import com.svc.ventas.models.entity.Cliente;
 import com.svc.ventas.models.entity.Persona;
-import com.svc.ventas.models.mapstruct.dto.ClienteGetDto;
 import com.svc.ventas.models.mapstruct.mappers.PersonaMapper;
 import jakarta.validation.Valid;
 import com.svc.ventas.models.mapstruct.dto.PersonaDto;
 import com.svc.ventas.service.IPersonaService;
-import com.svc.ventas.util.Constantes;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,65 +24,69 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("api/personas/")
 public class PersonaController {
 
-	private final IPersonaService personaService;
+  private final IPersonaService personaService;
 
-	private final PersonaMapper personaMapper;
+  private final PersonaMapper personaMapper;
 
-	@GetMapping
-	public ResponseEntity<?> personas() {
-		return new ResponseEntity<>(personaService.personas(), HttpStatus.OK);
-	}
+  @GetMapping
+  public ResponseEntity<?> personas() {
+    return new ResponseEntity<>(personaService.personas(), HttpStatus.OK);
+  }
 
-	@GetMapping("no-empleados")
-	public ResponseEntity<?> noEmpleados(){ return new ResponseEntity<>(personaService.personasNoEmpleados(), HttpStatus.OK);}
+  @GetMapping("no-empleados")
+  public ResponseEntity<?> noEmpleados() {
+    return new ResponseEntity<>(personaService.personasNoEmpleados(), HttpStatus.OK);
+  }
 
-	@GetMapping("no-clientes")
-	public ResponseEntity<?> noClientes(){ return new ResponseEntity<>(personaService.personasNoClientes(), HttpStatus.OK);}
+  @GetMapping("no-clientes")
+  public ResponseEntity<?> noClientes() {
+    return new ResponseEntity<>(personaService.personasNoClientes(), HttpStatus.OK);
+  }
 
-	@PostMapping
-	public ResponseEntity<Response> guardar(@Valid @RequestBody PersonaDto persona) {
-		return new ResponseEntity<>(personaService.guardar(persona), HttpStatus.CREATED);
-	}
-	
-	@PutMapping("{id}")
-	public ResponseEntity<Response> modificar(@PathVariable Integer id,@Valid @RequestBody PersonaDto persona) {
-		Response response = personaService.modificar(id, persona);
-		return new ResponseEntity<>(response, HttpStatus.OK);
-	}
+  @PostMapping
+  public ResponseEntity<Response> guardar(@Valid @RequestBody PersonaDto persona) {
+    return new ResponseEntity<>(personaService.guardar(persona), HttpStatus.CREATED);
+  }
 
-	@GetMapping("{id}")
-	public ResponseEntity<PersonaDto> obtener(@PathVariable Integer id) {
-		PersonaDto personaSave = personaService.obtener(id);
-		return new ResponseEntity<>(personaSave, HttpStatus.OK);
-	}
+  @PutMapping("{id}")
+  public ResponseEntity<Response> modificar(@PathVariable Integer id, @Valid @RequestBody PersonaDto persona) {
+    Response response = personaService.modificar(id, persona);
+    return new ResponseEntity<>(response, HttpStatus.OK);
+  }
 
-	@GetMapping("searchPersona")
-	public ResponseEntity<Map<String, Object>> searchPersona(
-					@RequestParam(required = false) String nombre,
-					@RequestParam(required = false) String documento,
-					@RequestParam(defaultValue = "0") int page,
-					@RequestParam(defaultValue = "3") int size) {
+  @GetMapping("{id}")
+  public ResponseEntity<PersonaDto> obtener(@PathVariable Integer id) {
+    PersonaDto personaSave = personaService.obtener(id);
+    return new ResponseEntity<>(personaSave, HttpStatus.OK);
+  }
 
-		nombre = (nombre != null && !nombre.isBlank()) ? nombre.trim() : null;
-		documento = (documento != null && !documento.isBlank()) ? documento.trim() : null;
+  @GetMapping("searchPersona")
+  public ResponseEntity<Map<String, Object>> searchPersona(
+          @RequestParam(required = false) String nombre,
+          @RequestParam(required = false) String documento,
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "3") int size) {
 
-		Pageable paging = PageRequest.of(page, size);
+    nombre = (nombre != null && !nombre.isBlank()) ? nombre.trim() : null;
+    documento = (documento != null && !documento.isBlank()) ? documento.trim() : null;
 
-		Page<Persona> personaPage = personaService.searchPersona(documento, nombre, paging);
+    Pageable paging = PageRequest.of(page, size);
 
-		List<PersonaDto> personasDto = personaPage.getContent().stream()
-						.map(personaMapper::mapToPersonaDto).toList();
+    Page<Persona> personaPage = personaService.searchPersona(documento, nombre, paging);
 
-		Map<String, Object> response = Map.of(
-						"personas", personasDto,
-						"currentPage", personaPage.getNumber(),
-						"pageSize", personaPage.getSize(),
-						"totalItems", personaPage.getTotalElements(),
-						"totalPages", personaPage.getTotalPages(),
-						"empty", personaPage.isEmpty()
-		);
+    List<PersonaDto> personasDto = personaPage.getContent().stream()
+            .map(personaMapper::mapToPersonaDto).toList();
 
-		return new ResponseEntity<>(response, HttpStatus.OK);
-	}
+    Map<String, Object> response = Map.of(
+            "personas", personasDto,
+            "currentPage", personaPage.getNumber(),
+            "pageSize", personaPage.getSize(),
+            "totalItems", personaPage.getTotalElements(),
+            "totalPages", personaPage.getTotalPages(),
+            "empty", personaPage.isEmpty()
+    );
+
+    return new ResponseEntity<>(response, HttpStatus.OK);
+  }
 
 }

@@ -64,35 +64,38 @@ public class Constantes {
           "/api/empresas/**"
   };
 
-  public static final String[] ENDPOINTS_USER = {
-          "/api/categorias/**",
-          "/api/marcas/**",
+  public static final String[] ENDPOINTS_VENDEDOR = {
           "/api/articulos/**",
-          "/api/unidadMedidas/**",
-          "/api/compras/**",
-          "/api/proveedores/**",
-          "/api/empresas/**",
-          "/api/tipoPersonas/**",
-          "/api/tipoDocumentos/**",
-          "/api/series/**",
-          "/api/charts/**",
-          "/api/articulos/**",
-          "/api/proveedores/**",
-          "/api/series/**"
+          "/api/ventas/**"
   };
 
   public static final String[] ENDPOINTS_ADMIN = {
-          "/api/servicio/externo/**",
-          "/api/global/**",
-          "/api/sucursales/**",
           "/api/personas/**",
+          "/api/empleados/**",
+          "/api/usuarios/**",
+          "/api/sucursales/**",
+          "/api/empresas/**",
+          "/api/series/**",
+          "/api/articulos/**",
+
+          "/api/inventario/**",
+          "/api/categorias/**",
+          "/api/marcas/**",
+          "/api/unidadMedidas/**",
+          "/api/kardex/**",
+
           "/api/clientes/**",
-          "/api/clientes/searchCliente",
-          "/api/caja/**"
+          "/api/ventas/**",
+
+          "/api/proveedores/**",
+          "/api/compras/**",
+
+          "/api/caja/**",
+          "/api/servicio/externo/**",
   };
 
   public static final String ROL_ADMIN = "ROLE_ADMIN";
-  public static final String ROL_USER = "ROLE_USER";
+  public static final String ROL_VENDEDOR = "ROLE_VENDEDOR";
   public static final String ROLE_SUPER_ADMIN = "ROLE_SUPER_ADMIN";
 
   public static final String URL_BASE_CLIENT = "http://localhost:4200";
