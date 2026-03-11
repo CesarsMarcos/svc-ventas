@@ -12,8 +12,6 @@ public class Constantes {
 
   public static final String MENSAJE_USUARIO_NO_ENCONTRADO = ":: Usuario o password incorrectos";
 
-  public static final String MENSAJE_NOT_FOUND_CAJA = ":: No existe %s abierta para el día en curso";
-
   public static final String RESPONSE_ERROR_500 = "Error interno del servidor. Por favor, intente nuevamente más tarde.";
 
   public static final String RESPONSE_ERROR_400 = "Solicitud inválida. Verifique los datos enviados e intente nuevamente.";
@@ -43,6 +41,8 @@ public class Constantes {
   public static final String MSJ_MOVIMIENTO_AGREGADO = "Movimiento agregado correctamente a la caja con ID '%s'";
 
   public static final String MSJ_CAJA_CERRADA = "La caja se encuentra cerrada";
+
+  public static final String MSJ_CAJA_NO_ABIERTA = "No existe caja abierta en la fecha en curso";
 
   public static final BigDecimal IGV = new BigDecimal("0.18");
 
@@ -102,6 +102,5 @@ public class Constantes {
   public static final String[] ALLOWED_METHODS = {
           "GET", "POST", "PUT", "DELETE"
   };
-
 
 }

@@ -1,6 +1,7 @@
 package com.svc.ventas.controller;
 
-import com.svc.ventas.service.IChartService;
+import com.svc.ventas.message.request.DashboardFiltroRequest;
+import com.svc.ventas.service.dashboardStrategy.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,13 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/charts/")
-public class ChartController {
+public class DashboardController {
 
-  private final IChartService chartService;
+  private final DashboardService dashboardService;
 
   @GetMapping
-  public ResponseEntity<?> getCharts (){
-    return ResponseEntity.ok(chartService.getGraficos());
+  public ResponseEntity<?> getCharts(DashboardFiltroRequest tipoFiltro) {
+    return ResponseEntity.ok(dashboardService.obtenerDashboard(tipoFiltro));
   }
 
 }

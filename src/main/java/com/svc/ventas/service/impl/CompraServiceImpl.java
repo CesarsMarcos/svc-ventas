@@ -9,6 +9,7 @@ import com.svc.ventas.message.request.ProductoParaComprar;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.*;
 import com.svc.ventas.models.entity.*;
+import com.svc.ventas.models.enums.EstadoCompra;
 import com.svc.ventas.models.enums.TipoPagoCompra;
 import com.svc.ventas.models.mapstruct.dto.*;
 import com.svc.ventas.models.mapstruct.mappers.*;
@@ -91,7 +92,7 @@ public class CompraServiceImpl implements ICompraService {
             .igv(compraMontosDto.getIgv())
             .subTotal(compraMontosDto.getSubTotal())
             .total(compraMontosDto.getTotal())
-            .estado(Constantes.STATUS_CREADO)
+            .estado(EstadoCompra.CREADO)
             .createdBy(usuarioLogueado.getUsuario())
             .build();
 

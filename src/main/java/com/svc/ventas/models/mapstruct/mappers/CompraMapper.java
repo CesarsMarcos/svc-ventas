@@ -17,6 +17,7 @@ public interface CompraMapper {
     CompraMapper INSTANCE = Mappers.getMapper(CompraMapper.class);
 
     @Mapping(target = "id", source = "idCompra")
+    @Mapping(source = "estado",  target = "estado")
     @Mapping(target = "proveedor", source = "proveedor.razonSocial")
     CompraGetDto mapCompraToDto(Compra compra);
 

@@ -5,7 +5,7 @@ import com.svc.ventas.models.mapstruct.dto.ChartDTO;
 import com.svc.ventas.models.mapstruct.dto.ProductoMasVendidoDTO;
 import com.svc.ventas.models.mapstruct.dto.VariacionVentasDTO;
 import com.svc.ventas.models.mapstruct.dto.VentasPorMesDTO;
-import com.svc.ventas.service.IChartService;
+import com.svc.ventas.service.IDashboardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,60 +19,66 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ChartServiceImpl implements IChartService {
+public class DashboardServiceImpl implements IDashboardService {
 
-    private final CompraRepository compraRepo;
+  private final CompraRepository compraRepo;
 
-    private final VentaRepo ventaRepo;
+  private final VentaRepo ventaRepo;
 
-    private final ClienteRepo clienteRepo;
+  private final ClienteRepo clienteRepo;
 
-    private final ProveedorRepo proveedorRepo;
+  private final ProveedorRepo proveedorRepo;
 
-    private final ProductoVendidoRepository productoRepo;
+  private final ProductoVendidoRepository productoRepo;
 
-    @Override
-    public ChartDTO getGraficos() {
+  @Override
+  public ChartDTO getDashboard(LocalDate fecInicio , LocalDate fecFin) {
 
-      LocalDate fechaHoy = LocalDate.now();
-      LocalDateTime fechaInicio = LocalDateTime.now().minusMonths(12);
+    LocalDateTime fechaInicio = LocalDateTime.now().minusMonths(12);
 
-      Long numCompras = compraRepo.findAll()
-              .stream().filter(compra -> compra.getFecAdd().toLocalDate().equals(fechaHoy))
-              .count();
+    LocalDateTime inicio = null;
+    LocalDateTime fin = null;
 
-      Long numVentas = ventaRepo.findAll()
-              .stream().filter(venta -> venta.getFecAdd().toLocalDate().equals(fechaHoy))
-              .count();
-
-      Long numClientes = clienteRepo.numClientesActivos();
-
-      Long numProveedores =  proveedorRepo.findAll()
-              .stream().filter(proveedor -> proveedor.getIndEstado().equals(true))
-              .count();
-
-      List<ProductoMasVendidoDTO> productosVendidos = productoRepo.obtenerTop10ProductosMasVendidos();
-
-      VariacionVentasDTO ventasHoy = obtenerVentasHoy();
-
-      VariacionVentasDTO ventasSemana = obtenerVentasSemana();
-
-      VariacionVentasDTO ventasMes = obtenerVentasMes();
-
-      List<VentasPorMesDTO> ventasUltimos12Meses = ventaRepo.obtenerVentasUltimos12Meses(fechaInicio);
-
-      return ChartDTO.builder()
-              .numCompras(numCompras)
-              .numVentas(numVentas)
-              .numClientes(numClientes)
-              .numProveedores(numProveedores)
-              .ventasHoy(ventasHoy)
-              .ventasSemana(ventasSemana)
-              .ventasMes(ventasMes)
-              .productos(productosVendidos)
-              .ventas12Meses(ventasUltimos12Meses)
-              .build();
+    if (fecInicio != null) {
+      inicio = fecInicio.atStartOfDay();
     }
+
+    if (fecFin != null) {
+      fin = fecFin.atTime(23, 59, 59);
+    }
+
+    Long numCompras = compraRepo.countCompras(inicio, fin);
+
+    Long numVentas = ventaRepo.countVentas(inicio, fin);
+
+    Long numClientes = clienteRepo.numClientesActivos();
+
+    Long numProveedores = proveedorRepo.findAll()
+            .stream().filter(proveedor -> proveedor.getIndEstado().equals(true))
+            .count();
+
+    List<ProductoMasVendidoDTO> productosVendidos = productoRepo.obtenerTop10ProductosMasVendidos(inicio, fin);
+
+    VariacionVentasDTO ventasHoy = obtenerVentasHoy();
+
+    VariacionVentasDTO ventasSemana = obtenerVentasSemana();
+
+    VariacionVentasDTO ventasMes = obtenerVentasMes();
+
+    List<VentasPorMesDTO> ventasUltimos12Meses = ventaRepo.obtenerVentasUltimos12Meses(fechaInicio);
+
+    return ChartDTO.builder()
+            .numCompras(numCompras)
+            .numVentas(numVentas)
+            .numClientes(numClientes)
+            .numProveedores(numProveedores)
+            .ventasHoy(ventasHoy)
+            .ventasSemana(ventasSemana)
+            .ventasMes(ventasMes)
+            .productos(productosVendidos)
+            .ventas12Meses(ventasUltimos12Meses)
+            .build();
+  }
 
   public VariacionVentasDTO obtenerVentasHoy() {
     LocalDateTime inicioHoy = LocalDate.now().atStartOfDay();

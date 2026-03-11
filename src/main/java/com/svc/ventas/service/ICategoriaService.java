@@ -17,4 +17,5 @@ public interface ICategoriaService {
 	Response modificar(int id, CategoriaDto categoria);
 
 	CategoriaDto obtener(int id);
+
 }

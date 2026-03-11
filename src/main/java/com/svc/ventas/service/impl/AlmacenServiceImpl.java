@@ -1,7 +1,6 @@
 package com.svc.ventas.service.impl;
 
 import com.svc.ventas.exception.EntityNotFoundException;
-import com.svc.ventas.message.response.ProductoSearchParaVenderResponse;
 import com.svc.ventas.message.response.ProductoStockSearchResponse;
 import com.svc.ventas.models.dao.ProductoStockRepo;
 import com.svc.ventas.models.entity.ProductoStock;

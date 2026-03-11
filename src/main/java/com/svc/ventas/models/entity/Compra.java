@@ -8,6 +8,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.svc.ventas.models.enums.EstadoCompra;
 import com.svc.ventas.models.enums.TipoDocumento;
 import com.svc.ventas.models.enums.TipoPagoCompra;
 import jakarta.persistence.*;
@@ -65,8 +66,8 @@ public class Compra implements Serializable {
 	@Column(name = "total")
 	private BigDecimal total;
 
-	@Column(name = "estado", nullable = false)
-	private String estado;
+	@Enumerated(EnumType.STRING)
+	private EstadoCompra estado;
 
 	@Column(name = "created_by")
 	private String  createdBy;

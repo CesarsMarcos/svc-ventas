@@ -25,6 +25,8 @@ public class Cliente implements Serializable {
 
 	private Boolean indEstado;
 
+	private Boolean isClienteGenerico;
+
 	@Column(name = "created_by")
 	private String  createdBy;
 

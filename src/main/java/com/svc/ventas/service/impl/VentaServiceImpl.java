@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.svc.ventas.exception.BusinessException;
+import com.svc.ventas.exception.ConflictException;
 import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.exception.ValidationException;
 import com.svc.ventas.message.request.ProductoParaVender;
@@ -81,6 +82,9 @@ public class VentaServiceImpl implements IVentaService {
 
     log.info("Obtener caja activa ::");
     CajaDetalleDTO cajaDet = cajaService.findByFechaAndUsuario();
+    if (!cajaDet.getExisteCajaActiva()) {
+      throw new BusinessException(Constantes.MSJ_CAJA_NO_ABIERTA);
+    }
 
     log.info("Busca cliente :: ");
     ClienteDto clienteDto = clienteService.obtener(venta.getIdCliente());

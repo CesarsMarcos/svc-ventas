@@ -31,5 +31,8 @@ public interface VentaRepo extends JpaRepository<Venta, Long>,
           "ORDER BY YEAR(v.fecAdd), MONTH(v.fecAdd)")
   List<VentasPorMesDTO> obtenerVentasUltimos12Meses(LocalDateTime fechaInicio);
 
+  @Query("SELECT COUNT(v.idVenta) FROM Venta v WHERE v.fecAdd BETWEEN :inicio AND :fin")
+  Long countVentas (LocalDateTime inicio, LocalDateTime fin);
+
 }
 

@@ -1,10 +1,11 @@
 package com.svc.ventas.controller.almacen;
 
+import com.svc.ventas.message.response.KardexResponse;
 import com.svc.ventas.models.mapstruct.dto.KardexDetalleDTO;
-import com.svc.ventas.models.mapstruct.dto.KardexResumenDTO;
 import com.svc.ventas.service.IKardexService;
 import com.svc.ventas.service.IProductoService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/kardex")
 @RequiredArgsConstructor
@@ -30,14 +32,13 @@ public class KardexController {
   }
 
   @GetMapping("/resumen")
-  public ResponseEntity<List<KardexResumenDTO>> listarKardexPorFecha(
-          @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate inicio,
-          @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fin
+  public ResponseEntity<List<KardexResponse>> listarKardexPorFecha(
+          @RequestParam(required = false) Long idSucursal,
+          @RequestParam(required = false) Long idProducto,
+          @RequestParam(required = false) String inicio,
+          @RequestParam(required = false) String fin
   ) {
-    LocalDate fechaInicio = inicio != null ? inicio : LocalDate.now();
-    LocalDate fechaFin = fin != null ? fin : LocalDate.now();
-
-    List<KardexResumenDTO> resumen = kardexService.listarKardexPorFecha(fechaInicio, fechaFin);
+    List<KardexResponse> resumen = kardexService.listarKardexPorFecha(idSucursal, idProducto, inicio, fin);
     return ResponseEntity.ok(resumen);
   }
 

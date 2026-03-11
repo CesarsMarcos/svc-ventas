@@ -1,6 +1,7 @@
 package com.svc.ventas.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.svc.ventas.util.Constantes;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,7 +19,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType("application/json");
 
-        Map<String, String> errorResponse = Map.of("mensaje", "No tienes permiso para acceder a este recurso");
+        Map<String, String> errorResponse = Map.of("mensaje", Constantes.RESPONSE_ERROR_403);
 
         String json = objectMapper.writeValueAsString(errorResponse);
         response.getWriter().write(json);

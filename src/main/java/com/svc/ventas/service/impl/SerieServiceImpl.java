@@ -34,13 +34,12 @@ public class SerieServiceImpl implements ISerieService {
   @Override
   public Response save(Serie serie) {
     serie.setIndEstado(Constantes.IND_ACTIVO);
-    log.info("Obtiene usuario logueado ::");
     Usuario usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
     serie.setCreatedBy(usuarioLogueado.getUsuario());
     serieRepo.save(serie);
 
     return Response.builder()
-            .mensaje("Serie creada con éxito")
+            .mensaje(Constantes.MENSAJE_SAVE)
             .build();
   }
 
