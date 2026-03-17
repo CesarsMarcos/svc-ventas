@@ -3,6 +3,8 @@ package com.svc.ventas.config;
 
 import com.svc.ventas.exception.CustomAccessDeniedHandler;
 import com.svc.ventas.exception.CustomAuthenticationEntryPoint;
+import com.svc.ventas.models.CustomUserDetails;
+import com.svc.ventas.service.CustomUserDetailsService;
 import com.svc.ventas.service.IUsuarioService;
 import com.svc.ventas.util.Constantes;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +36,7 @@ import static com.svc.ventas.util.Constantes.*;
 public class SecurityConfig {
 
     private final JwtFilterConfig jwtFilterConfig;
-    private final IUsuarioService usuarioService;
+    private final CustomUserDetailsService usuarioService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -61,7 +63,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(usuarioService.userDetailsService());
+        authenticationProvider.setUserDetailsService(usuarioService);
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
     }

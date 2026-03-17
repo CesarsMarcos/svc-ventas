@@ -1,5 +1,6 @@
 package com.svc.ventas.config;
 
+import com.svc.ventas.service.CustomUserDetailsService;
 import com.svc.ventas.service.IJwtService;
 import com.svc.ventas.service.IUsuarioService;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -25,7 +26,7 @@ import java.util.Objects;
 public class JwtFilterConfig extends OncePerRequestFilter {
 
     private final IJwtService jwtService;
-    private final IUsuarioService usuarioService;
+    private final CustomUserDetailsService usuarioService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -50,7 +51,7 @@ public class JwtFilterConfig extends OncePerRequestFilter {
             if (Objects.nonNull(userEmail)
                     && SecurityContextHolder.getContext().getAuthentication() == null) {
                 SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-                UserDetails userDetails = usuarioService.userDetailsService().loadUserByUsername(userEmail);
+                UserDetails userDetails = usuarioService.loadUserByUsername(userEmail);
                 if (jwtService.validateToken(tokenLimpio, userDetails) &&
                         !jwtService.isRefreshToken(tokenLimpio)) {
                     UsernamePasswordAuthenticationToken authenticationToken =

@@ -9,7 +9,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +33,7 @@ public class JwtServiceImpl implements IJwtService {
         return Jwts.builder()
                 .setHeaderParam("typ","JWT")
                 .setClaims(addClaim(usuario))
-                .setSubject(usuario.getUsername())
+                .setSubject(usuario.getUsuario())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 600000))
                 .claim(Constantes.TYPE_TOKEN, Constantes.ACCESS)
@@ -89,10 +88,7 @@ public class JwtServiceImpl implements IJwtService {
         claims.put(Constantes.CLAIM_USER,usuario.getEmpleado().getPersona().getNombre() + " "
                 + usuario.getEmpleado().getPersona().getApePaterno() + " "
                 + usuario.getEmpleado().getPersona().getApeMaterno()  );
-        claims.put(Constantes.CLAIM_ROL,usuario.getAuthorities()
-                .stream().map(GrantedAuthority::getAuthority)
-                .findFirst()
-                .orElse("NOT_VALUE"));
+        claims.put(Constantes.CLAIM_ROL,usuario.getRoles());
         return claims;
     }
 }

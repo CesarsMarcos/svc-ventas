@@ -6,7 +6,6 @@ import com.svc.ventas.message.request.UsuarioCreateRequest;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.entity.Usuario;
 import com.svc.ventas.models.mapstruct.dto.UsuarioDto;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface IUsuarioService {
@@ -24,8 +23,6 @@ public interface IUsuarioService {
 	void eliminar(int id);
 
 	Boolean isSaved(Integer idEmpleado);
-
-	UserDetailsService userDetailsService();
 
 	Usuario getPorUserName(String username);
 

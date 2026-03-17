@@ -10,9 +10,6 @@ import com.svc.ventas.models.dao.EmpleadoRepo;
 import com.svc.ventas.models.dao.RolRepo;
 import com.svc.ventas.models.entity.Empleado;
 import com.svc.ventas.models.entity.Rol;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -109,18 +106,6 @@ public class UsuarioServiceImpl implements IUsuarioService {
 	@Override
 	public Boolean isSaved(Integer idEmpleado) {
 		return usuarioRepo.existsByEmpleadoIdEmpleado(idEmpleado);
-	}
-
-	@Override
-	public UserDetailsService userDetailsService() {
-		return new UserDetailsService() {
-			@Override
-			public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-				return usuarioRepo.findByUsuario(username)
-						.orElseThrow(() ->
-								new UsernameNotFoundException("usuario no encontrado en Base de datos"));
-			}
-		};
 	}
 
 	@Override
