@@ -20,7 +20,7 @@ public class ChartDTO implements Serializable {
 
   private Long numProveedores;
 
-  private List<ProductoMasVendidoDTO> productos;
+  private List<ProductoMasVendidoDTO> productosMasVendidos;
 
   private VariacionVentasDTO ventasHoy;
 
@@ -29,5 +29,9 @@ public class ChartDTO implements Serializable {
   private VariacionVentasDTO ventasMes;
 
   private List<VentasPorMesDTO> ventas12Meses;
+
+  private List<BajoStockDTO> productosBajoStock;
+
+  private List<UltimasVentasDTO> ultimasVentas;
 
 }

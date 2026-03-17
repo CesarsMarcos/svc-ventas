@@ -44,6 +44,10 @@ public class Compra implements Serializable {
 	@Enumerated(EnumType.STRING)
 	private TipoDocumento tipoDocumento;
 
+	@ManyToOne
+	@JoinColumn(name = "id_empresa")
+	private Empresa empresa;
+
 	@JsonManagedReference
 	@OneToMany(mappedBy = "compra", cascade = CascadeType.ALL)
 	private Set<ProductoComprado> productos;

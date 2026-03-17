@@ -32,6 +32,10 @@ public class Serie {
   @JoinColumn(name = "id_sucursal", foreignKey = @ForeignKey(name = "fk_serie_sucursal"))
   private Sucursal sucursal;
 
+  @ManyToOne
+  @JoinColumn(name = "id_empresa")
+  private Empresa empresa;
+
   private String serie;
 
   private Integer correlativo;

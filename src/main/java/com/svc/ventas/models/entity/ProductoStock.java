@@ -32,6 +32,10 @@ public class ProductoStock {
   @JoinColumn(name = "id_sucursal", nullable = false, foreignKey = @ForeignKey(name = "fk_producto_stock_sucursal"))
   private Sucursal sucursal;
 
+  @ManyToOne
+  @JoinColumn(name = "id_empresa")
+  private Empresa empresa;
+
   private Integer stock;
 
   private Integer minCantidad;

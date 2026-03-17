@@ -17,6 +17,10 @@ public class Categoria implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer idCategoria;
 
+	@ManyToOne
+	@JoinColumn(name = "id_empresa")
+	private Empresa empresa;
+
 	@NotBlank
 	private String desCategoria;
 

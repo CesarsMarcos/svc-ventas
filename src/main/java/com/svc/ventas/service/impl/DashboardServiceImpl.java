@@ -1,10 +1,7 @@
 package com.svc.ventas.service.impl;
 
 import com.svc.ventas.models.dao.*;
-import com.svc.ventas.models.mapstruct.dto.ChartDTO;
-import com.svc.ventas.models.mapstruct.dto.ProductoMasVendidoDTO;
-import com.svc.ventas.models.mapstruct.dto.VariacionVentasDTO;
-import com.svc.ventas.models.mapstruct.dto.VentasPorMesDTO;
+import com.svc.ventas.models.mapstruct.dto.*;
 import com.svc.ventas.service.IDashboardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,28 +56,30 @@ public class DashboardServiceImpl implements IDashboardService {
 
     List<ProductoMasVendidoDTO> productosVendidos = productoRepo.obtenerTop10ProductosMasVendidos(inicio, fin);
 
-    VariacionVentasDTO ventasHoy = obtenerVentasHoy();
+    //VariacionVentasDTO ventasHoy = obtenerVentasHoy();
 
-    VariacionVentasDTO ventasSemana = obtenerVentasSemana();
+    //VariacionVentasDTO ventasSemana = obtenerVentasSemana();
 
-    VariacionVentasDTO ventasMes = obtenerVentasMes();
+    //VariacionVentasDTO ventasMes = obtenerVentasMes();
 
-    List<VentasPorMesDTO> ventasUltimos12Meses = ventaRepo.obtenerVentasUltimos12Meses(fechaInicio);
+    //List<VentasPorMesDTO> ventasUltimos12Meses = ventaRepo.obtenerVentasUltimos12Meses(fechaInicio);
 
     return ChartDTO.builder()
             .numCompras(numCompras)
             .numVentas(numVentas)
             .numClientes(numClientes)
             .numProveedores(numProveedores)
-            .ventasHoy(ventasHoy)
-            .ventasSemana(ventasSemana)
-            .ventasMes(ventasMes)
-            .productos(productosVendidos)
-            .ventas12Meses(ventasUltimos12Meses)
+            .ventasHoy(null)
+            .ventasSemana(null)
+            .ventasMes(null)
+            .productosMasVendidos(productosVendidos)
+            .ventas12Meses(null)
+            .productosBajoStock(obtenerProductosBajoStock())
+            .ultimasVentas(obtenerUltimasVentas())
             .build();
   }
 
-  public VariacionVentasDTO obtenerVentasHoy() {
+  private VariacionVentasDTO obtenerVentasHoy() {
     LocalDateTime inicioHoy = LocalDate.now().atStartOfDay();
     LocalDateTime finHoy = inicioHoy.plusDays(1).minusSeconds(1);
 
@@ -93,7 +92,7 @@ public class DashboardServiceImpl implements IDashboardService {
     return new VariacionVentasDTO(ventasHoy, ventasAyer);
   }
 
-  public VariacionVentasDTO obtenerVentasSemana() {
+  private VariacionVentasDTO obtenerVentasSemana() {
     LocalDateTime inicioSemana = LocalDate.now().with(TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY)).atStartOfDay();
     LocalDateTime finSemana = LocalDateTime.now();
 
@@ -106,7 +105,7 @@ public class DashboardServiceImpl implements IDashboardService {
     return new VariacionVentasDTO(ventasSemana, ventasSemanaPasada);
   }
 
-  public VariacionVentasDTO obtenerVentasMes() {
+  private VariacionVentasDTO obtenerVentasMes() {
     LocalDateTime inicioMes = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay();
     LocalDateTime finMes = LocalDateTime.now();
 
@@ -118,4 +117,13 @@ public class DashboardServiceImpl implements IDashboardService {
 
     return new VariacionVentasDTO(ventasMes, ventasMesPasado);
   }
+
+  private List<UltimasVentasDTO> obtenerUltimasVentas() {
+    return ventaRepo.obtenerUltimas5Ventas();
+  }
+
+  private List<BajoStockDTO> obtenerProductosBajoStock(){
+    return ventaRepo.obtenerProductosBajoStock();
+  }
+
 }

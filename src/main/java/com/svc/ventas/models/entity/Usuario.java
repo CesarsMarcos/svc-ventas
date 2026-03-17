@@ -36,6 +36,10 @@ public class Usuario implements UserDetails, Serializable {
 	@JoinColumn(name = "id_empleado",foreignKey=@ForeignKey(name="fk_usuario_empleado"))
 	private Empleado empleado;
 
+	@ManyToOne
+	@JoinColumn(name = "id_empresa")
+	private Empresa empresa;
+
 	@JoinTable(name = "tb_usuario_rol", joinColumns = @JoinColumn(name = "id_usuario"), inverseJoinColumns = @JoinColumn(name = "id_rol"))
 	@ManyToMany(fetch = FetchType.EAGER)
 	private List<Rol> roles;
