@@ -19,6 +19,9 @@ public class Empleado implements Serializable {
 	@Column(name="id_empleado")
 	private Integer idEmpleado;
 
+	@Column(name="cod_empleado")
+	private String codEmpleado;
+
 	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 	@ManyToOne(cascade = CascadeType.MERGE)
 	@JoinColumn(name = "id_persona",foreignKey=@ForeignKey(name="fk_empleado_persona"))

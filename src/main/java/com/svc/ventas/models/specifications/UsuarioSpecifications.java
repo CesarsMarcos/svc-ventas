@@ -4,7 +4,7 @@ import com.svc.ventas.models.entity.Persona;
 import jakarta.persistence.criteria.Expression;
 import org.springframework.data.jpa.domain.Specification;
 
-public class PersonaSpecifications {
+public class UsuarioSpecifications {
   public static Specification<Persona> hasNombre(String nombre) {
     return (root, query, cb) -> {
       Expression<String> nombreCompleto = cb.concat(

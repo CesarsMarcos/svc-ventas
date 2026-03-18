@@ -70,21 +70,7 @@ public class PersonaController {
     nombre = (nombre != null && !nombre.isBlank()) ? nombre.trim() : null;
     documento = (documento != null && !documento.isBlank()) ? documento.trim() : null;
 
-    Pageable paging = PageRequest.of(page, size);
-
-    Page<Persona> personaPage = personaService.searchPersona(documento, nombre, paging);
-
-    List<PersonaDto> personasDto = personaPage.getContent().stream()
-            .map(personaMapper::mapToPersonaDto).toList();
-
-    Map<String, Object> response = Map.of(
-            "personas", personasDto,
-            "currentPage", personaPage.getNumber(),
-            "pageSize", personaPage.getSize(),
-            "totalItems", personaPage.getTotalElements(),
-            "totalPages", personaPage.getTotalPages(),
-            "empty", personaPage.isEmpty()
-    );
+    Map<String, Object> response = personaService.searchPersona(documento, nombre, page, size);
 
     return new ResponseEntity<>(response, HttpStatus.OK);
   }

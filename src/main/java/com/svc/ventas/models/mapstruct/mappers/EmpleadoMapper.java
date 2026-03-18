@@ -1,5 +1,6 @@
 package com.svc.ventas.models.mapstruct.mappers;
 
+import com.svc.ventas.message.response.EmpleadoSearchResponse;
 import com.svc.ventas.models.entity.Persona;
 import com.svc.ventas.models.entity.Sucursal;
 import com.svc.ventas.models.mapstruct.dto.EmpleadoDto;
@@ -41,5 +42,15 @@ public interface EmpleadoMapper {
 	@Mapping(target = "representante", source = "sucursal.representante")
 	@Mapping(target = "estado", source = "indEstado")
 	EmpleadoGetDto mapToDto(Empleado empleado);
+
+	@Mapping(source = "idEmpleado", target = "idEmpleado")
+	@Mapping(source = "codEmpleado", target = "codEmpleado")
+	@Mapping(target = "nombreCompleto", expression = "java(empleado.getPersona().getNombre().concat(\" \").concat(empleado.getPersona().getApePaterno()))")
+	@Mapping(target = "tipoDocumento", source = "persona.tipoDocumento")
+	@Mapping(target = "numDocumento", source = "persona.numDocumento")
+	@Mapping(target = "celular", source = "persona.celular")
+	@Mapping(target = "sucursal", source = "sucursal.razonSocial")
+	@Mapping(target = "estado", source = "indEstado")
+	EmpleadoSearchResponse mapToSearch (Empleado empleado);
 
 }

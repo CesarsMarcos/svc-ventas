@@ -12,6 +12,8 @@ import com.svc.ventas.service.IUsuarioService;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/usuarios/")
@@ -22,6 +24,16 @@ public class UsuarioController {
 	@GetMapping
 	public ResponseEntity<?> usuarios() {
 		return new ResponseEntity<>(usuarioService.lista(), HttpStatus.OK);
+	}
+
+	@GetMapping("search")
+	public ResponseEntity<Map<String, Object>> search(
+					@RequestParam(required = false) String nombre,
+					@RequestParam(required = false) String documento,
+					@RequestParam(defaultValue = "0") int page,
+					@RequestParam(defaultValue = "3") int size) {
+		Map<String, Object> response = usuarioService.usuarios(nombre, documento, page, size);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("{id}")

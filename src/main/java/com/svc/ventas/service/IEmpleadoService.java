@@ -1,6 +1,7 @@
 package com.svc.ventas.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.svc.ventas.message.request.EmpleadoCreateRequest;
@@ -14,7 +15,7 @@ public interface IEmpleadoService {
 
 	List<EmpleadoDto> lista();
 
-	List<EmpleadoListDto> empleadosNoUsuario();
+	Map<String, Object> empleadosNoUsuario(String nombre, String documento, int page, int size);
 
 	@Transactional
 	Response agregar(EmpleadoCreateRequest empleadoRequest);

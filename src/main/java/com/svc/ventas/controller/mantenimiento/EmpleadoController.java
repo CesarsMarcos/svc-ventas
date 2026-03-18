@@ -5,13 +5,14 @@ import com.svc.ventas.models.mapstruct.dto.EmpleadoDto;
 import jakarta.validation.Valid;
 
 import com.svc.ventas.service.IEmpleadoService;
-import com.svc.ventas.util.Constantes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.svc.ventas.message.response.Response;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,9 +26,14 @@ public class EmpleadoController {
     return new ResponseEntity<>(empleadoService.lista(), HttpStatus.OK);
   }
 
-  @GetMapping("no-usuarios")
-  public ResponseEntity<?> noUsuarios() {
-    return new ResponseEntity<>(empleadoService.empleadosNoUsuario(), HttpStatus.OK);
+  @GetMapping("searchEmpleadoNoUsuarios")
+  public ResponseEntity<Map<String, Object>> search(
+          @RequestParam(required = false) String nombre,
+          @RequestParam(required = false) String documento,
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "3") int size) {
+    Map<String, Object> response = empleadoService.empleadosNoUsuario(nombre, documento, page, size);
+    return new ResponseEntity<>(response, HttpStatus.OK);
   }
 
   @PostMapping

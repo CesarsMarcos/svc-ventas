@@ -1,6 +1,7 @@
 package com.svc.ventas.models.mapstruct.mappers;
 
 import com.svc.ventas.message.request.UsuarioCreateRequest;
+import com.svc.ventas.message.response.UsuarioSearchResponse;
 import com.svc.ventas.models.entity.Empleado;
 import com.svc.ventas.models.entity.Rol;
 import com.svc.ventas.models.entity.Sucursal;
@@ -25,10 +26,16 @@ public interface UsuarioMapper {
 											 Empleado empleado,
 											 List<Rol> roles);
 
-
-
-
 	@Mapping(target = "clave", ignore = true)
 	UsuarioDto map (Usuario usuario);
+
+	@Mapping(source = "idUsuario", target = "idUsuario")
+	@Mapping(target = "nombreCompleto", expression = "java(usuario.getEmpleado().getPersona().getNombre().concat(\" \").concat(usuario.getEmpleado().getPersona().getApePaterno()))")
+	@Mapping(target = "tipoDocumento", source = "empleado.persona.tipoDocumento")
+	@Mapping(target = "numDocumento", source = "empleado.persona.numDocumento")
+	@Mapping(target = "usuario", source = "usuario")
+	//@Mapping(target = "roles", source = "roles")
+	@Mapping(target = "estado", source = "indEstado")
+	UsuarioSearchResponse mapToSearch (Usuario usuario);
 	
 }

@@ -16,7 +16,6 @@ public interface PersonaRepository extends CrudRepository<Persona, Integer>,
     @Query("SELECT u FROM Empleado u WHERE u.indEstado = true")
     List<Persona> getPersonasActivos();
 
-
     @Query("""
     SELECT p
     FROM Persona p

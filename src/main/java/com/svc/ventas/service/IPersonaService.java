@@ -1,6 +1,7 @@
 package com.svc.ventas.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.entity.Persona;
@@ -28,5 +29,5 @@ public interface IPersonaService {
 
 	Boolean isSaved (String documento);
 
-  Page<Persona> searchPersona(String documento, String nombre, Pageable paging);
+	Map<String, Object> searchPersona(String documento, String nombre, int page, int size);
 }

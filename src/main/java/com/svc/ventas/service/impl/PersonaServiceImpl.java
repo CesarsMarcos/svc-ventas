@@ -4,6 +4,7 @@ import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.PersonaRepository;
 import com.svc.ventas.models.entity.Persona;
+import com.svc.ventas.models.entity.Producto;
 import com.svc.ventas.models.mapstruct.dto.PersonaDto;
 import com.svc.ventas.models.mapstruct.dto.PersonaListDto;
 import com.svc.ventas.models.mapstruct.mappers.PersonaMapper;
@@ -12,11 +13,14 @@ import com.svc.ventas.service.IPersonaService;
 import com.svc.ventas.util.Constantes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -98,15 +102,32 @@ public class PersonaServiceImpl implements IPersonaService {
   }
 
   @Override
-  public Page<Persona> searchPersona(String documento, String nombre, Pageable pageable) {
-    Specification<Persona> spec =  Specification.where(null);
-    if(documento != null && !documento.isEmpty()) {
+  public Map<String, Object> searchPersona(String documento, String nombre, int page, int size) {
+
+    Specification<Persona> spec = Specification.where(null);
+    if (Objects.nonNull(documento) && !documento.isEmpty()) {
       spec = spec.and(PersonaSpecifications.hasDocumento(documento));
     }
-    if(nombre != null && !nombre.isEmpty()) {
+    if (Objects.nonNull(nombre) && !nombre.isEmpty()) {
       spec = spec.and(PersonaSpecifications.hasNombre(nombre));
     }
-    return personaRepo.findAll(spec, pageable);
+
+    Pageable pageable = PageRequest.of(page, size);
+
+    Page<Persona> pagePersona = personaRepo.findAll(spec, pageable);
+
+    List<PersonaDto> listPersonas = pagePersona.getContent().stream()
+            .map(personaMapper::mapToPersonaDto)
+            .toList();
+
+    return Map.of(
+            "personas", listPersonas,
+            "currentPage", pagePersona.getNumber(),
+            "pageSize", pagePersona.getSize(),
+            "totalItems", pagePersona.getTotalElements(),
+            "totalPages", pagePersona.getTotalPages(),
+            "empty", pagePersona.isEmpty());
+
   }
 
 }

@@ -1,6 +1,7 @@
 package com.svc.ventas.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.svc.ventas.message.request.UsuarioCreateRequest;
 import com.svc.ventas.message.response.Response;
@@ -11,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 public interface IUsuarioService {
 
 	List<UsuarioDto> lista();
+
+	Map<String, Object> usuarios(String nombre, String documento,int page, int size);
 
 	@Transactional
 	Response agregar(UsuarioCreateRequest usuario);

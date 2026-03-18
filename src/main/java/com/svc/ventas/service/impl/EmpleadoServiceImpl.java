@@ -1,11 +1,15 @@
 package com.svc.ventas.service.impl;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.svc.ventas.exception.ConflictException;
 import com.svc.ventas.message.request.EmpleadoCreateRequest;
+import com.svc.ventas.message.response.EmpleadoSearchResponse;
+import com.svc.ventas.message.response.ProductoSearchResponse;
 import com.svc.ventas.models.dao.PersonaRepository;
 import com.svc.ventas.models.dao.SucursalRepo;
 import com.svc.ventas.models.entity.Persona;
@@ -14,7 +18,13 @@ import com.svc.ventas.models.mapstruct.dto.EmpleadoDto;
 import com.svc.ventas.models.mapstruct.dto.EmpleadoGetDto;
 import com.svc.ventas.models.mapstruct.dto.EmpleadoListDto;
 import com.svc.ventas.models.mapstruct.mappers.PersonaMapper;
+import com.svc.ventas.models.specifications.EmpleadoSpecifications;
+import com.svc.ventas.models.specifications.PersonaSpecifications;
 import com.svc.ventas.service.IPersonaService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.svc.ventas.exception.EntityNotFoundException;
@@ -52,11 +62,23 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
 	}
 
 	@Override
-	public List<EmpleadoListDto> empleadosNoUsuario() {
-		return empleadoRepo.findEmpleadosQueNoTienenUsuario()
-						.stream()
-						.map(empleadoMapper::mapToEmpleado)
-						.collect(Collectors.toList());
+	public Map<String, Object> empleadosNoUsuario(String nombre, String documento, int page, int size) {
+
+		String filtro = (nombre != null && !nombre.isBlank()) ? nombre.trim().toLowerCase() : "";
+
+		Pageable pageable = PageRequest.of(page, size);
+
+		Page<EmpleadoSearchResponse> pageEmpleado = buscarPorNombreOCodigo(filtro, pageable);
+
+		return Map.of(
+						"empleados", pageEmpleado.getContent(),
+						"currentPage", pageEmpleado.getNumber(),
+						"pageSize", pageEmpleado.getSize(),
+						"totalItems", pageEmpleado.getTotalElements(),
+						"totalPages", pageEmpleado.getTotalPages(),
+						"empty", pageEmpleado.isEmpty()
+		);
+
 	}
 
 	@Override
@@ -110,6 +132,12 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
 	@Override
 	public Boolean isSaved(String documento) {
 		return empleadoRepo.existsByPersonaNumDocumento(documento);
+	}
+
+
+	private Page<EmpleadoSearchResponse> buscarPorNombreOCodigo(String termino, Pageable pageable) {
+		return empleadoRepo.findEmpleadosQueNoTienenUsuario(termino, pageable)
+						.map(empleadoMapper::mapToSearch);
 	}
 
 }
