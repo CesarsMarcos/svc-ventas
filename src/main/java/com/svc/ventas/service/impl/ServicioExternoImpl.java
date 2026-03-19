@@ -21,6 +21,7 @@ public class ServicioExternoImpl implements IServicioExterno {
 
     @Value("${token.apis.externa}")
     private String tokenApisExterna;
+
     @Override
     public PersonaReniecResponse getInfoReniec(String dni) {
         return fetchDataFromApi(

@@ -27,69 +27,69 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("api/clientes/")
 public class ClienteController {
 
-	private final IClienteService clienteService;
+  private final IClienteService clienteService;
 
-	private final ClienteMapper clienteMapper;
+  private final ClienteMapper clienteMapper;
 
-	private final UbigeoService ubigeoService;
+  private final UbigeoService ubigeoService;
 
-	@GetMapping
-	public ResponseEntity<?> clientes(){
-		return new ResponseEntity<>(clienteService.clientes(), HttpStatus.OK);
-	}
+  @GetMapping
+  public ResponseEntity<?> clientes() {
+    return new ResponseEntity<>(clienteService.clientes(), HttpStatus.OK);
+  }
 
-	@PostMapping
-	public ResponseEntity<?> guardar(@RequestBody @Valid ClienteCreateRequest cliente) {
-		return ResponseEntity.status(HttpStatus.CREATED)
-				.body(clienteService.agregar(cliente));
-	}
+  @PostMapping
+  public ResponseEntity<?> guardar(@RequestBody @Valid ClienteCreateRequest cliente) {
+    return ResponseEntity.status(HttpStatus.CREATED)
+            .body(clienteService.agregar(cliente));
+  }
 
-	@PatchMapping("{idCliente}")
-	public ResponseEntity<?> update(@RequestBody @Valid ClienteDto cliente, @PathVariable Integer idCliente){
-		return ResponseEntity.ok(clienteService.modificar(idCliente, cliente));
-	}
+  @PatchMapping("{idCliente}")
+  public ResponseEntity<?> update(@RequestBody @Valid ClienteDto cliente, @PathVariable Integer idCliente) {
+    return ResponseEntity.ok(clienteService.modificar(idCliente, cliente));
+  }
 
-	@GetMapping("{id}")
-	public ResponseEntity<?> obtener(@PathVariable Integer id){
-		return new ResponseEntity<ClienteDto>(clienteService.obtener(id),HttpStatus.OK);
-	}
-	
-	@GetMapping("searchCliente")
-	public ResponseEntity<Map<String, Object>> searchCliente(
-			@RequestParam(required = false) String nombre,
-			@RequestParam(required = false) String documento, 
-			@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "3") int size) {
+  @GetMapping("{id}")
+  public ResponseEntity<?> obtener(@PathVariable Integer id) {
+    return new ResponseEntity<ClienteDto>(clienteService.obtener(id), HttpStatus.OK);
+  }
 
-		Pageable paging = PageRequest.of(page, size);
+  @GetMapping("search")
+  public ResponseEntity<Map<String, Object>> searchCliente(
+          @RequestParam(required = false) String nombre,
+          @RequestParam(required = false) String documento,
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "3") int size) {
 
-		Page<Cliente> pageCliente = clienteService.searchCliente(documento, nombre, paging);
+    Pageable paging = PageRequest.of(page, size);
 
-		List<ClienteGetDto> clientesDto = pageCliente.getContent().stream()
-				.map(clienteMapper::mapClienteGet).collect(Collectors.toList());
+    Page<Cliente> pageCliente = clienteService.searchCliente(documento, nombre, paging);
 
-		Map<String, Object> response = new HashMap<>();
-		response.put("clientes", clientesDto);
-		response.put("currentPage", pageCliente.getNumber());
-		response.put("totalItems", pageCliente.getTotalElements());
-		response.put("totalPages", pageCliente.getTotalPages());
+    List<ClienteGetDto> clientesDto = pageCliente.getContent().stream()
+            .map(clienteMapper::mapClienteGet).collect(Collectors.toList());
 
-		 return new ResponseEntity<>(response, HttpStatus.OK);
-	}
+    Map<String, Object> response = new HashMap<>();
+    response.put("clientes", clientesDto);
+    response.put("currentPage", pageCliente.getNumber());
+    response.put("totalItems", pageCliente.getTotalElements());
+    response.put("totalPages", pageCliente.getTotalPages());
 
-	@GetMapping("departamentos")
-	public List<String> getDepartamentos() {
-		return ubigeoService.getDepartamentos();
-	}
+    return new ResponseEntity<>(response, HttpStatus.OK);
+  }
 
-	@GetMapping("provincias")
-	public List<Map<String, String>> getProvincias(@RequestParam("departamento") String departamento) {
-		return ubigeoService.provinciasByDepartamento(departamento);
-	}
+  @GetMapping("departamentos")
+  public List<String> getDepartamentos() {
+    return ubigeoService.getDepartamentos();
+  }
 
-	@GetMapping("distritos")
-	public List<Map<String, String>> getDistritos(@RequestParam("provincia") String provincia) {
-		return ubigeoService.distritosByProvincia(provincia);
-	}
+  @GetMapping("provincias")
+  public List<Map<String, String>> getProvincias(@RequestParam("departamento") String departamento) {
+    return ubigeoService.provinciasByDepartamento(departamento);
+  }
+
+  @GetMapping("distritos")
+  public List<Map<String, String>> getDistritos(@RequestParam("provincia") String provincia) {
+    return ubigeoService.distritosByProvincia(provincia);
+  }
 
 }

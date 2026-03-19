@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -63,13 +64,54 @@ public class AlmacenServiceImpl implements IAlmacenService {
 
     return Map.of(
             "products", listProducts,
-            //"costoTotal", costoTotal,
             "currentPage", pageProductos.getNumber(),
             "pageSize", pageProductos.getSize(),
             "totalItems", pageProductos.getTotalElements(),
             "totalPages", pageProductos.getTotalPages(),
             "empty", pageProductos.isEmpty()
     );
+  }
+
+  @Override
+  public Map<String, Object> searchProductosVenta(String codigo, String nombre) {
+
+    Specification<ProductoStock> spec = Specification.where(null);
+
+    if(Objects.nonNull(codigo) && !nombre.isEmpty()) {
+      spec = spec.and(ProductStockSpecifications.hasCodigo(codigo));
+    }
+
+    if(Objects.nonNull(nombre) && !nombre.isEmpty()) {
+      spec = spec.and(ProductStockSpecifications.hasName(nombre));
+    }
+
+    Pageable pageable = PageRequest.of(0, 5);
+
+    Page<ProductoStock> pageProductos = productoStockRepo.findAll(spec, pageable);
+
+    List<ProductoStockSearchResponse> listProducts = pageProductos.getContent()
+            .stream()
+            .map(productoStockMapper::mapProductoSearch)
+            .toList();
+
+    return Map.of(
+            "products", listProducts,
+            "currentPage", pageProductos.getNumber(),
+            "pageSize", pageProductos.getSize(),
+            "totalItems", pageProductos.getTotalElements(),
+            "totalPages", pageProductos.getTotalPages(),
+            "empty", pageProductos.isEmpty()
+    );
+  }
+
+  @Override
+  public List<ProductoStockSearchResponse> buscarPorNombreOCodigo(String termino) {
+    if (termino == null || termino.isEmpty()) {
+      return List.of();
+    }
+    return productoStockRepo.buscarPorNombreOCodigo(termino)
+            .stream().map(productoStockMapper::mapProductoSearch)
+            .collect(Collectors.toList());
   }
 
   @Override

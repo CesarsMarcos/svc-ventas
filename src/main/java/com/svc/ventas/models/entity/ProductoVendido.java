@@ -38,6 +38,10 @@ public class ProductoVendido {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_venta")
 	private Venta venta;
+
+	@ManyToOne
+	@JoinColumn(name = "id_empresa")
+	private Empresa empresa;
 	
 	private Long idProducto;
 

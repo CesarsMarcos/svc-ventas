@@ -1,13 +1,13 @@
 package com.svc.ventas.models.mapstruct.mappers;
 
 import com.svc.ventas.message.request.ProductoRequest;
+import com.svc.ventas.message.response.ProductoSearchParaVenderResponse;
 import com.svc.ventas.message.response.ProductoSearchResponse;
 import com.svc.ventas.models.entity.*;
 import com.svc.ventas.models.mapstruct.dto.*;
 import org.mapstruct.Mapper;
 
 import org.mapstruct.Mapping;
-
 
 @Mapper(componentModel = "spring")
 public interface ProductoMapper {
@@ -46,11 +46,17 @@ public interface ProductoMapper {
 	@Mapping(target = "idProducto", source = "producto.idProducto")
 	@Mapping(target = "categoria", source = "producto.categoria.desCategoria")
 	@Mapping(target = "marca", source = "producto.marca.descripcion")
-	//@Mapping(target = "precioVenta", source = "producto.precioVenta")
 	@Mapping(target = "nombre", source = "producto.nombre")
 	@Mapping(target = "imagen", source = "producto.imagen")
 	@Mapping(target = "estado", source = "producto.indEstado")
 	ProductoSearchResponse mapToSearch(ProductoStock producto);
+
+	@Mapping(target = "idProducto", source = "producto.idProducto")
+	@Mapping(target = "nombre", source = "producto.nombre")
+	@Mapping(target = "precioVenta", source = "producto.precioVenta")
+	@Mapping(target = "stock", source = "producto.stock")
+	ProductoSearchParaVenderResponse mapToSearchProdStock(ProductoStock producto);
+
 
 	@Mapping(target = "idProducto", source = "producto.idProducto")
 	@Mapping(target = "codigo", source = "producto.codigo")

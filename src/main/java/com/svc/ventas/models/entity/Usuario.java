@@ -24,7 +24,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "tb_usuarios")
-public class Usuario implements UserDetails, Serializable {
+public class Usuario implements Serializable {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +35,10 @@ public class Usuario implements UserDetails, Serializable {
 	@ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
 	@JoinColumn(name = "id_empleado",foreignKey=@ForeignKey(name="fk_usuario_empleado"))
 	private Empleado empleado;
+
+	@ManyToOne
+	@JoinColumn(name = "id_empresa")
+	private Empresa empresa;
 
 	@JoinTable(name = "tb_usuario_rol", joinColumns = @JoinColumn(name = "id_usuario"), inverseJoinColumns = @JoinColumn(name = "id_rol"))
 	@ManyToMany(fetch = FetchType.EAGER)
@@ -63,40 +67,4 @@ public class Usuario implements UserDetails, Serializable {
 		this.fecUpdate = LocalDateTime.now();
 	}
 
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return roles.stream()
-				.map(rol -> new SimpleGrantedAuthority(rol.getDesRol().toUpperCase()))
-				.toList();
-	}
-
-	@Override
-	public String getPassword() {
-		return clave;
-	}
-
-	@Override
-	public String getUsername() {
-		return usuario;
-	}
-
-	@Override
-	public boolean isAccountNonExpired() {
-		return true;
-	}
-
-	@Override
-	public boolean isAccountNonLocked() {
-		return true;
-	}
-
-	@Override
-	public boolean isCredentialsNonExpired() {
-		return true;
-	}
-
-	@Override
-	public boolean isEnabled() {
-		return true;
-	}
 }

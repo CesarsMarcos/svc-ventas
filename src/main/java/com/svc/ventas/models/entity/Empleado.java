@@ -19,6 +19,9 @@ public class Empleado implements Serializable {
 	@Column(name="id_empleado")
 	private Integer idEmpleado;
 
+	@Column(name="cod_empleado")
+	private String codEmpleado;
+
 	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 	@ManyToOne(cascade = CascadeType.MERGE)
 	@JoinColumn(name = "id_persona",foreignKey=@ForeignKey(name="fk_empleado_persona"))
@@ -28,6 +31,10 @@ public class Empleado implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
 	@JoinColumn(name = "id_sucursal",foreignKey=@ForeignKey(name="fk_empleado_sucursal"))
 	private Sucursal sucursal;
+
+	@ManyToOne
+	@JoinColumn(name = "id_empresa")
+	private Empresa empresa;
 
 	@Column(name="ind_estado")
 	private Boolean indEstado;

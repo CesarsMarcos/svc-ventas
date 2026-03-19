@@ -7,6 +7,8 @@ import lombok.*;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Builder
@@ -30,6 +32,10 @@ public class Serie {
   @JoinColumn(name = "id_sucursal", foreignKey = @ForeignKey(name = "fk_serie_sucursal"))
   private Sucursal sucursal;
 
+  @ManyToOne
+  @JoinColumn(name = "id_empresa")
+  private Empresa empresa;
+
   private String serie;
 
   private Integer correlativo;
@@ -42,5 +48,21 @@ public class Serie {
 
   @Column(name = "updated_by")
   private String  updatedBy;
+
+  @Column(name = "fec_add")
+  private LocalDateTime fecAdd;
+
+  @Column(name = "fec_update")
+  private LocalDateTime fecUpdate;
+
+  @PrePersist
+  protected void onCreate() {
+    this.fecAdd = LocalDateTime.now();
+  }
+
+  @PreUpdate
+  protected void onUpdate() {
+    this.fecUpdate = LocalDateTime.now();
+  }
 
 }

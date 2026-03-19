@@ -1,21 +1,27 @@
 package com.svc.ventas.service.impl;
 
+import com.svc.ventas.message.response.KardexResponse;
 import com.svc.ventas.models.mapstruct.dto.KardexDetalleDTO;
-import com.svc.ventas.models.mapstruct.dto.KardexResumenDTO;
 import com.svc.ventas.service.IKardexService;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.sql.Date;
 import java.util.List;
+import java.util.Objects;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class KardexServiceImpl implements IKardexService {
 
   private final JdbcTemplate jdbcTemplate;
+
+  private final EntityManager entityManager;
 
   @Override
   public List<KardexDetalleDTO> obtenerKardexPorProducto(Long idProducto) {
@@ -46,46 +52,33 @@ public class KardexServiceImpl implements IKardexService {
   }
 
   @Override
-  public List<KardexResumenDTO> listarKardexPorFecha(LocalDate fechaInicio, LocalDate fechaFin) {
+  public List<KardexResponse> listarKardexPorFecha(Long idSucursal, Long idProducto,
+                                                   String fechaInicio, String fechaFin) {
 
-    String sql = """
-            SELECT
-                id_producto,
-                codigo_producto,
-                producto,
-                SUM(cantidad_entrada) AS entradas,
-                SUM(cantidad_salida) AS salidas
-            FROM vw_kardex
-            WHERE fecha_movimiento BETWEEN ? AND ?
-            GROUP BY id_producto, codigo_producto, producto
-            ORDER BY producto
-        """;
+    String sql = "CALL sp_kardex_movimientos(?,?,?,?)";
 
-    return jdbcTemplate.query(sql,
-            new Object[]{fechaInicio, fechaFin},
-            (rs, rowNum) -> {
-              BigDecimal entradas = rs.getBigDecimal("entradas");
-              BigDecimal salidas = rs.getBigDecimal("salidas");
+      return jdbcTemplate.query(sql, new Object[]{
+              idSucursal,
+              idProducto,
+              Objects.nonNull(fechaInicio) && !fechaInicio.isBlank() ? Date.valueOf(fechaInicio) : null,
+              Objects.nonNull(fechaFin) && !fechaFin.isBlank() ? Date.valueOf(fechaFin) : null
+      }, kardexRowMapper);
 
-              // Opcional: calcular saldo inicial con otra consulta sobre la misma vista
-              BigDecimal saldoInicial = jdbcTemplate.queryForObject(
-                      "SELECT COALESCE(SUM(cantidad_entrada) - SUM(cantidad_salida), 0) " +
-                              "FROM vw_kardex WHERE id_producto = ? AND fecha_movimiento < ?",
-                      new Object[]{rs.getLong("id_producto"), fechaInicio},
-                      BigDecimal.class
-              );
-
-              BigDecimal saldoFinal = saldoInicial.add(entradas).subtract(salidas);
-
-              return KardexResumenDTO.builder()
-                      .idProducto(rs.getLong("id_producto"))
-                      .codigo(rs.getString("codigo_producto"))
-                      .nombre(rs.getString("producto"))
-                      .saldoInicial(saldoInicial)
-                      .entradas(entradas)
-                      .salidas(salidas)
-                      .saldoFinal(saldoFinal)
-                      .build();
-            });
   }
+
+  private final RowMapper<KardexResponse> kardexRowMapper = (rs, rownum) ->
+          new KardexResponse(
+                  rs.getLong("id_producto"),
+                  rs.getString("nombre"),
+                  rs.getString("codigo_sucursal"),
+                  rs.getString("usuario"),
+                  rs.getDate("fecha_movimiento").toLocalDate(),
+                  rs.getString("tipo_movimiento"),
+                  rs.getString("documento"),
+                  rs.getString("tipo_pago"),
+                  rs.getInt("stock_anterior"),
+                  rs.getInt("ingreso"),
+                  rs.getInt("egreso"),
+                  rs.getInt("stock_actual")
+          );
 }

@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.svc.ventas.util.Constantes;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -84,6 +85,12 @@ public class RestExceptionHandler {
 	public final ResponseEntity<?> handleGeneralExceptions(Exception ex) {
 		log.error("handleGeneralExceptions:: {}", ex.getMessage());
 		return new ResponseEntity<>(Collections.singletonMap("mensaje", Constantes.RESPONSE_ERROR_500), HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	@ExceptionHandler(ExpiredJwtException.class)
+	public ResponseEntity<Object> handleExpiredJwt(ExpiredJwtException ex) {
+		log.error("handleExpiredJwt:: {}", ex.getMessage());
+		return new ResponseEntity<>(Collections.singletonMap("mensaje", Constantes.RESPONSE_ERROR_401), HttpStatus.UNAUTHORIZED);
 	}
 
 }

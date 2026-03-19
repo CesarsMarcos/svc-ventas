@@ -1,18 +1,20 @@
 package com.svc.ventas.service.impl;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.svc.ventas.exception.BusinessException;
 import com.svc.ventas.exception.ConflictException;
 import com.svc.ventas.message.request.UsuarioCreateRequest;
+import com.svc.ventas.message.response.UsuarioSearchResponse;
 import com.svc.ventas.models.dao.EmpleadoRepo;
 import com.svc.ventas.models.dao.RolRepo;
 import com.svc.ventas.models.entity.Empleado;
 import com.svc.ventas.models.entity.Rol;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +50,25 @@ public class UsuarioServiceImpl implements IUsuarioService {
 				 .stream()
 				 .map(usuarioMapper::map)
 		.collect(Collectors.toList());
+	}
+
+	@Override
+	public Map<String, Object> usuarios(String nombre, String documento,int page, int size) {
+
+		String filtro = (nombre != null && !nombre.isBlank()) ? nombre.trim().toLowerCase() : "";
+
+		Pageable pageable = PageRequest.of(page, size);
+
+		Page<UsuarioSearchResponse> pageUsuario = buscarPorNombreOCodigo(filtro, pageable);
+
+		return Map.of(
+						"usuarios", pageUsuario.getContent(),
+						"currentPage", pageUsuario.getNumber(),
+						"pageSize", pageUsuario.getSize(),
+						"totalItems", pageUsuario.getTotalElements(),
+						"totalPages", pageUsuario.getTotalPages(),
+						"empty", pageUsuario.isEmpty()
+		);
 	}
 
 	@Override
@@ -112,23 +133,16 @@ public class UsuarioServiceImpl implements IUsuarioService {
 	}
 
 	@Override
-	public UserDetailsService userDetailsService() {
-		return new UserDetailsService() {
-			@Override
-			public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-				return usuarioRepo.findByUsuario(username)
-						.orElseThrow(() ->
-								new UsernameNotFoundException("usuario no encontrado en Base de datos"));
-			}
-		};
-	}
-
-	@Override
 	public Usuario getPorUserName(String username) {
 		return usuarioRepo.findByUsuario(username)
 				//.map(usuarioMapper::map)
 				.orElseThrow(() ->
 						new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Usuario", username)));
+	}
+
+	private Page<UsuarioSearchResponse> buscarPorNombreOCodigo(String termino, Pageable pageable) {
+		return usuarioRepo.findUsuario(termino, pageable)
+						.map(usuarioMapper::mapToSearch);
 	}
 
 }

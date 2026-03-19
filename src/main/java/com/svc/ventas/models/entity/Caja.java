@@ -33,6 +33,10 @@ public class Caja implements Serializable {
     @JoinColumn(name = "id_sucursal",foreignKey=@ForeignKey(name="fk_caja_sucursal"))
     private Sucursal sucursal;
 
+    @ManyToOne
+    @JoinColumn(name = "id_empresa")
+    private Empresa empresa;
+
     @JsonManagedReference
     @OneToMany(mappedBy = "caja", cascade = CascadeType.ALL)
     private List<CajaMovimiento> movimientos;

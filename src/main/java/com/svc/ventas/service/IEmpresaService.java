@@ -9,15 +9,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface IEmpresaService {
 
-	List<Empresa> listar();
+	List<EmpresaDto> listar();
 
 	EmpresaDto obtener(Integer id);
 
 	@Transactional
-	Response guardar(EmpresaDto global);
+	Response guardar(EmpresaDto empresa);
 
 	@Transactional
-	Response modificar(Integer id, EmpresaDto global);
+	Response modificar(Integer id, EmpresaDto empresa);
 
 	void eliminar(Integer id);
 

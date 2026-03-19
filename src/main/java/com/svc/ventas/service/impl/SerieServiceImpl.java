@@ -4,22 +4,27 @@ import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.SerieRepository;
 import com.svc.ventas.models.entity.Serie;
+import com.svc.ventas.models.entity.Usuario;
 import com.svc.ventas.models.enums.TipoDocumento;
-import com.svc.ventas.models.enums.TipoPago;
 import com.svc.ventas.models.mapstruct.dto.SerieDTO;
 import com.svc.ventas.service.ISerieService;
 import com.svc.ventas.util.AppUtils;
 import com.svc.ventas.util.Constantes;
+import com.svc.ventas.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SerieServiceImpl implements ISerieService {
 
   private final SerieRepository serieRepo;
+
+  private final SecurityUtils securityUtils;
 
   @Override
   public List<Serie> series() {
@@ -29,10 +34,12 @@ public class SerieServiceImpl implements ISerieService {
   @Override
   public Response save(Serie serie) {
     serie.setIndEstado(Constantes.IND_ACTIVO);
+    Usuario usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
+    serie.setCreatedBy(usuarioLogueado.getUsuario());
     serieRepo.save(serie);
 
     return Response.builder()
-            .mensaje("Serie creada con éxito")
+            .mensaje(Constantes.MENSAJE_SAVE)
             .build();
   }
 
