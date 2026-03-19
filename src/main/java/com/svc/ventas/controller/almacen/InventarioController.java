@@ -1,7 +1,5 @@
 package com.svc.ventas.controller.almacen;
 
-import com.svc.ventas.message.response.ProductoSearchParaVenderResponse;
-import com.svc.ventas.message.response.ProductoStockSearchResponse;
 import com.svc.ventas.service.IAlmacenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -9,9 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,6 +17,15 @@ public class InventarioController {
 
   private final IAlmacenService almacenService;
 
+  /**
+   * Listado del inventario principal
+   * @param nombre
+   * @param categoriaId
+   * @param estado
+   * @param page
+   * @param size
+   * @return Map<String, Object>
+   */
   @GetMapping("search")
   public ResponseEntity<Map<String, Object>> search(
           @RequestParam(required = false) String nombre,
@@ -37,17 +42,6 @@ public class InventarioController {
           @RequestParam(required = false) String codigo,
           @RequestParam(required = false) String nombre) {
     Map<String, Object> response = almacenService.searchProductosVenta(codigo, nombre);
-    return ResponseEntity.ok(response);
-  }
-
-  /**
-   * Endpoint para la busqueda de productos en registro de ventas
-   * @param termino
-   * @return List<ProductoSearchParaVenderResponse>
-   */
-  @GetMapping("searchProductosVentas")
-  public ResponseEntity<List<ProductoStockSearchResponse>> searchProducts(@RequestParam(required = false) String termino) {
-    List<ProductoStockSearchResponse> response = almacenService.buscarPorNombreOCodigo(termino);
     return ResponseEntity.ok(response);
   }
 

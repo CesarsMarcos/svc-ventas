@@ -56,6 +56,15 @@ public class ProductoController {
     articuloService.eliminar(id);
   }
 
+  /**
+   *
+   * @param nombre
+   * @param categoriaId
+   * @param estado
+   * @param page
+   * @param size
+   * @return Map<String, Object>
+   */
   @GetMapping("search")
   public ResponseEntity<Map<String, Object>> searchProductsNameCategoryState(
           @RequestParam(required = false) String nombre,
@@ -64,14 +73,6 @@ public class ProductoController {
           @RequestParam(defaultValue = "0") int page,
           @RequestParam(defaultValue = "10") int size) {
     Map<String, Object> response = articuloService.searchProductos(nombre, categoriaId, estado, page, size);
-    return ResponseEntity.ok(response);
-  }
-
-  @GetMapping("search-sales")
-  public ResponseEntity<Map<String, Object>> searchProductNameCode(@RequestParam(required = false) String termino,
-                                                                   @RequestParam(defaultValue = "0") int page,
-                                                                   @RequestParam(defaultValue = "5") int size) {
-    Map<String, Object> response = articuloService.searchProductsSales(termino, page, size);
     return ResponseEntity.ok(response);
   }
 

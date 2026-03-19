@@ -48,6 +48,9 @@ public class ProductoStock {
   //precio de producto en promocion por sucursal
   private BigDecimal precioDescuento;
 
+  @Column(name = "ind_estado")
+  private Boolean indEstado;
+
   public boolean sinStock() {
     return Objects.isNull(this.stock) || this.stock <= 0;
   }

@@ -1,6 +1,5 @@
 package com.svc.ventas.models.mapstruct.dto;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,6 +1,7 @@
 package com.svc.ventas.service.impl;
 
 import com.svc.ventas.exception.EntityNotFoundException;
+import com.svc.ventas.message.response.PersonaSearchResponse;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.PersonaRepository;
 import com.svc.ventas.models.entity.Persona;
@@ -116,8 +117,8 @@ public class PersonaServiceImpl implements IPersonaService {
 
     Page<Persona> pagePersona = personaRepo.findAll(spec, pageable);
 
-    List<PersonaDto> listPersonas = pagePersona.getContent().stream()
-            .map(personaMapper::mapToPersonaDto)
+    List<PersonaSearchResponse> listPersonas = pagePersona.getContent().stream()
+            .map(personaMapper::mapToResponseSearch)
             .toList();
 
     return Map.of(

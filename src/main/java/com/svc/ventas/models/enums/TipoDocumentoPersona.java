@@ -1,5 +1,8 @@
 package com.svc.ventas.models.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum TipoDocumentoPersona {
   DNI("DNI"),
   RUC("RUC"),
@@ -14,10 +17,6 @@ public enum TipoDocumentoPersona {
 
   TipoDocumentoPersona(String label) {
     this.label = label;
-  }
-
-  public String getLabel() {
-    return label;
   }
 
   public String getValue() {

@@ -35,4 +35,6 @@ public class ProductoStockSearchResponse {
 
 	private BigDecimal precioVenta;
 
+	private Boolean estado;
+
 }

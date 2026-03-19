@@ -176,6 +176,7 @@ public class CompraServiceImpl implements ICompraService {
   @Override
   public List<EnumDto> tipoPagoCompra() {
     return Arrays.stream(TipoPagoCompra.values())
+            .filter(TipoPagoCompra::getEstado)
             .map(tpc -> EnumDto.builder()
                     .value(tpc.getValue())
                     .label(tpc.getLabel())

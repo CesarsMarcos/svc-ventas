@@ -1,5 +1,8 @@
 package com.svc.ventas.models.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum TipoDocumento {
   FACTURA("FACTURA"),
   BOLETA("BOLETA"),
@@ -15,10 +18,6 @@ public enum TipoDocumento {
 
   TipoDocumento(String label) {
     this.label = label;
-  }
-
-  public String getLabel() {
-    return label;
   }
 
   public String getValue() {

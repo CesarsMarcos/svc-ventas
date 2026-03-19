@@ -33,8 +33,6 @@ public interface IProductoService {
 
 	Page<ProductoSearchResponse> buscarPorNombreOCodigo(String termino, Pageable pageable);
 
-	Map<String, Object> searchProductsSales(String nombre, int page, int size);
-
 	void updateEstado(Long idProducto);
 
 }

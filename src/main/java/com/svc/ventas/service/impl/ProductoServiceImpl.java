@@ -144,6 +144,15 @@ public class ProductoServiceImpl implements IProductoService {
 		productoRepo.save(productoSave);
 	}
 
+	/**
+	 * Se listan los productos al realizar la compra
+	 * @param nombre
+	 * @param categoriaId
+	 * @param estado
+	 * @param page
+	 * @param size
+	 * @return Map<String, Object>
+	 */
 	@Override
 	public Map<String, Object> searchProductos(String nombre, Integer categoriaId,
 																						 Boolean estado, int page, int size) {
@@ -172,26 +181,6 @@ public class ProductoServiceImpl implements IProductoService {
 
 		return Map.of(
 						"products", listProducts,
-						"currentPage", pageProductos.getNumber(),
-						"pageSize", pageProductos.getSize(),
-						"totalItems", pageProductos.getTotalElements(),
-						"totalPages", pageProductos.getTotalPages(),
-						"empty", pageProductos.isEmpty()
-		);
-	}
-
-	@Override
-	public Map<String, Object> searchProductsSales(String nombre, int page, int size) {
-
-		String filtro = (nombre != null && !nombre.isBlank()) ? nombre.trim().toLowerCase() : "";
-
-		Pageable pageable = PageRequest.of(page, size);
-
-		Page<ProductoSearchResponse> pageProductos =
-						buscarPorNombreOCodigo(filtro, pageable);
-
-		return Map.of(
-						"productos", pageProductos.getContent(),
 						"currentPage", pageProductos.getNumber(),
 						"pageSize", pageProductos.getSize(),
 						"totalItems", pageProductos.getTotalElements(),

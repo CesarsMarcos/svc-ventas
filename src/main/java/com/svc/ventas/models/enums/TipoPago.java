@@ -1,5 +1,8 @@
 package com.svc.ventas.models.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum TipoPago {
   EFECTIVO("EFECTIVO"),
   TARJETA("TARJETA"),
@@ -12,10 +15,6 @@ public enum TipoPago {
 
   TipoPago(String label) {
     this.label = label;
-  }
-
-  public String getLabel() {
-    return label;
   }
 
   public String getValue() {
