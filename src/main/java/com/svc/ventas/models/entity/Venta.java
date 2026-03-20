@@ -67,6 +67,10 @@ public class Venta implements Serializable {
 	@Enumerated(EnumType.STRING)
 	private TipoDocumento tipoDocumento;
 
+	private String serie;
+
+	private Long correlativo;
+
 	@JsonManagedReference
 	@OneToMany(mappedBy = "venta", cascade = CascadeType.ALL)
 	private Set<ProductoVendido> productos;
@@ -75,10 +79,6 @@ public class Venta implements Serializable {
 	private TipoPago tipoPago;
 
 	private Boolean aplicarImpuesto;
-
-	private String serie;
-
-	private Integer correlativo;
 
 	@Column(name = "igv")
 	private BigDecimal igv;

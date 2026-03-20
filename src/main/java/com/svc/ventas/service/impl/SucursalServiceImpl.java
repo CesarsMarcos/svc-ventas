@@ -6,7 +6,9 @@ import java.util.stream.Collectors;
 import com.svc.ventas.message.request.SucursalRequest;
 import com.svc.ventas.models.dao.EmpresaRepository;
 import com.svc.ventas.models.entity.Empresa;
+import com.svc.ventas.models.entity.Usuario;
 import com.svc.ventas.models.mapstruct.dto.SucursalDto;
+import com.svc.ventas.util.SecurityUtils;
 import org.springframework.stereotype.Service;
 
 import com.svc.ventas.exception.EntityNotFoundException;
@@ -29,9 +31,12 @@ public class SucursalServiceImpl implements ISucursalService {
 	
 	private final SucursalMapper sucursalMapper;
 
+	private final SecurityUtils securityUtils;
+
 	@Override
 	public List<SucursalDto> lista() {
-		return sucursalRepo.findSucursales()
+		Usuario usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
+		return sucursalRepo.findSucursales(usuarioLogueado.getEmpresa().getIdEmpresa())
 				.stream()
 				.map(sucursalMapper::mapToSucursalDTO)
 				.collect(Collectors.toList());

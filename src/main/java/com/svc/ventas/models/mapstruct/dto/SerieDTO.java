@@ -1,7 +1,8 @@
 package com.svc.ventas.models.mapstruct.dto;
 
-import jakarta.persistence.Entity;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Builder
 @Setter
@@ -10,7 +11,20 @@ import lombok.*;
 @NoArgsConstructor
 public class SerieDTO {
 
+  private Long idSerie;
+
+  private String tipoDocumento;
+
   private String serie;
+
   private String correlativo;
+
+  private String sucursal;
+
+  private String createdBy;
+
+  private LocalDateTime fecAdd;
+
+  private Boolean estado;
 
 }

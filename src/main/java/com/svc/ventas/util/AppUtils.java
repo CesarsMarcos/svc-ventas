@@ -25,14 +25,14 @@ public final class AppUtils {
         return hora.format(formatoHora);
     }
 
-    public static String formatear(Integer correlativo, int longitud) {
+    public static String formatear(Long correlativo, int longitud) {
         if (correlativo == null) {
             throw new IllegalArgumentException("El correlativo no puede ser null");
         }
         return String.format("%0" + longitud + "d", correlativo);
     }
 
-    public static String formatearSunat(Integer correlativo) {
+    public static String formatearSunat(Long correlativo) {
         return formatear(correlativo, 6);
     }
 

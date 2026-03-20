@@ -1,7 +1,6 @@
 package com.svc.ventas.controller.ventas;
 
 import com.svc.ventas.message.request.VentaRequest;
-import com.svc.ventas.models.enums.TipoPago;
 import com.svc.ventas.models.mapstruct.dto.EnumDto;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
@@ -56,11 +55,6 @@ public class VentaController {
   @GetMapping("tipoPago")
   public ResponseEntity<List<EnumDto>> tipoPagoEnums() {
     return ResponseEntity.ok(ventaService.tipoPago());
-  }
-
-  @GetMapping("tipoDocumentoVenta")
-  public ResponseEntity<List<EnumDto>> tipoDocumentoEnums() {
-    return ResponseEntity.ok(ventaService.tipoDocumento());
   }
 
   @GetMapping("tipoDocumentoPersona")

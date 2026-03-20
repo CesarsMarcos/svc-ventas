@@ -2,7 +2,7 @@ package com.svc.ventas.models.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.svc.ventas.models.enums.TipoDocumento;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import jakarta.persistence.*;
@@ -12,18 +12,21 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "tb_series")
+@Table(name = "tb_series", uniqueConstraints = @UniqueConstraint(columnNames = {
+        "id_empresa_", "id_sucursal", "id_tipo_documento", "serie"
+}))
 public class Serie {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer idSerie;
 
-  @Column(name = "tipo_documento")
-  @Enumerated(EnumType.STRING)
+  @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "id_tipo_documento", foreignKey = @ForeignKey(name = "fk_serie_tipo_documento"))
   private TipoDocumento tipoDocumento;
 
   @JsonIgnore
@@ -32,13 +35,15 @@ public class Serie {
   @JoinColumn(name = "id_sucursal", foreignKey = @ForeignKey(name = "fk_serie_sucursal"))
   private Sucursal sucursal;
 
-  @ManyToOne
-  @JoinColumn(name = "id_empresa")
+  @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "id_empresa", foreignKey = @ForeignKey(name = "fk_serie_empresa"))
   private Empresa empresa;
 
+  @Pattern(regexp = "^[FB]\\d{3}$", message = "La serie debe tener formato F001 o B001")
   private String serie;
 
-  private Integer correlativo;
+  private Long correlativo;
 
   @Column(name="ind_estado")
   private Boolean indEstado;

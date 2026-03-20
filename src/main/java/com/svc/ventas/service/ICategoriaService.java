@@ -10,6 +10,8 @@ public interface ICategoriaService {
 
 	List<CategoriaDto> lista();
 
+	List<CategoriaDto> categoriasPorProductoStock();
+
 	@Transactional
 	Response guardar(CategoriaDto categoria);
 

@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -170,7 +171,7 @@ public class ProductoServiceImpl implements IProductoService {
 			spec = spec.and(ProductSpecifications.hasStatus(estado));
 		}
 
-		Pageable pageable = PageRequest.of(page, size);
+		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "fecAdd"));
 
 		Page<Producto> pageProductos = productoRepo.findAll(spec, pageable);
 

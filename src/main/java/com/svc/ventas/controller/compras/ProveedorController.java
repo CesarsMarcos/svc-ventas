@@ -1,5 +1,6 @@
 package com.svc.ventas.controller.compras;
 
+import com.svc.ventas.message.request.ProveedorRequest;
 import jakarta.validation.Valid;
 
 import com.svc.ventas.models.mapstruct.dto.ProveedorDto;
@@ -42,8 +43,8 @@ public class ProveedorController {
 	}
 
 	@PostMapping
-	public ResponseEntity<?> guardar(@Valid @RequestBody ProveedorDto proveedorDto) {
-		return new ResponseEntity<>(proveedorService.registrar(proveedorDto), HttpStatus.CREATED);
+	public ResponseEntity<?> guardar(@Valid @RequestBody ProveedorRequest proveedorRequest) {
+		return new ResponseEntity<>(proveedorService.registrar(proveedorRequest), HttpStatus.CREATED);
 	}
 
 	@PutMapping("/{id}")

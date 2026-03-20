@@ -29,7 +29,5 @@ public interface IVentaService {
 
 	List<EnumDto> tipoPago();
 
-	List<EnumDto> tipoDocumento();
-
 	List<EnumDto> tipoDocumentoPersona();
 }

@@ -9,7 +9,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.svc.ventas.exception.BusinessException;
-import com.svc.ventas.exception.ConflictException;
 import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.exception.ValidationException;
 import com.svc.ventas.message.request.ProductoParaVender;
@@ -96,17 +95,19 @@ public class VentaServiceImpl implements IVentaService {
     Usuario usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
 
     log.info("Validar correlativo ::");
-    Serie serieBD = serieRepo.findForUpdateBySucursalIdSucursalAndTipoDocumento
-            (usuarioLogueado.getEmpleado().getSucursal().getIdSucursal(), venta.getTipoDocumento())
+    Serie serieBD = serieRepo.obtenerSerieForUpdate(
+                    usuarioLogueado.getEmpleado().getEmpresa().getIdEmpresa(),
+            usuarioLogueado.getEmpleado().getSucursal().getIdSucursal(), 1L)
             .orElseThrow(() -> new EntityNotFoundException(
                     String.format(Constantes.MENSAJE_NOT_FOUND, "Serie", venta.getTipoDocumento())));
 
-    int nextCorrelativo = serieBD.getCorrelativo() + 1 ;
+    Long nextCorrelativo = serieBD.getCorrelativo() + 1 ;
     log.info("Número de documento generado: {}", nextCorrelativo);
 
     log.info("Actualizar correlativo en series ::");
     serieBD.setCorrelativo(nextCorrelativo);
-    serieService.save(serieBD);
+
+    serieRepo.save(serieBD);
 
     Venta ventaNew = Venta.builder()
             .cliente(clienteMapper.mapDtoToEntity(clienteDto))
@@ -288,16 +289,6 @@ public class VentaServiceImpl implements IVentaService {
             .map(tp ->  EnumDto.builder()
                     .value(tp.getValue())
                     .label(tp.getLabel())
-                    .build())
-            .toList();
-  }
-
-  @Override
-  public List<EnumDto> tipoDocumento() {
-    return Arrays.stream(TipoDocumento.values())
-            .map(td -> EnumDto.builder()
-                    .label(td.getLabel())
-                    .value(td.getValue())
                     .build())
             .toList();
   }
