@@ -48,6 +48,8 @@ public class CompraServiceImpl implements ICompraService {
 
   private final SucursalRepo sucursalRepo;
 
+  private final TipoDocumentoRepository tipoDocumentoRepo;
+
   private final IProductoService productoService;
 
   private final CompraMapper compraMapper;
@@ -182,6 +184,11 @@ public class CompraServiceImpl implements ICompraService {
                     .label(tpc.getLabel())
                     .build())
             .toList();
+  }
+
+  @Override
+  public DetalleTipoDocumentoDTO detalleTipoDocumento(Long idTipoDoucumento) {
+    return null;
   }
 
   private CompraMontosDto validarYCalcularMontos(CompraRequest compra) {

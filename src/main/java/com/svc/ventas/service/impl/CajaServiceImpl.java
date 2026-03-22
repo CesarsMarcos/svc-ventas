@@ -25,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -46,22 +48,35 @@ public class CajaServiceImpl implements ICajaService {
   @Override
   public CajaDetalleDTO findByFechaAndUsuario() {
     Usuario currentUsuario = securityUtils.obtenerUsuarioLogueado();
-    return cajaRepo.findByFechaAndUsuarioUsuario(AppUtils.obtenerFechaActual(), currentUsuario.getUsuario())
+
+    LocalDate fecha = LocalDate.now();
+    LocalDateTime inicio = fecha.atStartOfDay();
+    LocalDateTime fin = fecha.atTime(23, 59, 59);
+
+    return cajaRepo.findByFecha(inicio, fin,
+                    currentUsuario.getUsuario(), currentUsuario.getEmpresa().getIdEmpresa())
             .map(this::construirCajaAbiertaDTO)
             .orElseGet(this::construirCajaCerradaDTO);
-
   }
 
   @Override
   public Response aperturaCaja(CajaDTO caja) {
     Usuario currentUsuario = securityUtils.obtenerUsuarioLogueado();
-    String fechaActual = AppUtils.obtenerFechaActual();
 
-    validarCajaExistenteParaUsuario(fechaActual,currentUsuario.getUsuario());
+    LocalDate fecha = LocalDate.now();
 
-    caja.setUsuario(usuarioMapper.map(currentUsuario));
-    caja.setEstado(String.valueOf(EstadoCaja.ABIERTA));
-    cajaRepo.save(CajaMapper.INSTANCE.toEntity(caja));
+    validarCajaExistenteParaUsuario(fecha, currentUsuario.getUsuario(),
+            currentUsuario.getEmpresa().getIdEmpresa());
+
+    cajaRepo.save(Caja.builder()
+            .usuario(currentUsuario)
+            .createdBy(currentUsuario.getUsuario())
+            .montoApertura(caja.getMontoApertura())
+            .fechaHoraApertura(LocalDateTime.now())
+            .estado(EstadoCaja.ABIERTA)
+            .empresa(currentUsuario.getEmpresa())
+            .sucursal(currentUsuario.getEmpleado().getSucursal())
+            .build());
     return Response.builder().mensaje(Constantes.MENSAJE_SAVE).build();
   }
 
@@ -69,7 +84,7 @@ public class CajaServiceImpl implements ICajaService {
   public Response cerrarCaja(Long idCaja) {
     cajaRepo.findById(idCaja)
             .map(cajaSave -> {
-              cajaSave.setHoraCierre(AppUtils.obtenerHoraActual());
+              cajaSave.setFechaHoraCierre(LocalDateTime.now());
               cajaSave.setEstado(EstadoCaja.CERRADA);
               return cajaRepo.save(cajaSave);
             })
@@ -118,8 +133,13 @@ public class CajaServiceImpl implements ICajaService {
     return buildResumenCajaDTO(caja, totalesPorPago, totalesPorMovimiento, totales, finales);
   }
 
-  private void validarCajaExistenteParaUsuario(String fecha, String nombreUsuario) {
-    boolean existeCaja = cajaRepo.findByFechaAndUsuarioUsuario(fecha, nombreUsuario).isPresent();
+  private void validarCajaExistenteParaUsuario(LocalDate fecha, String nombreUsuario,
+                                               Long idEmpresa) {
+
+    LocalDateTime fin = fecha.atTime(23, 59, 59);
+
+    boolean existeCaja = cajaRepo.findByFecha(fecha.atStartOfDay(),fin,
+            nombreUsuario, idEmpresa).isPresent();
 
     if (existeCaja) {
       String mensaje = String.format(Constantes.MSJ_CAJA_EXISTE, nombreUsuario, fecha);

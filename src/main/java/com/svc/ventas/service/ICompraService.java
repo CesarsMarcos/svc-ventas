@@ -2,6 +2,7 @@ package com.svc.ventas.service;
 
 import com.svc.ventas.message.request.CompraRequest;
 import com.svc.ventas.message.response.Response;
+import com.svc.ventas.models.mapstruct.dto.DetalleTipoDocumentoDTO;
 import com.svc.ventas.models.mapstruct.dto.EnumDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,5 +23,7 @@ public interface ICompraService {
 	Object details (Long id);
 
 	List<EnumDto> tipoPagoCompra ();
+
+	DetalleTipoDocumentoDTO detalleTipoDocumento(Long idTipoDoucumento);
 	
 }

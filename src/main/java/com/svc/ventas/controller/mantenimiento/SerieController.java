@@ -36,4 +36,9 @@ public class SerieController {
     return ResponseEntity.ok(serieService.getTipoDocumento());
   }
 
+  @GetMapping("correlativo")
+  public ResponseEntity<?> getSeriePorTipoDocumento (@RequestParam Long idTipoDocumento){
+    return ResponseEntity.ok(serieService.getSeriePorIdIipoDocumento(idTipoDocumento));
+  }
+
 }

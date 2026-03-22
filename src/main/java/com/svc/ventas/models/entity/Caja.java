@@ -1,6 +1,5 @@
 package com.svc.ventas.models.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.svc.ventas.models.enums.EstadoCaja;
 import jakarta.persistence.*;
@@ -41,13 +40,11 @@ public class Caja implements Serializable {
     @OneToMany(mappedBy = "caja", cascade = CascadeType.ALL)
     private List<CajaMovimiento> movimientos;
 
-    private String fecha;
-
-    private String horaApertura;
+    private LocalDateTime fechaHoraApertura;
 
     private BigDecimal montoApertura;
 
-    private String horaCierre;
+    private LocalDateTime fechaHoraCierre;
 
     private BigDecimal montoCierre;
 
@@ -63,13 +60,5 @@ public class Caja implements Serializable {
 
     @Column(name = "updated_by")
     private String  updatedBy;
-
-    @Column(name = "fec_add")
-    private LocalDateTime fecAdd;
-
-    @PrePersist
-    protected void onCreate() {
-        this.fecAdd = LocalDateTime.now();
-    }
 
 }

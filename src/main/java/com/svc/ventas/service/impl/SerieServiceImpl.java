@@ -12,6 +12,7 @@ import com.svc.ventas.models.entity.Serie;
 import com.svc.ventas.models.entity.Sucursal;
 import com.svc.ventas.models.entity.TipoDocumento;
 import com.svc.ventas.models.entity.Usuario;
+import com.svc.ventas.models.mapstruct.dto.CorrelativoDTO;
 import com.svc.ventas.models.mapstruct.dto.SerieDTO;
 import com.svc.ventas.models.mapstruct.dto.TipoDocumentoDTO;
 import com.svc.ventas.models.mapstruct.mappers.SerieMapper;
@@ -72,7 +73,7 @@ public class SerieServiceImpl implements ISerieService {
 
     validarSerie(serieRequest.getSerie(), prefijoEsperado, tipoDocumento.getDescripcion());
 
-    boolean existe = serieRepo.existsByEmpresaIdEmpresaAndSucursalIdSucursalAndTipoDocumentoIdTipoDocumentoAndSerie(
+    boolean existe = serieRepo.existsBySerie(
             empresaId,
             sucursalBD.getIdSucursal(),
             tipoDocumento.getIdTipoDocumento(),
@@ -101,6 +102,19 @@ public class SerieServiceImpl implements ISerieService {
   @Override
   public Serie get(Long id) {
     return null;
+  }
+
+  @Override
+  public CorrelativoDTO getSeriePorIdIipoDocumento(Long idTipoDocumento) {
+    Usuario usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
+    Serie serie = serieRepo.getSerie(usuarioLogueado.getEmpresa().getIdEmpresa(),
+                    usuarioLogueado.getEmpleado().getSucursal().getIdSucursal(), idTipoDocumento)
+            .orElseThrow(() -> new RuntimeException("No existe serie configurada"));
+
+    CorrelativoDTO correlativoDTO = serieMapper.toCorrelativoDto(serie);
+    correlativoDTO.setCorrelativo(correlativoDTO.getCorrelativo() + 1);
+
+    return correlativoDTO;
   }
 
   @Override

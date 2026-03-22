@@ -3,6 +3,7 @@ package com.svc.ventas.service;
 import com.svc.ventas.message.request.SerieRequest;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.entity.Serie;
+import com.svc.ventas.models.mapstruct.dto.CorrelativoDTO;
 import com.svc.ventas.models.mapstruct.dto.SerieDTO;
 import com.svc.ventas.models.mapstruct.dto.TipoDocumentoDTO;
 
@@ -15,6 +16,8 @@ public interface ISerieService {
   Response save(SerieRequest serieRequest);
 
   Serie get (Long id);
+
+  CorrelativoDTO getSeriePorIdIipoDocumento(Long idTipoDocumento);
 
   List<TipoDocumentoDTO> getTipoDocumento();
 

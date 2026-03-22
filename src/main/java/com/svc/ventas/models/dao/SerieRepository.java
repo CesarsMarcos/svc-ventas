@@ -10,9 +10,6 @@ import java.util.Optional;
 
 public interface SerieRepository extends JpaRepository<Serie, Integer> {
 
-  //@Lock(LockModeType.PESSIMISTIC_WRITE)
-  //Optional<Serie> findForUpdateBySucursalIdSucursalAndTipoDocumento(Long idSucursal, TipoDocumento tipoDocumento);
-
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("""
               SELECT s FROM Serie s
@@ -23,6 +20,23 @@ public interface SerieRepository extends JpaRepository<Serie, Integer> {
           """)
   Optional<Serie> obtenerSerieForUpdate(Long empresaId, Long sucursalId, Long tipoDocumentoId);
 
-  boolean existsByEmpresaIdEmpresaAndSucursalIdSucursalAndTipoDocumentoIdTipoDocumentoAndSerie(Long empresaId, Long sucursalId, Long tipoDocumentoId, String serie);
+  @Query("""
+              SELECT s
+              FROM Serie s
+              WHERE s.empresa.idEmpresa = :empresaId
+                AND s.sucursal.idSucursal = :sucursalId
+                AND s.tipoDocumento.idTipoDocumento = :tipoDocumentoId
+          """)
+  Optional<Serie> getSerie(Long empresaId, Long sucursalId, Long tipoDocumentoId);
+
+  @Query("""
+              SELECT COUNT(s) > 0
+              FROM Serie s
+              WHERE s.empresa.idEmpresa = :empresaId
+                AND s.sucursal.idSucursal = :sucursalId
+                AND s.tipoDocumento.idTipoDocumento = :tipoDocumentoId
+                AND s.serie = :serie
+          """)
+  Boolean existsBySerie (Long empresaId, Long sucursalId, Long tipoDocumentoId, String serie);
 
 }
