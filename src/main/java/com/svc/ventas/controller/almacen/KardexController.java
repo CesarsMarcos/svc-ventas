@@ -18,13 +18,11 @@ import java.util.List;
 public class KardexController {
 
   private final IKardexService kardexService;
+
   private final IProductoService productoService;
 
   @GetMapping("/{idProducto}")
   public ResponseEntity<List<KardexDetalleDTO>> obtenerKardex(@PathVariable Long idProducto) {
-
-    productoService.obtener(idProducto);
-
     List<KardexDetalleDTO> kardex = kardexService.obtenerKardexPorProducto(idProducto);
     return ResponseEntity.ok(kardex);
   }

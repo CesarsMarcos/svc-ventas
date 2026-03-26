@@ -1,5 +1,6 @@
 package com.svc.ventas.models.mapstruct.mappers;
 
+import com.svc.ventas.message.response.SearchCompraResponse;
 import com.svc.ventas.models.entity.Compra;
 import com.svc.ventas.models.mapstruct.dto.CompraDetailDto;
 import com.svc.ventas.models.mapstruct.dto.CompraGetDto;
@@ -18,12 +19,13 @@ public interface CompraMapper {
 
     @Mapping(target = "id", source = "idCompra")
     @Mapping(source = "estado",  target = "estado")
+    @Mapping(source = "tipoDocumento.descripcion",  target = "tipoDocumento")
     @Mapping(target = "proveedor", source = "proveedor.razonSocial")
-    CompraGetDto mapCompraToDto(Compra compra);
+    SearchCompraResponse mapCompraToDto(Compra compra);
 
     @Mapping(target = "id", source = "idCompra")
     @Mapping(target = "proveedor", source = "proveedor.razonSocial")
-    @Mapping(target = "tipoDocumento", source = "tipoDocumento")
+    @Mapping(target = "tipoDocumento", source = "tipoDocumento.descripcion")
     @Mapping(target = "tipoPago", source = "tipoPago")
     @Mapping(target = "serieCorrelativo",expression = "java(compra.getSerie().concat(\"-\").concat(compra.getCorrelativo()))")
     @Mapping(target = "productos", expression = "java(listProductos(compra))")

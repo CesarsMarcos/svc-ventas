@@ -3,10 +3,10 @@ package com.svc.ventas.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.svc.ventas.models.entity.Usuario;
+import com.svc.ventas.config.AppContext;
+import com.svc.ventas.models.entity.Sucursal;
 import com.svc.ventas.models.mapstruct.dto.CategoriaDto;
 import com.svc.ventas.models.mapstruct.mappers.CategoriaMapper;
-import com.svc.ventas.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,7 @@ public class CategoriaServiceImpl implements ICategoriaService {
 
 	private final CategoriaMapper categoriaMapper;
 
-	private final SecurityUtils securityUtils;
+	private final AppContext appContext;
 
 	@Override
 	public List<CategoriaDto> lista() {
@@ -36,8 +36,8 @@ public class CategoriaServiceImpl implements ICategoriaService {
 
 	@Override
 	public List<CategoriaDto> categoriasPorProductoStock() {
-		Usuario usuario = securityUtils.obtenerUsuarioLogueado();
-		return categoriaRepo.listaPorCategoriaProducto(usuario.getEmpleado().getSucursal().getIdSucursal())
+		Sucursal sucursal = appContext.getSucursal();
+		return categoriaRepo.listaPorCategoriaProducto(sucursal.getIdSucursal())
 						.stream()
 						.map(categoriaMapper::mapToGetDto)
 						.collect(Collectors.toList());

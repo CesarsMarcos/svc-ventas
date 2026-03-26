@@ -1,17 +1,20 @@
 package com.svc.ventas.service.impl;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.svc.ventas.config.AppContext;
 import com.svc.ventas.exception.BusinessException;
 import com.svc.ventas.exception.ConflictException;
 import com.svc.ventas.message.request.UsuarioCreateRequest;
 import com.svc.ventas.message.response.UsuarioSearchResponse;
 import com.svc.ventas.models.dao.EmpleadoRepo;
+import com.svc.ventas.models.dao.PersonaRepository;
 import com.svc.ventas.models.dao.RolRepo;
-import com.svc.ventas.models.entity.Empleado;
-import com.svc.ventas.models.entity.Rol;
+import com.svc.ventas.models.entity.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +24,6 @@ import org.springframework.stereotype.Service;
 import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.UsuarioRepo;
-import com.svc.ventas.models.entity.Usuario;
 import com.svc.ventas.models.mapstruct.dto.UsuarioDto;
 import com.svc.ventas.models.mapstruct.mappers.EmpleadoMapper;
 import com.svc.ventas.models.mapstruct.mappers.UsuarioMapper;
@@ -34,115 +36,149 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UsuarioServiceImpl implements IUsuarioService {
 
-	private final UsuarioRepo usuarioRepo;
+  private final UsuarioRepo usuarioRepo;
 
-	private final EmpleadoRepo empleadoRepo;
+  private final EmpleadoRepo empleadoRepo;
 
-	private final RolRepo rolRepo;
+  private final PersonaRepository personaRepo;
 
-	private final UsuarioMapper usuarioMapper;
-	
-	private final EmpleadoMapper empleadoMapper;
+  private final RolRepo rolRepo;
 
-	@Override
-	public List<UsuarioDto> lista() {
-		 return usuarioRepo.getUsuariosActivos()
-				 .stream()
-				 .map(usuarioMapper::map)
-		.collect(Collectors.toList());
-	}
+  private final UsuarioMapper usuarioMapper;
 
-	@Override
-	public Map<String, Object> usuarios(String nombre, String documento,int page, int size) {
+  private final EmpleadoMapper empleadoMapper;
 
-		String filtro = (nombre != null && !nombre.isBlank()) ? nombre.trim().toLowerCase() : "";
+  private final AppContext appContext;
 
-		Pageable pageable = PageRequest.of(page, size);
+  @Override
+  public List<UsuarioDto> lista() {
+    return usuarioRepo.getUsuariosActivos()
+            .stream()
+            .map(usuarioMapper::map)
+            .collect(Collectors.toList());
+  }
 
-		Page<UsuarioSearchResponse> pageUsuario = buscarPorNombreOCodigo(filtro, pageable);
+  @Override
+  public Map<String, Object> usuarios(String nombre, String documento, int page, int size) {
 
-		return Map.of(
-						"usuarios", pageUsuario.getContent(),
-						"currentPage", pageUsuario.getNumber(),
-						"pageSize", pageUsuario.getSize(),
-						"totalItems", pageUsuario.getTotalElements(),
-						"totalPages", pageUsuario.getTotalPages(),
-						"empty", pageUsuario.isEmpty()
-		);
-	}
+    String filtro = (nombre != null && !nombre.isBlank()) ? nombre.trim().toLowerCase() : "";
 
-	@Override
-	public Response agregar(UsuarioCreateRequest usuarioRequest) {
+    Pageable pageable = PageRequest.of(page, size);
 
-		Empleado empleado = empleadoRepo.findById(usuarioRequest.getIdEmpleado())
-						.orElseThrow(() -> new EntityNotFoundException(
-										String.format(Constantes.MENSAJE_NOT_FOUND, "Empleado", usuarioRequest.getIdEmpleado())));
+    Page<UsuarioSearchResponse> pageUsuario = buscarPorNombreOCodigo(filtro, pageable);
 
-		List<Rol> roles = rolRepo.findAllById(usuarioRequest.getRoles());
-		if (roles.size() != usuarioRequest.getRoles().size()) {
-			throw new BusinessException("Roles enviados no existen");
-		}
+    return Map.of(
+            "usuarios", pageUsuario.getContent(),
+            "currentPage", pageUsuario.getNumber(),
+            "pageSize", pageUsuario.getSize(),
+            "totalItems", pageUsuario.getTotalElements(),
+            "totalPages", pageUsuario.getTotalPages(),
+            "empty", pageUsuario.isEmpty()
+    );
+  }
 
-		if(usuarioRepo.existsByEmpleadoIdEmpleado(usuarioRequest.getIdEmpleado())){
-			throw new ConflictException("El usuario ya fue registrado");
-		}
+  @Override
+  public Response agregar(UsuarioCreateRequest request) {
 
-		if(usuarioRepo.findByUsuario(usuarioRequest.getUsuario()).isPresent()){
-			throw new BusinessException("Solo debe existir un usuario registrado");
-		}
+    Empresa empresa = appContext.getEmpresa();
 
-		Usuario usuario = usuarioMapper.mapToUsuario(usuarioRequest, empleado, roles);
-		usuario.setClave(new BCryptPasswordEncoder().encode(usuarioRequest.getClave()));
+    Empleado empleado = null;
+    Persona persona;
 
-		usuarioRepo.save(usuario);
-		return Response
-				.builder()
-				.mensaje(Constantes.MENSAJE_SAVE)
-				.build();
-	}
+    if (Objects.isNull(request.getId())) {
+      throw new BusinessException("Debe enviar id");
+    }
 
-	@Override
-	public Response modificar(Integer id, UsuarioDto usuarioDto) {
-		usuarioRepo.findById(id)
-				.map(usuario-> {
-					usuario.setEmpleado(empleadoMapper.mapToEmpleado(usuarioDto.getEmpleado()));
-					return usuarioRepo.save(usuario);
-				})
-				.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Usuario", id)));
-		return Response
-				.builder()
-				.mensaje(Constantes.MENSAJE_SAVE)
-				.build();
-	}
+    if (empresa.getIsUsaEmpleados()) {
 
-	@Override
-	public UsuarioDto obtener(int id) {
-		return  usuarioRepo.findById(id)
-				.map(usuarioMapper::map)
-				.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Usuario", id)));
-	}
+      empleado = empleadoRepo.findById(request.getId())
+              .orElseThrow(() -> new EntityNotFoundException(
+                      String.format(Constantes.MENSAJE_NOT_FOUND, "Empleado", request.getId())
+              ));
 
-	@Override
-	public void eliminar(int id) {
+      if (usuarioRepo.existsByEmpleadoIdEmpleado(request.getId())) {
+        throw new ConflictException("El empleado ya tiene usuario");
+      }
 
-	}
+      persona = empleado.getPersona();
 
-	@Override
-	public Boolean isSaved(Integer idEmpleado) {
-		return usuarioRepo.existsByEmpleadoIdEmpleado(idEmpleado);
-	}
+    } else {
 
-	@Override
-	public Usuario getPorUserName(String username) {
-		return usuarioRepo.findByUsuario(username)
-				//.map(usuarioMapper::map)
-				.orElseThrow(() ->
-						new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Usuario", username)));
-	}
+      persona = personaRepo.findById(request.getId())
+              .orElseThrow(() -> new EntityNotFoundException(
+                      String.format(Constantes.MENSAJE_NOT_FOUND, "Persona", request.getId())
+              ));
 
-	private Page<UsuarioSearchResponse> buscarPorNombreOCodigo(String termino, Pageable pageable) {
-		return usuarioRepo.findUsuario(termino, pageable)
-						.map(usuarioMapper::mapToSearch);
-	}
+      if (usuarioRepo.existsByPersonaIdPersona(request.getId())) {
+        throw new ConflictException("La persona ya tiene usuario");
+      }
+    }
+
+    List<Rol> roles = rolRepo.findAllById(request.getRoles());
+    if (roles.size() != request.getRoles().size()) {
+      throw new BusinessException("Roles enviados no existen");
+    }
+
+    if (usuarioRepo.findByUsuario(request.getUsuario()).isPresent()) {
+      throw new BusinessException("El usuario ya existe");
+    }
+
+    Usuario usuario = new Usuario();
+    usuario.setUsuario(request.getUsuario());
+    usuario.setClave(new BCryptPasswordEncoder().encode(request.getClave()));
+    usuario.setIndEstado(Constantes.IND_ACTIVO);
+    usuario.setRoles(roles);
+
+    usuario.setPersona(persona);
+    usuario.setEmpleado(empleado);
+
+    if (empresa.getIsUsaEmpleados()) {
+      usuario.setSucursal(empleado.getSucursal());
+    } else {
+      usuario.setSucursal(appContext.getSucursal());
+    }
+
+    usuarioRepo.save(usuario);
+
+    return Response.builder()
+            .mensaje(Constantes.MENSAJE_SAVE)
+            .build();
+  }
+
+  @Override
+  public Response modificar(Integer id, UsuarioDto usuarioDto) {
+    usuarioRepo.findById(id)
+            .map(usuario -> {
+              usuario.setEmpleado(empleadoMapper.mapToEmpleado(usuarioDto.getEmpleado()));
+              return usuarioRepo.save(usuario);
+            })
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Usuario", id)));
+    return Response
+            .builder()
+            .mensaje(Constantes.MENSAJE_SAVE)
+            .build();
+  }
+
+  @Override
+  public UsuarioDto obtener(int id) {
+    return usuarioRepo.findById(id)
+            .map(usuarioMapper::map)
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Usuario", id)));
+  }
+
+  @Override
+  public void eliminar(int id) {
+
+  }
+
+  @Override
+  public Boolean isSaved(Integer idEmpleado) {
+    return usuarioRepo.existsByEmpleadoIdEmpleado(idEmpleado);
+  }
+
+  private Page<UsuarioSearchResponse> buscarPorNombreOCodigo(String termino, Pageable pageable) {
+    return usuarioRepo.findUsuario(termino, pageable)
+            .map(usuarioMapper::mapToSearch);
+  }
 
 }

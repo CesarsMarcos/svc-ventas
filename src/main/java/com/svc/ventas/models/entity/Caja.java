@@ -33,7 +33,7 @@ public class Caja implements Serializable {
     private Sucursal sucursal;
 
     @ManyToOne
-    @JoinColumn(name = "id_empresa")
+    @JoinColumn(name = "id_empresa", foreignKey=@ForeignKey(name="fk_caja_empresa"))
     private Empresa empresa;
 
     @JsonManagedReference

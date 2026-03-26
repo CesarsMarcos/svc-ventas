@@ -1,5 +1,4 @@
-package com.svc.ventas.message.request;
-
+package com.svc.ventas.message.response;
 
 import com.svc.ventas.models.entity.TipoDocumento;
 import com.svc.ventas.models.enums.TipoPagoCompra;
@@ -10,30 +9,26 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CompraRequest {
+public class SearchCompraResponse {
+
+  private Long id;
 
   private String fecha;
 
-  private String serie;
-
-  private String correlativo;
+  private String estado;
 
   @NotNull
-  private Long idTipoDocumento;
+  private String tipoDocumento;
 
-  private TipoPagoCompra TipoPago;
-
-  @NotNull
-  private Long idProveedor;
+  private TipoPagoCompra tipoPago;
 
   @NotNull
-  private List<ProductoParaComprar> productos;
+  private String proveedor;
 
   @NotNull
   private BigDecimal igv;

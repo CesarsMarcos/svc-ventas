@@ -3,6 +3,7 @@ package com.svc.ventas.models.mapstruct.mappers;
 import com.svc.ventas.message.request.ProductoRequest;
 import com.svc.ventas.message.response.ProductoSearchParaVenderResponse;
 import com.svc.ventas.message.response.ProductoSearchResponse;
+import com.svc.ventas.message.response.SearchProductoCompra;
 import com.svc.ventas.models.entity.*;
 import com.svc.ventas.models.mapstruct.dto.*;
 import org.mapstruct.Mapper;
@@ -18,6 +19,7 @@ public interface ProductoMapper {
 	@Mapping(target = "categoria", source = "categoria")
 	@Mapping(target = "unidadMedida", source = "unidadMedida")
 	@Mapping(target = "indEstado", constant = "true")
+	@Mapping(target = "empresa", ignore = true)
 	@Mapping(target = "createdBy", ignore = true)
 	@Mapping(target = "updatedBy", ignore = true)
 	Producto mapToProducto(ProductoRequest producto,
@@ -67,5 +69,12 @@ public interface ProductoMapper {
 	@Mapping(target = "imagen", source = "producto.imagen")
 	@Mapping(target = "estado", source = "producto.indEstado")
 	ProductoSearchResponse mapProductoSearch(Producto producto);
+
+
+	@Mapping(target = "idProducto", source = "producto.producto.idProducto")
+	@Mapping(target = "nombre", source = "producto.producto.nombre")
+	@Mapping(target = "precioVenta", source = "producto.precioVenta")
+	@Mapping(target = "imagen", source = "producto.producto.imagen")
+	SearchProductoCompra mapSearchCompra(ProductoStock producto);
 
 }

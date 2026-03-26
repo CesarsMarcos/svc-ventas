@@ -1,7 +1,9 @@
 package com.svc.ventas.models.mapstruct.mappers;
 
 import com.svc.ventas.message.response.PersonaSearchResponse;
+import com.svc.ventas.models.entity.Usuario;
 import com.svc.ventas.models.mapstruct.dto.PersonaDto;
+import com.svc.ventas.models.mapstruct.dto.PersonaEmpleadoDto;
 import com.svc.ventas.models.mapstruct.dto.PersonaListDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -14,9 +16,11 @@ public interface PersonaMapper {
 	@Mapping(target = "indEstado", constant = "true")
 	Persona mapToPersona (PersonaDto personaDto);
 
-	PersonaDto mapToPersonaDto (Persona persona);
-
 	PersonaDto map (Persona persona);
+
+	@Mapping(target = "id", source = "idPersona")
+	@Mapping(target = "nombreCompleto", expression = "java(getNombreCompleto(persona))")
+	PersonaEmpleadoDto mapToPersonaEmpleado(Persona persona);
 
 	PersonaListDto mapToPersonaListDto(Persona persona);
 
@@ -29,5 +33,10 @@ public interface PersonaMapper {
 	@Mapping(target = "foto", source = "foto")
 	@Mapping(target = "estado", source = "indEstado")
 	PersonaSearchResponse mapToResponseSearch(Persona persona);
+
+
+	default String getNombreCompleto(Persona persona) {
+		return persona.getNombre().concat(" ".concat(persona.getApePaterno()));
+	}
 
 }

@@ -27,6 +27,4 @@ public interface IUsuarioService {
 
 	Boolean isSaved(Integer idEmpleado);
 
-	Usuario getPorUserName(String username);
-
 }

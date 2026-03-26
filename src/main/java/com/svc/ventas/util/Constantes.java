@@ -100,7 +100,7 @@ public class Constantes {
 
   public static final String URL_BASE_CLIENT = "http://localhost:4200";
   public static final String[] ALLOWED_METHODS = {
-          "GET", "POST", "PUT", "DELETE"
+          "GET", "POST", "PUT", "DELETE", "PATCH"
   };
 
 }

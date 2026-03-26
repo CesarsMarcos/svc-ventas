@@ -1,8 +1,7 @@
 package com.svc.ventas.util;
 
 import com.svc.ventas.models.entity.Usuario;
-import com.svc.ventas.models.mapstruct.dto.UsuarioDto;
-import com.svc.ventas.service.IUsuarioService;
+import com.svc.ventas.service.impl.IUsuarioContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SecurityUtils {
 
-  private final IUsuarioService usuarioService;
+  private final IUsuarioContext usuarioService;
 
   /**
    * Retorna el usuario logueado actualmente desde el contexto de Spring Security.

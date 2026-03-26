@@ -47,6 +47,10 @@ public class CompraSpecifications {
     };
   }
 
+  public static Specification<Compra> hasSucursal (Sucursal sucursal){
+    return (root, query, cb) -> cb.equal(root.get("sucursal"), sucursal);
+  }
+
   public static Specification<Compra> hasFechaBetween(LocalDate inicio, LocalDate fin) {
     return (root, query, cb) -> {
       if (inicio == null || fin == null) {

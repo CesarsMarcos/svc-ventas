@@ -3,14 +3,7 @@ package com.svc.ventas.models.entity;
 import java.io.Serializable;
 import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import lombok.*;
 
@@ -24,6 +17,10 @@ public class Menu implements Serializable{
 	
 	@Id
 	private Integer idMenu;
+
+	@ManyToOne
+	@JoinColumn(name = "id_empresa", foreignKey=@ForeignKey(name="fk_menu_empresa"))
+	private Empresa empresa;
 
 	@Column(name = "icono", length = 20)
 	private String icono;

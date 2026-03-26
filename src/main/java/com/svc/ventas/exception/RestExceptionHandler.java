@@ -61,7 +61,7 @@ public class RestExceptionHandler {
 	@ExceptionHandler(BusinessException.class)
 	public ResponseEntity<?> handleBusinessException(BusinessException ex) {
 		log.error("handleBusinessException:: {}", ex.getMessage());
-		return new ResponseEntity<>(Collections.singletonMap("mensaje", ex.getMessage()), HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(Collections.singletonMap("mensaje", ex.getMessage()), HttpStatus.CONFLICT);
 	}
 
 	@ExceptionHandler(ValidationException.class)
@@ -76,9 +76,22 @@ public class RestExceptionHandler {
 	}
 
 	@ExceptionHandler(DataIntegrityViolationException.class)
-	public ResponseEntity<?> handleDuplicateVenta(Exception ex) {
-		log.error("handleDuplicateVenta:: {}", ex.getMessage());
-		return new ResponseEntity<>(Collections.singletonMap("mensaje", "Ya se registró un documento con ese correlativo"), HttpStatus.CONFLICT);
+	public ResponseEntity<?> handleDuplicateVenta(DataIntegrityViolationException  ex) {
+		log.error("handleDataIntegrityViolation:: ", ex);
+
+		String mensaje = "Error de integridad de datos";
+
+		Throwable cause = ex.getRootCause();
+
+		if (cause instanceof org.hibernate.exception.ConstraintViolationException constraintEx) {
+			String constraintName = constraintEx.getConstraintName();
+
+			mensaje = obtenerMensajePorConstraint(constraintName);
+		}
+
+		return ResponseEntity
+						.status(HttpStatus.CONFLICT)
+						.body(Collections.singletonMap("mensaje", mensaje));
 	}
 
 	@ExceptionHandler(Exception.class)
@@ -91,6 +104,27 @@ public class RestExceptionHandler {
 	public ResponseEntity<Object> handleExpiredJwt(ExpiredJwtException ex) {
 		log.error("handleExpiredJwt:: {}", ex.getMessage());
 		return new ResponseEntity<>(Collections.singletonMap("mensaje", Constantes.RESPONSE_ERROR_401), HttpStatus.UNAUTHORIZED);
+	}
+
+	private String obtenerMensajePorConstraint(String constraintName) {
+
+		if (constraintName == null) {
+			return "Error de datos duplicados o inválidos";
+		}
+
+		return switch (constraintName) {
+			case "uk_venta_serie_correlativo" ->
+							"Ya existe una venta con ese serie y correlativo";
+
+			case "uk_usuario_username" ->
+							"El username ya está en uso";
+
+			case "uk_producto_codigo" ->
+							"El código del producto ya existe";
+
+			default ->
+							"Violación de restricción: " + constraintName;
+		};
 	}
 
 }

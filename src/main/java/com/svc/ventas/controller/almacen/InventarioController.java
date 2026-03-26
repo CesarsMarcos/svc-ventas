@@ -45,13 +45,21 @@ public class InventarioController {
     return ResponseEntity.ok(response);
   }
 
+  @GetMapping("searchProductosVentas")
+  public ResponseEntity<Map<String, Object>> searchProductoVentaV2(
+          @RequestParam(required = false) String codigo,
+          @RequestParam(required = false) String termino) {
+    Map<String, Object> response = almacenService.searchProductosVenta(codigo, termino);
+    return ResponseEntity.ok(response);
+  }
+
   @GetMapping("details/{id}")
   public ResponseEntity<?> details(@PathVariable Long id) {
     return new ResponseEntity<>(almacenService.details(id), HttpStatus.OK);
   }
 
-  @PutMapping("{idProductoStock}")
-  public ResponseEntity<Void> updatePrecioVenta (Long idProductoStock, @RequestParam BigDecimal precioVenta){
+  @PatchMapping("{idProductoStock}/updatePrecioVenta")
+  public ResponseEntity<Void> updatePrecioVenta (@PathVariable Long idProductoStock, @RequestParam BigDecimal precioVenta){
     almacenService.updatePrecioVenta(idProductoStock, precioVenta);
     return ResponseEntity.ok().build();
   }

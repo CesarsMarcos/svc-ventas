@@ -47,6 +47,15 @@ public class Empresa implements Serializable {
 	@Column(name="simbolo_moneda")
 	private String simboloMoneda;
 
+	@Column(name="usa_empleados")
+	private Boolean isUsaEmpleados;
+
+	@Column(name="usa_sucursales")
+	private Boolean isUsaSucursales;
+
+	@Column(name="nro_sucursales")
+	private Integer numeroSucursales;
+
 	private String logo;
 
 	@Column(name="ind_estado")

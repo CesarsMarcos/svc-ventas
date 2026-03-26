@@ -1,13 +1,12 @@
 package com.svc.ventas.service.impl;
 
+import com.svc.ventas.config.AppContext;
 import com.svc.ventas.exception.ConflictException;
 import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.CajaRepo;
 import com.svc.ventas.models.dao.MovimientoRepo;
-import com.svc.ventas.models.entity.Caja;
-import com.svc.ventas.models.entity.CajaMovimiento;
-import com.svc.ventas.models.entity.Usuario;
+import com.svc.ventas.models.entity.*;
 import com.svc.ventas.models.enums.EstadoCaja;
 import com.svc.ventas.models.enums.OrigenMovimiento;
 import com.svc.ventas.models.enums.TipoMovimiento;
@@ -17,9 +16,7 @@ import com.svc.ventas.models.mapstruct.mappers.CajaMapper;
 import com.svc.ventas.models.mapstruct.mappers.MovimientoMapper;
 import com.svc.ventas.models.mapstruct.mappers.UsuarioMapper;
 import com.svc.ventas.service.ICajaService;
-import com.svc.ventas.util.AppUtils;
 import com.svc.ventas.util.Constantes;
-import com.svc.ventas.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -43,39 +40,45 @@ public class CajaServiceImpl implements ICajaService {
 
   private final UsuarioMapper usuarioMapper;
 
-  private final SecurityUtils securityUtils;
+  private final AppContext appContext;
 
   @Override
   public CajaDetalleDTO findByFechaAndUsuario() {
-    Usuario currentUsuario = securityUtils.obtenerUsuarioLogueado();
+
+    String currentUserName = appContext.getUserName();
+    Long idEmpresa = appContext.getEmpresaId();
 
     LocalDate fecha = LocalDate.now();
     LocalDateTime inicio = fecha.atStartOfDay();
     LocalDateTime fin = fecha.atTime(23, 59, 59);
 
-    return cajaRepo.findByFecha(inicio, fin,
-                    currentUsuario.getUsuario(), currentUsuario.getEmpresa().getIdEmpresa())
+    return cajaRepo.findByFecha(inicio, fin, currentUserName, idEmpresa)
             .map(this::construirCajaAbiertaDTO)
             .orElseGet(this::construirCajaCerradaDTO);
   }
 
   @Override
   public Response aperturaCaja(CajaDTO caja) {
-    Usuario currentUsuario = securityUtils.obtenerUsuarioLogueado();
+
+    Usuario currentUsuario = appContext.getUsuario();
+    Sucursal currentSucursal = appContext.getSucursal();
+    String currentUserName = appContext.getUserName();
+    Long idEmpresa = appContext.getEmpresaId();
+
+
 
     LocalDate fecha = LocalDate.now();
 
-    validarCajaExistenteParaUsuario(fecha, currentUsuario.getUsuario(),
-            currentUsuario.getEmpresa().getIdEmpresa());
+    validarCajaExistenteParaUsuario(fecha, currentUserName, idEmpresa);
 
     cajaRepo.save(Caja.builder()
             .usuario(currentUsuario)
-            .createdBy(currentUsuario.getUsuario())
+            .createdBy(currentUserName)
             .montoApertura(caja.getMontoApertura())
             .fechaHoraApertura(LocalDateTime.now())
             .estado(EstadoCaja.ABIERTA)
-            .empresa(currentUsuario.getEmpresa())
-            .sucursal(currentUsuario.getEmpleado().getSucursal())
+            .empresa(currentUsuario.getEmpleado().getSucursal().getEmpresa())
+            .sucursal(currentSucursal)
             .build());
     return Response.builder().mensaje(Constantes.MENSAJE_SAVE).build();
   }

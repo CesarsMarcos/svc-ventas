@@ -30,6 +30,7 @@ public interface VentaMapper {
 	@Mapping(source = "fecha",  target = "fecha")
 	@Mapping(source = "estado",  target = "estado")
 	@Mapping(source = "tipoPago",  target = "tipoPago")
+	@Mapping(source = "tipoDocumento.descripcion",  target = "tipoDocumento")
 	@Mapping(target = "cliente", expression = "java(dataNombreCliente(venta))")
 	@Mapping(target = "serieCorrelativo",expression = "java(venta.getSerie().concat(\"-\").concat(venta.getCorrelativo().toString()))")
 	@Mapping(source = "igv",  target = "igv")

@@ -1,6 +1,6 @@
 package com.svc.ventas.models.mapstruct.dto;
 
-import com.svc.ventas.models.enums.TipoDocumento;
+import com.svc.ventas.models.entity.TipoDocumento;
 import lombok.*;
 
 import java.math.BigDecimal;

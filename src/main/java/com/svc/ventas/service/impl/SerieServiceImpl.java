@@ -1,5 +1,6 @@
 package com.svc.ventas.service.impl;
 
+import com.svc.ventas.config.AppContext;
 import com.svc.ventas.exception.BusinessException;
 import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.exception.ValidationException;
@@ -18,7 +19,6 @@ import com.svc.ventas.models.mapstruct.dto.TipoDocumentoDTO;
 import com.svc.ventas.models.mapstruct.mappers.SerieMapper;
 import com.svc.ventas.service.ISerieService;
 import com.svc.ventas.util.Constantes;
-import com.svc.ventas.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,7 +40,7 @@ public class SerieServiceImpl implements ISerieService {
 
   private final SucursalRepo sucursalRepo;
 
-  private final SecurityUtils securityUtils;
+  private final AppContext appContext;
 
   @Override
   public List<SerieDTO> series() {
@@ -52,11 +52,9 @@ public class SerieServiceImpl implements ISerieService {
   @Override
   public Response save(SerieRequest serieRequest) {
 
-    Usuario usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
+    Usuario usuarioLogueado = appContext.getUsuario();
 
-    Long empresaId = usuarioLogueado.getEmpresa().getIdEmpresa();
-
-    Long sucursalId = usuarioLogueado.getEmpleado().getSucursal().getIdSucursal();
+    Long empresaId = appContext.getEmpresaId();
 
     TipoDocumento tipoDocumento = tipoDocumentoRepo.findById(serieRequest.getIdTipoDocumento())
             .orElseThrow(() -> new EntityNotFoundException("Tipo de documento no válido"));
@@ -85,7 +83,7 @@ public class SerieServiceImpl implements ISerieService {
     }
 
     serieRepo.save(Serie.builder()
-            .empresa(usuarioLogueado.getEmpresa())
+            .empresa(usuarioLogueado.getEmpleado().getSucursal().getEmpresa())
             .sucursal(sucursalBD)
             .tipoDocumento(tipoDocumento)
             .serie(serieRequest.getSerie())
@@ -106,10 +104,14 @@ public class SerieServiceImpl implements ISerieService {
 
   @Override
   public CorrelativoDTO getSeriePorIdIipoDocumento(Long idTipoDocumento) {
-    Usuario usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
-    Serie serie = serieRepo.getSerie(usuarioLogueado.getEmpresa().getIdEmpresa(),
-                    usuarioLogueado.getEmpleado().getSucursal().getIdSucursal(), idTipoDocumento)
-            .orElseThrow(() -> new RuntimeException("No existe serie configurada"));
+
+    log.info("Obtener usuario de sessión ::");
+    Long idEmpresa = appContext.getEmpresaId();
+
+    Long idSucursal = appContext.getSucursalId();
+
+    Serie serie = serieRepo.getSerie(idEmpresa, idSucursal, idTipoDocumento)
+            .orElseThrow(() -> new EntityNotFoundException("Serie no registrada"));
 
     CorrelativoDTO correlativoDTO = serieMapper.toCorrelativoDto(serie);
     correlativoDTO.setCorrelativo(correlativoDTO.getCorrelativo() + 1);
@@ -119,9 +121,11 @@ public class SerieServiceImpl implements ISerieService {
 
   @Override
   public List<TipoDocumentoDTO> getTipoDocumento() {
-    Usuario usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
-    return tipoDocumentoRepo.tipoDocumentos(usuarioLogueado.getEmpresa().getIdEmpresa());
 
+    log.info("Obtener usuario de sessión ::");
+    Long idEmpresa = appContext.getEmpresaId();
+
+    return tipoDocumentoRepo.tipoDocumentos(idEmpresa);
   }
 
   @Transactional
@@ -129,7 +133,7 @@ public class SerieServiceImpl implements ISerieService {
 
     Serie serie = serieRepo.obtenerSerieForUpdate(
                     empresaId, sucursalId, tipoDocumentoId)
-            .orElseThrow(() -> new RuntimeException("No existe serie configurada"));
+            .orElseThrow(() -> new EntityNotFoundException("Serie no registrada"));
 
     Long nuevoCorrelativo = serie.getCorrelativo() + 1;
 

@@ -1,9 +1,12 @@
 package com.svc.ventas.service.impl;
 
+import com.svc.ventas.config.AppContext;
 import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.response.ProductoStockSearchResponse;
 import com.svc.ventas.models.dao.ProductoStockRepo;
 import com.svc.ventas.models.entity.ProductoStock;
+import com.svc.ventas.models.entity.Sucursal;
+import com.svc.ventas.models.entity.Usuario;
 import com.svc.ventas.models.mapstruct.dto.ProductoStockDetailsDTO;
 import com.svc.ventas.models.mapstruct.mappers.ProductoStockMapper;
 import com.svc.ventas.models.specifications.ProductStockSpecifications;
@@ -31,10 +34,15 @@ public class AlmacenServiceImpl implements IAlmacenService {
 
   private final ProductoStockMapper productoStockMapper;
 
+  private final AppContext appContext;
+
   @Override
   public Map<String, Object> searchProductos(String nombre, Integer categoriaId, Boolean estado, int page, int size) {
 
     Specification<ProductoStock> spec = Specification.where(null);
+
+    log.info("Obtiene usuario en sessión ::");
+    Sucursal sucursal = appContext.getSucursal();
 
     if(Objects.nonNull(nombre) && !nombre.isEmpty()) {
       spec = spec.and(ProductStockSpecifications.hasName(nombre));
@@ -47,6 +55,8 @@ public class AlmacenServiceImpl implements IAlmacenService {
     if(Objects.nonNull(estado)){
       spec = spec.and(ProductStockSpecifications.hasStatus(estado));
     }
+
+    spec = spec.and(ProductStockSpecifications.hasSucursal(sucursal));
 
     Pageable pageable = PageRequest.of(page, size);
 
@@ -107,11 +117,12 @@ public class AlmacenServiceImpl implements IAlmacenService {
   public ProductoStockDetailsDTO details(Long idProductoStock) {
     return productoStockRepo.findById(idProductoStock)
             .map(productoStockMapper::toProductoDetails)
-            .orElseThrow(()-> new EntityNotFoundException(""));
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "ProductoStock", idProductoStock)));
   }
 
   @Override
   public void updatePrecioVenta(Long idProductoStock, BigDecimal precioVenta) {
+    log.info("Se inicia actualizacion de precio venta ::");
     productoStockRepo.findById(idProductoStock)
             .map(stock -> {
               stock.setPrecioVenta(precioVenta);

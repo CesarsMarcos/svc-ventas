@@ -25,12 +25,16 @@ public interface UsuarioRepo extends JpaRepository<Usuario, Integer> {
   Optional<Usuario> findByUsuario(String username);
 
 	@Query("""
-				 SELECT u
-				 FROM Usuario u
-				 WHERE u.empleado.persona.numDocumento = :termino
-				 OR LOWER(CONCAT(u.empleado.persona.nombre, CONCAT(' ', u.empleado.persona.apePaterno)))
-				 LIKE LOWER(CONCAT('%', :termino, '%'))
-				 """)
+					SELECT u
+					FROM Usuario u
+					WHERE
+					    LOWER(u.persona.numDocumento) LIKE LOWER(CONCAT('%', :termino, '%'))
+					OR  LOWER(CONCAT(u.persona.nombre, ' ', u.persona.apePaterno))
+					    LIKE LOWER(CONCAT('%', :termino, '%'))
+					OR  LOWER(CONCAT(u.persona.nombre, ' ', u.persona.apePaterno, ' ', u.persona.apeMaterno))
+					    LIKE LOWER(CONCAT('%', :termino, '%'))
+					""")
 	Page<Usuario> findUsuario(@Param("termino") String termino, Pageable pageable);
 
+	boolean existsByPersonaIdPersona(Integer idPersona);
 }

@@ -12,7 +12,7 @@ public interface IAlmacenService {
 
   Map<String, Object> searchProductosVenta(String codigo, String nombre);
 
-  ProductoStockDetailsDTO details (Long idProductoStock);
+  ProductoStockDetailsDTO details(Long idProductoStock);
 
   void updatePrecioVenta(Long idProductoStock, BigDecimal precioVenta);
 

@@ -6,6 +6,7 @@ import java.util.Map;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.entity.Persona;
 import com.svc.ventas.models.mapstruct.dto.PersonaDto;
+import com.svc.ventas.models.mapstruct.dto.PersonaEmpleadoDto;
 import com.svc.ventas.models.mapstruct.dto.PersonaListDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface IPersonaService {
 
-	List<PersonaDto> personas ();
+	List<?> listaPersonaEmpleadoSegunEmpresa();
+
+	List<PersonaEmpleadoDto> personasNoUsuarios ();
 
 	List<PersonaListDto> personasNoEmpleados();
 
@@ -26,8 +29,6 @@ public interface IPersonaService {
 	Response modificar (Integer id, PersonaDto persona);
 
 	PersonaDto obtener (Integer id);
-
-	Boolean isSaved (String documento);
 
 	Map<String, Object> searchPersona(String documento, String nombre, int page, int size);
 }

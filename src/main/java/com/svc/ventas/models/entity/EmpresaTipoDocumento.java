@@ -16,7 +16,8 @@ public class EmpresaTipoDocumento {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  @JoinColumn(name = "id_empresa_tipo_documento")
+  private Long idEmpresaTipoDocumento;
 
   @ManyToOne
   @JoinColumn(name = "id_empresa")

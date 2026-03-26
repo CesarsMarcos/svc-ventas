@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 import com.svc.ventas.models.enums.EstadoVenta;
-import com.svc.ventas.models.enums.TipoDocumento;
 import com.svc.ventas.models.enums.TipoPago;
 import jakarta.persistence.*;
 
@@ -59,12 +58,8 @@ public class Venta implements Serializable {
 	@JoinColumn(name = "id_sucursal", foreignKey = @ForeignKey(name = "fk_venta_sucursal"))
 	private Sucursal sucursal;
 
-	@ManyToOne
-	@JoinColumn(name = "id_empresa")
-	private Empresa empresa;
-
-	@Column(name = "tipo_documento")
-	@Enumerated(EnumType.STRING)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "id_tipo_documento", foreignKey = @ForeignKey(name = "fk_venta_tipo_documento"))
 	private TipoDocumento tipoDocumento;
 
 	private String serie;
