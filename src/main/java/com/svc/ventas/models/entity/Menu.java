@@ -3,6 +3,7 @@ package com.svc.ventas.models.entity;
 import java.io.Serializable;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import lombok.*;
@@ -19,7 +20,7 @@ public class Menu implements Serializable{
 	private Integer idMenu;
 
 	@ManyToOne
-	@JoinColumn(name = "id_empresa", foreignKey=@ForeignKey(name="fk_menu_empresa"))
+	@JoinColumn(name = "id_empresa", foreignKey= @ForeignKey(name="fk_menu_empresa"))
 	private Empresa empresa;
 
 	@Column(name = "icono", length = 20)
@@ -35,6 +36,18 @@ public class Menu implements Serializable{
 	@JoinTable(name = "tb_menu_rol", 
 			joinColumns = @JoinColumn(name = "id_menu", referencedColumnName = "idMenu"), 
 			inverseJoinColumns = @JoinColumn(name = "id_rol", referencedColumnName = "idRol"))
-	private List<Rol> roles;	
+	private List<Rol> roles;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "id_menu_padre")
+	@JsonBackReference
+	private Menu idMenuPadre;
+
+	@OneToMany(mappedBy = "idMenuPadre", cascade = CascadeType.ALL)
+	@JsonBackReference
+	private List<Menu> subMenus;
+
+	@Column(name ="is_empleado")
+	private Boolean isEmpleado = false;
 
 }

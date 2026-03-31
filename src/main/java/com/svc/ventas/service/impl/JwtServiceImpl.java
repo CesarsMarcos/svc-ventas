@@ -1,7 +1,6 @@
 package com.svc.ventas.service.impl;
 
-import com.svc.ventas.config.AppContext;
-import com.svc.ventas.models.entity.Empresa;
+import com.svc.ventas.models.entity.Rol;
 import com.svc.ventas.models.entity.Usuario;
 import com.svc.ventas.service.IJwtService;
 import com.svc.ventas.util.Constantes;
@@ -24,8 +23,6 @@ import java.util.function.Function;
 @Service
 @RequiredArgsConstructor
 public class JwtServiceImpl implements IJwtService {
-
-    private final AppContext appContext;
 
     @Value("${key.signature}")
     private String keySignature;
@@ -90,23 +87,15 @@ public class JwtServiceImpl implements IJwtService {
     }
 
     private Map<String, Object> addClaim(Usuario usuario){
-
         Map<String, Object> claims = new HashMap<>();
-        String nombreCompleto;
-        if (usuario.getSucursal().getEmpresa().getIsUsaEmpleados()){
-            nombreCompleto = usuario.getEmpleado().getPersona().getNombre()
-                    .concat(" ".concat(usuario.getEmpleado().getPersona().getApePaterno())
-                    .concat(" ".concat(usuario.getEmpleado().getPersona().getApeMaterno())));
-        } else {
-            nombreCompleto = usuario.getPersona().getNombre()
+        String nombreCompleto = usuario.getPersona().getNombre()
                     .concat(" ".concat(usuario.getPersona().getApePaterno())
                             .concat(" ".concat(usuario.getPersona().getApeMaterno())));
-        }
-
-        claims.put(Constantes.CLAIM_USER,nombreCompleto );
-        claims.put(Constantes.CLAIM_ROL,usuario.getRoles());
-        claims.put("isUsaEmpleado", usuario.getSucursal().getEmpresa().getIsUsaEmpleados());
-        claims.put("sucursal", usuario.getSucursal().getRazonSocial());
+        claims.put(Constantes.CLAIM_USER, usuario.getUsuario());
+        claims.put(Constantes.CLAIM_ROL, usuario.getRoles().stream().map(Rol::getDesRol).toList());
+        claims.put(Constantes.CLAIM_NOMBRE_COMPLETO, nombreCompleto );
+        claims.put(Constantes.CLAIM_IS_USA_EMPLEADO, usuario.getSucursal().getEmpresa().getIsUsaEmpleados());
+        claims.put(Constantes.CLAIM_SUCURSAL, usuario.getSucursal().getRazonSocial());
         return claims;
     }
 }

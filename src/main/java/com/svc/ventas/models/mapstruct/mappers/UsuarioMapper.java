@@ -1,17 +1,11 @@
 package com.svc.ventas.models.mapstruct.mappers;
 
-import com.svc.ventas.message.response.UsuarioSearchResponse;
-import com.svc.ventas.models.entity.Cliente;
-import com.svc.ventas.models.entity.Venta;
-import com.svc.ventas.models.enums.TipoDocumento;
-import com.svc.ventas.models.enums.TipoDocumentoPersona;
+import com.svc.ventas.message.response.SearchUsuarioResponse;
 import org.mapstruct.Mapper;
 
 import com.svc.ventas.models.entity.Usuario;
 import com.svc.ventas.models.mapstruct.dto.UsuarioDto;
 import org.mapstruct.Mapping;
-
-import java.util.Objects;
 
 @Mapper(componentModel = "spring")
 public interface UsuarioMapper {
@@ -23,38 +17,21 @@ public interface UsuarioMapper {
 	@Mapping(target = "nombreCompleto", expression = "java(getNombreCompleto(usuario))")
 	@Mapping(target = "tipoDocumento", expression = "java(getTipoDocumento(usuario))")
 	@Mapping(target = "numDocumento", expression = "java(getNumeroDocumento(usuario))")
-	@Mapping(target = "usuario", source = "usuario")
+  @Mapping(target = "roles", expression = "java(usuario.getRoles().stream().map(Rol::getDesRol).toArray(String[]::new))")
+  @Mapping(target = "usuario", source = "usuario")
 	@Mapping(target = "estado", source = "indEstado")
-	UsuarioSearchResponse mapToSearch (Usuario usuario);
+  SearchUsuarioResponse mapToSearch (Usuario usuario);
 
 	default String getNombreCompleto(Usuario usuario) {
-		String nombre;
-		if (usuario.getSucursal().getEmpresa().getIsUsaEmpleados()) {
-			nombre = usuario.getEmpleado().getPersona().getNombre().concat(" ".concat(usuario.getPersona().getApePaterno()));
-		} else {
-			nombre = usuario.getPersona().getNombre().concat(" ".concat(usuario.getPersona().getApePaterno()));
-		}
-		return nombre;
+    return usuario.getPersona().getNombre().concat(" ".concat(usuario.getPersona().getApePaterno()));
 	}
 
 	default String getTipoDocumento(Usuario usuario) {
-		String tipoDocumento;
-		if (Objects.isNull(usuario.getEmpleado())) {
-			tipoDocumento = usuario.getPersona().getTipoDocumento().getLabel();
-		} else {
-			tipoDocumento = usuario.getEmpleado().getPersona().getTipoDocumento().getLabel();
-		}
-		return tipoDocumento;
+		return usuario.getPersona().getTipoDocumento().getLabel();
 	}
 
 	default String getNumeroDocumento(Usuario usuario) {
-		String nombre;
-		if (Objects.isNull(usuario.getEmpleado())) {
-			nombre = usuario.getPersona().getNumDocumento();
-		} else {
-			nombre = usuario.getEmpleado().getPersona().getNumDocumento();
-		}
-		return nombre;
+		return usuario.getPersona().getNumDocumento();
 	}
 	
 }

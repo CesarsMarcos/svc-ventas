@@ -1,19 +1,19 @@
 package com.svc.ventas.service.impl;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.svc.ventas.config.AppContext;
 import com.svc.ventas.exception.BusinessException;
 import com.svc.ventas.exception.ConflictException;
 import com.svc.ventas.message.request.UsuarioCreateRequest;
-import com.svc.ventas.message.response.UsuarioSearchResponse;
-import com.svc.ventas.models.dao.EmpleadoRepo;
-import com.svc.ventas.models.dao.PersonaRepository;
-import com.svc.ventas.models.dao.RolRepo;
+import com.svc.ventas.message.response.MenuResponse;
+import com.svc.ventas.message.response.SearchUsuarioResponse;
+import com.svc.ventas.models.dao.*;
 import com.svc.ventas.models.entity.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 
 import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.response.Response;
-import com.svc.ventas.models.dao.UsuarioRepo;
 import com.svc.ventas.models.mapstruct.dto.UsuarioDto;
 import com.svc.ventas.models.mapstruct.mappers.EmpleadoMapper;
 import com.svc.ventas.models.mapstruct.mappers.UsuarioMapper;
@@ -48,11 +47,14 @@ public class UsuarioServiceImpl implements IUsuarioService {
 
   private final EmpleadoMapper empleadoMapper;
 
+  private final MenuRepository menuRepo;
+
   private final AppContext appContext;
 
   @Override
   public List<UsuarioDto> lista() {
-    return usuarioRepo.getUsuariosActivos()
+    Empresa empresa = appContext.getEmpresa();
+    return usuarioRepo.getUsuariosActivos(empresa)
             .stream()
             .map(usuarioMapper::map)
             .collect(Collectors.toList());
@@ -65,7 +67,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
 
     Pageable pageable = PageRequest.of(page, size);
 
-    Page<UsuarioSearchResponse> pageUsuario = buscarPorNombreOCodigo(filtro, pageable);
+    Page<SearchUsuarioResponse> pageUsuario = buscarPorNombreOCodigo(filtro, pageable);
 
     return Map.of(
             "usuarios", pageUsuario.getContent(),
@@ -84,10 +86,6 @@ public class UsuarioServiceImpl implements IUsuarioService {
 
     Empleado empleado = null;
     Persona persona;
-
-    if (Objects.isNull(request.getId())) {
-      throw new BusinessException("Debe enviar id");
-    }
 
     if (empresa.getIsUsaEmpleados()) {
 
@@ -119,7 +117,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
       throw new BusinessException("Roles enviados no existen");
     }
 
-    if (usuarioRepo.findByUsuario(request.getUsuario()).isPresent()) {
+    if (usuarioRepo.getByUserName(request.getUsuario()).isPresent()) {
       throw new BusinessException("El usuario ya existe");
     }
 
@@ -176,9 +174,60 @@ public class UsuarioServiceImpl implements IUsuarioService {
     return usuarioRepo.existsByEmpleadoIdEmpleado(idEmpleado);
   }
 
-  private Page<UsuarioSearchResponse> buscarPorNombreOCodigo(String termino, Pageable pageable) {
+  private Page<SearchUsuarioResponse> buscarPorNombreOCodigo(String termino, Pageable pageable) {
     return usuarioRepo.findUsuario(termino, pageable)
             .map(usuarioMapper::mapToSearch);
+  }
+
+  @Override
+  public List<MenuResponse> getMenusPorUsuario(Usuario usuario) {
+
+    Empresa empresa = usuario.getSucursal().getEmpresa();
+
+    Predicate<Menu> conEmpleados = menu -> empresa.getIsUsaEmpleados() | Boolean.FALSE.equals(menu.getIsEmpleado());
+
+    List<Menu> menus = menuRepo.listarMenuPorUsuario(usuario.getUsuario())
+            .stream().filter(conEmpleados)
+            .collect(Collectors.toList());
+
+    return getMenuResponseList(menus);
+  }
+
+  @Override
+  public Usuario getUsuarioPorUserName(String userName) {
+    return usuarioRepo.getByUserName(userName)
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Usuario", userName)));
+  }
+
+  private List<MenuResponse> getMenuResponseList(List<Menu> menus) {
+
+    Map<Integer, MenuResponse> map = new HashMap<>();
+    List<MenuResponse> roots = new ArrayList<>();
+
+    for (Menu m : menus) {
+      MenuResponse dto = new MenuResponse();
+      dto.setName(m.getNombre());
+      dto.setIcon(m.getIcono());
+      dto.setRouteLink(m.getUrl());
+      dto.setSubmenus(new ArrayList<>());
+
+      map.put(m.getIdMenu(), dto);
+    }
+
+    for (Menu m : menus) {
+      MenuResponse dto = map.get(m.getIdMenu());
+
+      if (m.getIdMenuPadre() == null) {
+        roots.add(dto);
+      } else {
+        MenuResponse padre = map.get(m.getIdMenuPadre().getIdMenu());
+        if (padre != null) {
+          padre.getSubmenus().add(dto);
+        }
+      }
+    }
+
+    return roots;
   }
 
 }

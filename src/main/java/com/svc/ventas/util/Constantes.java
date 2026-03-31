@@ -54,6 +54,11 @@ public class Constantes {
   public static final String MENSAJE_ERROR_SUNAT = ":: No se encontró información para el RUC: %s";
   public static final String CLAIM_USER = "username";
   public static final String CLAIM_ROL = "rol";
+  public static final String CLAIM_NOMBRE_COMPLETO = "nombreCompleto";
+  public static final String CLAIM_IS_USA_EMPLEADO = "isUsaEmpleado";
+  public static final String CLAIM_SUCURSAL = "sucursal";
+
+
   public static final String REFRESH = "refreshToken";
   public static final String TYPE_TOKEN = "type";
   public static final String ACCESS = "accessToken";
