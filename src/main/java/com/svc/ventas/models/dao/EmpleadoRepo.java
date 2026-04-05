@@ -14,11 +14,6 @@ import org.springframework.data.repository.query.Param;
 public interface EmpleadoRepo extends JpaRepository<Empleado, Integer>,
 				JpaSpecificationExecutor<Empleado> {
 
-	@Query("SELECT e FROM Empleado e WHERE e.indEstado = true")
-	List<Empleado> findEmpleados();
-
-	Boolean existsByPersonaNumDocumento(String documento);
-
 	Boolean existsByPersonaIdPersona(Integer id);
 
 	@Query("""

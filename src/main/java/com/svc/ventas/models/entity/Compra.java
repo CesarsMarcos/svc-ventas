@@ -52,7 +52,7 @@ public class Compra implements Serializable {
 
 	private String serie;
 
-	private String correlativo;
+	private Long correlativo;
 
 	private LocalDate fecha;
 

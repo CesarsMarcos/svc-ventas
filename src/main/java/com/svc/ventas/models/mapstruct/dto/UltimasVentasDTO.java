@@ -4,7 +4,7 @@ import com.svc.ventas.models.entity.TipoDocumento;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -18,7 +18,7 @@ public class UltimasVentasDTO {
 
   private TipoDocumento comprobante;
 
-  private LocalDate fecha;
+  private LocalDateTime fecha;
 
   private BigDecimal total;
 

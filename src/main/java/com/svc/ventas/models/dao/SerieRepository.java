@@ -41,20 +41,4 @@ public interface SerieRepository extends JpaRepository<Serie, Integer> {
           """)
   Boolean existsBySerie (Long empresaId, Long sucursalId, Long tipoDocumentoId, String serie);
 
-  @Query("""
-            SELECT new com.svc.ventas.models.mapstruct.dto.TipoDocumentoDTO (
-            td.idTipoDocumento,
-            td.codigoSunat,
-            td.descripcion
-            )
-            FROM EmpresaTipoDocumento etd
-            JOIN etd.tipoDocumento td
-            WHERE EXISTS(SELECT s FROM Serie s WHERE s.tipoDocumento.idTipoDocumento = td.idTipoDocumento) 
-            AND etd.empresa.idEmpresa = :idEmpresa
-             AND etd.indEstado = true
-            AND td.indEstado = true
-            AND td.generaSerie = true
-          """)
-  List<TipoDocumentoDTO> tipoDocumentosExisteSerie(Long idEmpresa);
-
 }

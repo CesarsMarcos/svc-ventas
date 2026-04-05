@@ -29,15 +29,11 @@ public interface EmpleadoMapper {
 	@Mapping(target = "fecUpdate", ignore = true)
 	Empleado mapEmpleadoRequestToEmpleado(Persona persona, Sucursal sucursal);
 
-	@Mapping(source = "idEmpleado", target = "idEmpleado")
-	@Mapping(source = "persona.nombre", target = "nombre")
-	EmpleadoListDto mapToEmpleado(Empleado empleado);
-
 	@Mapping(source = "idEmpleado", target = "id")
-	@Mapping(target = "nombreCompleto", expression = "java(getNombreCompleto(empleado))")
+	@Mapping(source = "empleado.persona.nombreCompleto", target = "nombreCompleto")
 	PersonaEmpleadoDto mapPersonaEmpleado(Empleado empleado);
 
-	@Mapping(target = "nombreCompleto", expression = "java(getNombreCompleto(empleado))")
+	@Mapping(source = "empleado.persona.nombreCompleto", target = "nombreCompleto")
 	@Mapping(target = "tipoDocumento", source = "persona.tipoDocumento")
 	@Mapping(target = "numDocumento", source = "persona.numDocumento")
 	@Mapping(target = "correo", source = "persona.correo")
@@ -51,16 +47,12 @@ public interface EmpleadoMapper {
 
 	@Mapping(source = "idEmpleado", target = "idEmpleado")
 	@Mapping(source = "codEmpleado", target = "codEmpleado")
-	@Mapping(target = "nombreCompleto", expression = "java(getNombreCompleto(empleado))")
+	@Mapping(source = "empleado.persona.nombreCompleto", target = "nombreCompleto")
 	@Mapping(target = "tipoDocumento", source = "persona.tipoDocumento")
 	@Mapping(target = "numDocumento", source = "persona.numDocumento")
 	@Mapping(target = "celular", source = "persona.celular")
 	@Mapping(target = "sucursal", source = "sucursal.razonSocial")
 	@Mapping(target = "estado", source = "indEstado")
 	EmpleadoSearchResponse mapToSearch (Empleado empleado);
-
-	default String getNombreCompleto(Empleado empleado) {
-		return empleado.getPersona().getNombre().concat(" ").concat(empleado.getPersona().getApePaterno());
-	}
 
 }

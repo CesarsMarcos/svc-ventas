@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @Builder
 @AllArgsConstructor
-public class UsuarioSearchResponse {
+public class SearchUsuarioResponse {
 
   private Long idUsuario;
 
@@ -21,7 +21,7 @@ public class UsuarioSearchResponse {
 
   private String usuario;
 
-  //private String roles;
+  private String[] roles;
 
   private Boolean estado;
 

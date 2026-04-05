@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import com.svc.ventas.config.AppContext;
 import com.svc.ventas.message.request.ProductoRequest;
-import com.svc.ventas.message.response.ProductoSearchParaVenderResponse;
 import com.svc.ventas.message.response.SearchProductoCompra;
 import com.svc.ventas.models.dao.*;
 import com.svc.ventas.models.entity.*;
@@ -71,7 +70,7 @@ public class ProductoServiceImpl implements IProductoService {
 		log.info("Iniciando registro de producto...");
 
 		log.info("Se obtiene usuario logueado...");
-		Usuario usuarioLogueado = appContext.getUsuario();
+		Empresa empresa = appContext.getEmpresa();
 
 		log.info("Obtener Marca ::");
 		Marca marca = marcaRepo.findById(producto.getIdMarca())
@@ -88,10 +87,8 @@ public class ProductoServiceImpl implements IProductoService {
 						.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "UnidadMedida",
 										producto.getIdUnidadMedida())));
 
-		log.info("Obtiene usuario logueado ::");
-
 		Producto productoNew = productoMapper.mapToProducto(producto, marca, categoria, unidadMedida);
-		Empresa empresa = usuarioLogueado.getEmpleado().getSucursal().getEmpresa();
+
 		productoNew.setEmpresa(empresa);
 
 		productoNew = productoRepo.save(productoNew);
@@ -102,11 +99,12 @@ public class ProductoServiceImpl implements IProductoService {
 		List<Sucursal> sucursales = sucursalService.lista()
 						.stream().map(sucursalMapper::mapToSucursalPost)
 						.toList();
+
 		log.info("Registrando stock en {} sucursales", sucursales.size());
 
 		Producto finalProductoNew = productoNew;
 
-		for (Sucursal sucursal : sucursales) {
+		sucursales.forEach(sucursal -> {
 			log.info("Guarda producto stock por sucursal ::");
 			ProductoStock productoStock = productoStockRepo.save(ProductoStock
 							.builder()
@@ -118,10 +116,8 @@ public class ProductoServiceImpl implements IProductoService {
 							.maxCantidad(100)
 							.sucursal(sucursal)
 							.build());
-
 			productoStockRepo.save(productoStock);
-
-		}
+		});
 
 		return Response
 						.builder()

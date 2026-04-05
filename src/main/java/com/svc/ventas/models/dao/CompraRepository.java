@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public interface CompraRepository extends JpaRepository<Compra, Long>,
         JpaSpecificationExecutor<Compra> {
 
-  Boolean existsBySerieAndCorrelativoAndSucursal(String serie, String correlativo, Sucursal sucursal);
+  Boolean existsBySerieAndCorrelativoAndSucursal(String serie, Long correlativo, Sucursal sucursal);
 
   @Query("SELECT COUNT(c.idCompra) FROM Compra c WHERE c.fecAdd BETWEEN :inicio AND :fin")
   Long countCompras (LocalDateTime inicio, LocalDateTime fin);

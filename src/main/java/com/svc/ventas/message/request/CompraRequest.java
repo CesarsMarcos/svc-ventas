@@ -22,7 +22,7 @@ public class CompraRequest {
 
   private String serie;
 
-  private String correlativo;
+  private Long correlativo;
 
   @NotNull
   private Long idTipoDocumento;

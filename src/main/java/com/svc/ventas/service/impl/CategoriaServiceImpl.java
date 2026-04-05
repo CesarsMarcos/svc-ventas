@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.svc.ventas.config.AppContext;
+import com.svc.ventas.models.entity.Empresa;
 import com.svc.ventas.models.entity.Sucursal;
 import com.svc.ventas.models.mapstruct.dto.CategoriaDto;
 import com.svc.ventas.models.mapstruct.mappers.CategoriaMapper;
@@ -28,7 +29,8 @@ public class CategoriaServiceImpl implements ICategoriaService {
 
 	@Override
 	public List<CategoriaDto> lista() {
-		return categoriaRepo.listaActivos()
+		Empresa empresa = appContext.getEmpresa();
+		return categoriaRepo.categoriasActivasPorEmpresa(empresa)
 				.stream()
 				.map(categoriaMapper::mapToGetDto)
 				.collect(Collectors.toList());
@@ -37,7 +39,7 @@ public class CategoriaServiceImpl implements ICategoriaService {
 	@Override
 	public List<CategoriaDto> categoriasPorProductoStock() {
 		Sucursal sucursal = appContext.getSucursal();
-		return categoriaRepo.listaPorCategoriaProducto(sucursal.getIdSucursal())
+		return categoriaRepo.listaCategoriaPorProducto(sucursal.getIdSucursal())
 						.stream()
 						.map(categoriaMapper::mapToGetDto)
 						.collect(Collectors.toList());

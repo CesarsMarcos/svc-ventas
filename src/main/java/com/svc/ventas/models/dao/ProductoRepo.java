@@ -18,16 +18,6 @@ public interface ProductoRepo extends CrudRepository<Producto, Long>,
 	@Query("SELECT a FROM Producto a WHERE a.indEstado = true")
 	List<Producto> listaActivos();
 
-	List<Producto> findByNombreContaining(String nombre);
-
-	@Query("""
-          SELECT ps FROM ProductoStock ps
-          WHERE ps.producto.codigo = :termino
-             OR LOWER(ps.producto.nombre) LIKE LOWER(CONCAT('%', :termino, '%'))
-          """)
-	List<ProductoStock> buscarPorNombreOCodigo(String termino);
-
-
 	@Query("""
 					SELECT new com.svc.ventas.message.response.SearchProductoCompra(
 					p.idProducto,

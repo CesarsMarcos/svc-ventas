@@ -77,6 +77,13 @@ public class ProveedorServiceImpl implements IProveedorService {
 
 	@Override
 	public Response registrar(ProveedorRequest proveedorRequest) {
+
+		Boolean existeProveedor = proveedorRepo.existsBynumDocumento(proveedorRequest.getNumDocumento());
+
+		if (existeProveedor){
+			throw new BusinessException("Existe proveedir ya registrado con el documento ingresado");
+		}
+
 		proveedorRepo.save(proveedorMapper.mapToProveedor(proveedorRequest));
 		return Response.builder().mensaje(Constantes.MENSAJE_SAVE).build();
 	}

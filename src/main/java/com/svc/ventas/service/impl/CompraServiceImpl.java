@@ -7,7 +7,6 @@ import com.svc.ventas.exception.BusinessException;
 import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.request.CompraRequest;
 import com.svc.ventas.message.request.ProductoParaComprar;
-import com.svc.ventas.message.response.Response;
 import com.svc.ventas.message.response.ResponseTransaccion;
 import com.svc.ventas.message.response.SearchCompraResponse;
 import com.svc.ventas.models.dao.*;
@@ -154,7 +153,7 @@ public class CompraServiceImpl implements ICompraService {
 
   @Override
   public Map<String, Object> searchCompras(String ruc, String proveedor,
-                                           String documentoCompra, LocalDate inicio,
+                                           Long documentoCompra, LocalDate inicio,
                                            LocalDate fin, Pageable pageable) {
 
     log.info("Obtiene usuario en sessión ::");
@@ -184,7 +183,7 @@ public class CompraServiceImpl implements ICompraService {
   }
 
   @Override
-  public Object details(Long id) {
+  public CompraDetailDto details(Long id) {
     return compraRepo.findById(id)
             .map(compraMapper::mapCompraToDetailDto)
             .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Compra", id)));
@@ -200,11 +199,6 @@ public class CompraServiceImpl implements ICompraService {
                     .label(tpc.getLabel())
                     .build())
             .toList();
-  }
-
-  @Override
-  public DetalleTipoDocumentoDTO detalleTipoDocumento(Long idTipoDoucumento) {
-    return null;
   }
 
   private CompraMontosDto validarYCalcularMontos(CompraRequest compra) {

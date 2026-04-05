@@ -6,7 +6,6 @@ import com.svc.ventas.message.response.ProductoStockSearchResponse;
 import com.svc.ventas.models.dao.ProductoStockRepo;
 import com.svc.ventas.models.entity.ProductoStock;
 import com.svc.ventas.models.entity.Sucursal;
-import com.svc.ventas.models.entity.Usuario;
 import com.svc.ventas.models.mapstruct.dto.ProductoStockDetailsDTO;
 import com.svc.ventas.models.mapstruct.mappers.ProductoStockMapper;
 import com.svc.ventas.models.specifications.ProductStockSpecifications;
@@ -37,12 +36,15 @@ public class AlmacenServiceImpl implements IAlmacenService {
   private final AppContext appContext;
 
   @Override
-  public Map<String, Object> searchProductos(String nombre, Integer categoriaId, Boolean estado, int page, int size) {
+  public Map<String, Object> searchProductos(String nombre, Integer categoriaId,
+                                             Boolean estado, int page, int size) {
 
     Specification<ProductoStock> spec = Specification.where(null);
 
     log.info("Obtiene usuario en sessión ::");
     Sucursal sucursal = appContext.getSucursal();
+
+    log.info("Sucursal {}" , sucursal.getIdSucursal());
 
     if(Objects.nonNull(nombre) && !nombre.isEmpty()) {
       spec = spec.and(ProductStockSpecifications.hasName(nombre));

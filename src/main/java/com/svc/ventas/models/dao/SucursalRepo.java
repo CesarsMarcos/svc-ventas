@@ -12,4 +12,7 @@ public interface SucursalRepo extends JpaRepository<Sucursal, Long>{
 	@Query("SELECT s FROM Sucursal s WHERE s.empresa.idEmpresa = :idEmpresa AND s.indEstado= true")
 	List<Sucursal> findSucursalesPorEmpresa(Long idEmpresa);
 
+	@Query("SELECT COUNT(s) FROM Sucursal s WHERE s.empresa.idEmpresa = :idEmpresa AND s.indEstado= true")
+	Long cantidadSucursal(Long idEmpresa);
+
 }

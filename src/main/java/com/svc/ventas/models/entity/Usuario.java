@@ -33,7 +33,7 @@ public class Usuario implements Serializable {
 
 	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
-	@JoinColumn(name = "id_empleado", foreignKey=@ForeignKey(name="fk_usuario_empleado"), nullable = true)
+	@JoinColumn(name = "id_empleado", foreignKey=@ForeignKey(name="fk_usuario_empleado"))
 	private Empleado empleado;
 
 	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })

@@ -27,13 +27,6 @@ public interface ProductoStockRepo extends CrudRepository<ProductoStock, Long>,
 
   @Query("""
           SELECT ps FROM ProductoStock ps
-          WHERE ps.producto.codigo = :termino
-             OR LOWER(ps.producto.nombre) LIKE LOWER(CONCAT('%', :termino, '%'))
-          """)
-  List<ProductoStock> buscarPorNombreOCodigo(String termino);
-
-  @Query("""
-          SELECT ps FROM ProductoStock ps
           WHERE ps.producto.codigo = : termino
             OR LOWER(ps.producto.nombre) LIKE LOWER(CONCAT('%', :termino, '%'))
           """)

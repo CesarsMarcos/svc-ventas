@@ -3,9 +3,11 @@ package com.svc.ventas.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.svc.ventas.config.AppContext;
 import com.svc.ventas.exception.ConflictException;
 import com.svc.ventas.message.request.ClienteCreateRequest;
 import com.svc.ventas.models.dao.PersonaRepository;
+import com.svc.ventas.models.entity.Empresa;
 import com.svc.ventas.models.entity.Persona;
 import com.svc.ventas.models.mapstruct.dto.ClienteDto;
 import com.svc.ventas.models.mapstruct.mappers.PersonaMapper;
@@ -37,9 +39,12 @@ public class ClienteServiceImpl implements IClienteService {
 
 	private final PersonaMapper personaMapper;
 
+	private final AppContext appContext;
+
 	@Override
 	public List<ClienteDto> clientes() {
-		return clienteRepo.clientesactivos()
+		Empresa empresa = appContext.getEmpresa();
+		return clienteRepo.clientesActivosPorEmpresa(empresa)
 				.stream()
 				.map(clienteMapper::mapClienteDto)
 				.collect(Collectors.toList());

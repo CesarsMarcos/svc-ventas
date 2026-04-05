@@ -38,6 +38,7 @@ public interface ProductoStockMapper {
   //@Mapping(source = "stock", target = "stock")
   ProductoDTO toProducto (ProductoStock productoStock);
 
+  @Mapping(target = "idProductoStock", source = "idProductoStock")
   @Mapping(target = "idProducto", source = "producto.idProducto")
   @Mapping(target = "codigo", source = "producto.codigo")
   @Mapping(target = "categoria", source = "producto.categoria.desCategoria")

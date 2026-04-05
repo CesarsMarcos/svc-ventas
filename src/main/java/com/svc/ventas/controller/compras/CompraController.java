@@ -26,7 +26,7 @@ public class CompraController {
   @GetMapping("searchCompras")
   public ResponseEntity<?> searchCompras(@RequestParam(required = false) String ruc,
 																				 @RequestParam(required = false) String proveedor,
-                                         @RequestParam(required = false) String documento,
+                                         @RequestParam(required = false) Long documento,
                                          @RequestParam(required = false) LocalDate inicio,
                                          @RequestParam(required = false) LocalDate fin,
                                          @RequestParam(defaultValue = "0") int page,
@@ -50,4 +50,5 @@ public class CompraController {
   public ResponseEntity<List<EnumDto>> tipoPagoCompras() {
     return ResponseEntity.ok(compraService.tipoPagoCompra());
   }
+
 }

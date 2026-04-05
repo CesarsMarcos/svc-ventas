@@ -13,6 +13,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class ProductoStockSearchResponse {
 
+	private Integer idProductoStock;
+
 	private Integer idProducto;
 
 	private String codigo;

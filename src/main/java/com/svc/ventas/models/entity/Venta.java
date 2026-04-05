@@ -2,7 +2,6 @@ package com.svc.ventas.models.entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -77,8 +76,6 @@ public class Venta implements Serializable {
 
 	@Column(name = "igv")
 	private BigDecimal igv;
-
-	private LocalDate fecha;
 
 	@Column(name = "sub_total")
 	private BigDecimal subTotal;

@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.svc.ventas.config.AppContext;
+import com.svc.ventas.exception.BusinessException;
 import com.svc.ventas.message.request.SucursalRequest;
 import com.svc.ventas.models.dao.EmpresaRepository;
 import com.svc.ventas.models.entity.Empresa;
-import com.svc.ventas.models.entity.Usuario;
 import com.svc.ventas.models.mapstruct.dto.SucursalDto;
 import org.springframework.stereotype.Service;
 
@@ -45,12 +45,16 @@ public class SucursalServiceImpl implements ISucursalService {
 
 	@Override
 	public Response agregar(SucursalRequest sucursal) {
-		Empresa empresaSave = empresaRepo.findById(sucursal.getIdEmpresa())
-						.orElseThrow(() ->
-										new EntityNotFoundException(String.
-														format(Constantes.MENSAJE_NOT_FOUND, "Sucursal", sucursal.getIdEmpresa())));
 
-		sucursalRepo.save(sucursalMapper.mapRequestToSucursalPost(sucursal, empresaSave));
+		Empresa empresa = appContext.getEmpresa();
+
+		Long cantidadSucursales = sucursalRepo.cantidadSucursal(empresa.getIdEmpresa());
+
+		if(Long.valueOf(empresa.getNumeroSucursales()).compareTo(cantidadSucursales) == 0){
+			throw new BusinessException("Haz registrado las sucursales que tienes permitida en tu subscripción");
+		}
+
+		sucursalRepo.save(sucursalMapper.mapRequestToSucursalPost(sucursal, empresa));
 
 		return Response.builder()
 				.mensaje(Constantes.MENSAJE_SAVE)

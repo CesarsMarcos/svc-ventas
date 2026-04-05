@@ -1,4 +1,4 @@
-package com.svc.ventas.service.impl;
+package com.svc.ventas.service;
 
 import com.svc.ventas.models.entity.Usuario;
 
