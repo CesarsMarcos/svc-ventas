@@ -1,11 +1,14 @@
 package com.svc.ventas.controller.ventas;
 
 import com.svc.ventas.message.request.VentaRequest;
+import com.svc.ventas.models.enums.TipoDocumento;
+import com.svc.ventas.models.mapstruct.dto.DetalleImpresionDto;
 import com.svc.ventas.models.mapstruct.dto.EnumDto;
+import com.svc.ventas.service.IPrintDocumentoService;
+import com.svc.ventas.service.documentoStrategy.documento.DocumentoPdfFactory;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.svc.ventas.service.IVentaService;
@@ -23,6 +26,10 @@ public class VentaController {
 
   private final IVentaService ventaService;
 
+  private final IPrintDocumentoService iPrintDocumentoService;
+
+  private final DocumentoPdfFactory documentoPdfFactory;
+
   @PostMapping
   public ResponseEntity<?> registrar(@Valid @RequestBody VentaRequest ventarRequest) {
     return ResponseEntity.status(HttpStatus.CREATED).body(ventaService.registrar(ventarRequest));
@@ -36,10 +43,22 @@ public class VentaController {
                                                           @RequestParam(required = false) LocalDate fin,
                                                           @RequestParam(defaultValue = "0") int page,
                                                           @RequestParam(defaultValue = "15") int size) {
-    Pageable paging = PageRequest.of(page, size);
-    Map<String, Object> response = ventaService.searchVenta(nombre, documentoCliente, documentoVenta, inicio, fin, paging);
+    Map<String, Object> response = ventaService.searchVenta(nombre, documentoCliente, documentoVenta, inicio, fin, page, size );
     return new ResponseEntity<>(response, HttpStatus.OK);
 
+  }
+
+  @GetMapping("/printDocumento/{id}/pdf")
+  public ResponseEntity<byte[]> generarPdf(@PathVariable Long id) {
+
+    DetalleImpresionDto venta = iPrintDocumentoService.detailsImpresion(id);
+
+    byte[]  pdf = ventaService.generarPdf(venta, TipoDocumento.from(venta.getTipoDocumento()));
+
+    return ResponseEntity.ok()
+            .header("Content-Disposition", "inline; filename=doc.pdf")
+            .contentType(MediaType.APPLICATION_PDF)
+            .body(pdf);
   }
 
   @GetMapping("{id}")

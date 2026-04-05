@@ -51,7 +51,7 @@ public interface VentaRepo extends JpaRepository<Venta, Long>,
           v.idVenta,
           v.cliente.persona.nombre,
           v.tipoDocumento,
-          v.fecha,
+          v.fecAdd,
           v.total)
           FROM Venta v
           ORDER BY v.total desc

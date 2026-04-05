@@ -21,13 +21,17 @@ import com.svc.ventas.models.entity.TipoDocumento;
 import com.svc.ventas.models.enums.*;
 import com.svc.ventas.models.mapstruct.dto.*;
 import com.svc.ventas.models.specifications.VentaSpecifications;
+import com.svc.ventas.service.documentoStrategy.documento.DocumentoPdfFactory;
+import com.svc.ventas.service.documentoStrategy.documento.DocumentoPdfStrategy;
 import com.svc.ventas.util.AppUtils;
 import jakarta.transaction.Transactional;
 
 import com.svc.ventas.models.mapstruct.mappers.*;
 import com.svc.ventas.service.*;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import com.svc.ventas.util.Constantes;
@@ -39,8 +43,6 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class VentaServiceImpl implements IVentaService {
-
-  private final IClienteService clienteService;
 
   private final ClienteRepo clienteRepo;
 
@@ -59,6 +61,8 @@ public class VentaServiceImpl implements IVentaService {
   private final SerieRepository serieRepo;
 
   private final TipoDocumentoRepository tipoDocumentoRepo;
+
+  private final DocumentoPdfFactory documentoPdfFactory;
 
   private final VentaMapper ventaMapper;
 
@@ -157,7 +161,8 @@ public class VentaServiceImpl implements IVentaService {
                       .idProducto(productoBD.getIdProducto())
                       .descripcion(productoBD.getDescripcion())
                       .nombre(productoBD.getNombre())
-                      .precio(productoStock.getPrecioVenta().multiply(BigDecimal.valueOf(ppv.getCantidad())))
+                      .precio(productoStock.getPrecioVenta())
+                      .subTotal(productoStock.getPrecioVenta().multiply(BigDecimal.valueOf(ppv.getCantidad())))
                       .precioDescuento(BigDecimal.ZERO)
                       .cantidad(ppv.getCantidad())
                       .build());
@@ -187,9 +192,11 @@ public class VentaServiceImpl implements IVentaService {
   @Override
   public Map<String, Object> searchVenta(String nombre, String documentoCliente,
                                        String documentoVenta, LocalDate inicio,
-                                       LocalDate fin,  Pageable pageable) {
+                                       LocalDate fin,  Integer page, Integer size) {
 
     Sucursal currentSucursal = appContext.getSucursal();
+
+    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "fecAdd"));
 
     Specification<Venta> spec =  Specification
             .where(VentaSpecifications.hasClienteNombre(nombre))
@@ -246,6 +253,12 @@ public class VentaServiceImpl implements IVentaService {
             .toList();
   }
 
+  @Override
+  public byte[] generarPdf (DetalleImpresionDto venta, com.svc.ventas.models.enums.TipoDocumento tipoDocumento) {
+    DocumentoPdfStrategy strategy = documentoPdfFactory.obtener(tipoDocumento);
+    return strategy.generar(venta);
+  }
+
   private VentaMontosDto validarStockYCalcularMontos(VentaRequest venta, Long idSucursal) {
 
     BigDecimal subtotalCalculado = BigDecimal.ZERO;
@@ -255,11 +268,11 @@ public class VentaServiceImpl implements IVentaService {
       ProductoStock productoStock = productoStockRepo.buscar(p.getIdProducto(), idSucursal)
               .orElseThrow(() -> new EntityNotFoundException(":: No existe producto registrado"));
 
-      if(BigDecimal.ZERO.compareTo(productoStock.getPrecioVenta()) == 0){
+      if(BigDecimal.ZERO.compareTo(productoStock.getPrecioVenta()) == 0) {
         throw new BusinessException("Precio no registrado para el producto: " + productoStock.getProducto().getNombre());
       }
 
-      if(productoStock.sinStock()){
+      if(productoStock.sinStock()) {
         throw new BusinessException("Stock insuficiente para el producto: " + productoStock.getProducto().getNombre() +
                 ". Disponible: " + productoStock.getStock() + ", Solicitado: " + p.getCantidad());
       }

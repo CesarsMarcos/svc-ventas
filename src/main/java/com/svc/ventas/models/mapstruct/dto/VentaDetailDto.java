@@ -3,6 +3,8 @@ package com.svc.ventas.models.mapstruct.dto;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -14,7 +16,7 @@ public class VentaDetailDto {
 
 	private Long id;
 
-	private String fecha;
+	private LocalDate fecha;
 
 	private String tipoPago;
 
@@ -29,12 +31,12 @@ public class VentaDetailDto {
 	private List<ProductoDetalleVentaDto> productos;
 
 	@NotNull
-	private float igv;
+	private BigDecimal igv;
 
 	@NotNull
-	private float subTotal;
+	private BigDecimal subTotal;
 
 	@NotNull
-	private float total;
+	private BigDecimal total;
 
 }
