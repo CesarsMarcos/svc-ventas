@@ -2,6 +2,7 @@ package com.svc.ventas.models.mapstruct.mappers;
 
 import com.svc.ventas.models.entity.Cliente;
 import com.svc.ventas.models.mapstruct.dto.*;
+import com.svc.ventas.util.AppUtils;
 import org.mapstruct.Mapper;
 
 import com.svc.ventas.models.entity.Venta;
@@ -11,13 +12,13 @@ import org.mapstruct.factory.Mappers;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", imports = AppUtils.class)
 public interface VentaMapper {
 
 	VentaMapper INSTANCE = Mappers.getMapper(VentaMapper.class);
 
 	@Mapping(source = "idVenta", target = "id" )
-	@Mapping(source = "fecha",  target = "fecha")
+	@Mapping(source = "fecAdd",  target = "fecha")
 	@Mapping(source = "estado",  target = "estado")
 	@Mapping(source = "tipoPago",  target = "tipoPago")
 	@Mapping(target = "cliente", expression = "java(dataNombreCliente(venta))")
@@ -27,11 +28,12 @@ public interface VentaMapper {
 	VentaGetDto mapToVentaGetDto(Venta venta);
 
 	@Mapping(source = "idVenta", target = "id" )
-	@Mapping(source = "fecha",  target = "fecha")
+	@Mapping(source = "fecAdd",  target = "fecha")
 	@Mapping(source = "estado",  target = "estado")
 	@Mapping(source = "tipoPago",  target = "tipoPago")
+	@Mapping(source = "tipoDocumento.descripcion",  target = "tipoDocumento")
 	@Mapping(target = "cliente", expression = "java(dataNombreCliente(venta))")
-	@Mapping(target = "serieCorrelativo",expression = "java(venta.getSerie().concat(\"-\").concat(venta.getCorrelativo().toString()))")
+	@Mapping(target = "serieCorrelativo", expression = "java(mapCorrelativo(venta))")
 	@Mapping(source = "igv",  target = "igv")
 	@Mapping(source = "subTotal",  target = "subTotal")
 	@Mapping(source = "total",  target = "total")
@@ -43,18 +45,6 @@ public interface VentaMapper {
 		return cliente.getPersona().getNombre().concat(" ")
 										.concat(cliente.getPersona().getApePaterno().concat(" ")
 														.concat(cliente.getPersona().getApeMaterno()));
-	}
-
-	default ClienteGetVentaDto dataCliente(Venta venta) {
-			Cliente cliente = venta.getCliente();
-			return ClienteGetVentaDto.builder()
-							.nombreCompleto(cliente.getPersona().getNombre().concat(" ")
-											.concat(cliente.getPersona().getApePaterno().concat(" ")
-															.concat(cliente.getPersona().getApeMaterno())))
-							.numDocumento(cliente.getPersona().getNumDocumento())
-							.correo(cliente.getPersona().getCorreo())
-							.direccion(cliente.getPersona().getDireccion())
-							.build();
 	}
 
 	default List<ProductoDetalleVentaDto> listProductos(Venta venta) {
@@ -70,6 +60,10 @@ public interface VentaMapper {
 										.cantidad(p.getCantidad())
 										.subTotal(p.getSubTotal())
 										.build()).collect(Collectors.toList());
+	}
+
+	default String mapCorrelativo(Venta venta){
+		return venta.getSerie().concat("-").concat(AppUtils.formatearSunat(venta.getCorrelativo()));
 	}
 
 }

@@ -26,6 +26,10 @@ public class Proveedor implements Serializable {
 	@Enumerated(EnumType.STRING)
 	private TipoDocumentoPersona tipoDocumento;
 
+	@ManyToOne
+	@JoinColumn(name = "id_empresa", foreignKey=@ForeignKey(name="fk_proveedor_empresa"))
+	private Empresa empresa;
+
 	private String numDocumento;
 
 	private String razonSocial;

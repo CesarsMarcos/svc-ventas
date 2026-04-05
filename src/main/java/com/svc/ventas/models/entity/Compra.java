@@ -9,7 +9,6 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.svc.ventas.models.enums.EstadoCompra;
-import com.svc.ventas.models.enums.TipoDocumento;
 import com.svc.ventas.models.enums.TipoPagoCompra;
 import jakarta.persistence.*;
 
@@ -40,13 +39,9 @@ public class Compra implements Serializable {
 	@JoinColumn(name = "id_sucursal", foreignKey = @ForeignKey(name = "fk_compra_sucursal"))
 	private Sucursal sucursal;
 
-	@Column(name = "tipo_documento")
-	@Enumerated(EnumType.STRING)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "id_tipo_documento", foreignKey = @ForeignKey(name = "fk_compra_tipo_documento"))
 	private TipoDocumento tipoDocumento;
-
-	@ManyToOne
-	@JoinColumn(name = "id_empresa")
-	private Empresa empresa;
 
 	@JsonManagedReference
 	@OneToMany(mappedBy = "compra", cascade = CascadeType.ALL)
@@ -57,7 +52,7 @@ public class Compra implements Serializable {
 
 	private String serie;
 
-	private String correlativo;
+	private Long correlativo;
 
 	private LocalDate fecha;
 

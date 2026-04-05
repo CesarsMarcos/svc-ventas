@@ -5,6 +5,7 @@ import com.svc.ventas.models.enums.TipoPago;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Getter
@@ -15,8 +16,8 @@ import java.util.Map;
 public class ResumenCajaDTO {
 
     private String cajero;
-    private String fecApertura;
-    private String fecCierre;
+    private LocalDateTime fecApertura;
+    private LocalDateTime fecCierre;
     private String estado;
     private String moneda;
     private Map<TipoPago, BigDecimal> totalesPorPago;

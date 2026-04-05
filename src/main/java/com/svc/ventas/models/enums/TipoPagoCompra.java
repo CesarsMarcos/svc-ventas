@@ -1,19 +1,18 @@
 package com.svc.ventas.models.enums;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum TipoPagoCompra {
-  CONTADO ("CONTADO"),
-  CREDITO ("CREDITO"),
-  TRANSFERENCIA ("TRANSFERENCIA");
+  CONTADO ("CONTADO", true),
+  CREDITO ("CREDITO", false),
+  TRANSFERENCIA ("TRANSFERENCIA", false);
 
   private final String label;
 
-  TipoPagoCompra(String label) {
-    this.label = label;
-  }
-
-  public String getLabel() {
-    return label;
-  }
+  private final Boolean estado;
 
   public String getValue() {
     return this.name();

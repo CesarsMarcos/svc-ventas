@@ -6,11 +6,9 @@ import com.svc.ventas.service.IKardexService;
 import com.svc.ventas.service.IProductoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -20,13 +18,11 @@ import java.util.List;
 public class KardexController {
 
   private final IKardexService kardexService;
+
   private final IProductoService productoService;
 
   @GetMapping("/{idProducto}")
   public ResponseEntity<List<KardexDetalleDTO>> obtenerKardex(@PathVariable Long idProducto) {
-
-    productoService.obtener(idProducto);
-
     List<KardexDetalleDTO> kardex = kardexService.obtenerKardexPorProducto(idProducto);
     return ResponseEntity.ok(kardex);
   }

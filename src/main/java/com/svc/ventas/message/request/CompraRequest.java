@@ -1,6 +1,7 @@
 package com.svc.ventas.message.request;
 
-import com.svc.ventas.models.enums.TipoDocumento;
+
+import com.svc.ventas.models.entity.TipoDocumento;
 import com.svc.ventas.models.enums.TipoPagoCompra;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -21,18 +22,15 @@ public class CompraRequest {
 
   private String serie;
 
-  private String correlativo;
+  private Long correlativo;
 
   @NotNull
-  private TipoDocumento tipoDocumento;
+  private Long idTipoDocumento;
 
   private TipoPagoCompra TipoPago;
 
   @NotNull
   private Long idProveedor;
-
-  @NotNull
-  private Long idSucursal;
 
   @NotNull
   private List<ProductoParaComprar> productos;

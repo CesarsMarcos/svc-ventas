@@ -1,6 +1,7 @@
 package com.svc.ventas.models.dao;
 
 import com.svc.ventas.models.entity.Compra;
+import com.svc.ventas.models.entity.Sucursal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -10,9 +11,11 @@ import java.time.LocalDateTime;
 public interface CompraRepository extends JpaRepository<Compra, Long>,
         JpaSpecificationExecutor<Compra> {
 
-  Boolean existsBySerieAndCorrelativoAndSucursalIdSucursal(String serie, String correlativo, Long idSucursal);
+  Boolean existsBySerieAndCorrelativoAndSucursal(String serie, Long correlativo, Sucursal sucursal);
 
   @Query("SELECT COUNT(c.idCompra) FROM Compra c WHERE c.fecAdd BETWEEN :inicio AND :fin")
   Long countCompras (LocalDateTime inicio, LocalDateTime fin);
+
+
 
 }

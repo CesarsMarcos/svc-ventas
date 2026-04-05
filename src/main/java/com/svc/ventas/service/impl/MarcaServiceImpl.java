@@ -3,6 +3,8 @@ package com.svc.ventas.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.svc.ventas.config.AppContext;
+import com.svc.ventas.models.entity.Empresa;
 import com.svc.ventas.models.mapstruct.dto.MarcaDto;
 import org.springframework.stereotype.Service;
 import com.svc.ventas.exception.EntityNotFoundException;
@@ -22,10 +24,13 @@ public class MarcaServiceImpl implements IMarcaService {
 	private final MarcaRepo marcaRepositorio;
 	
 	private final MarcaMapper marcaMapper;
+
+	private final AppContext appContext;
 	
 	@Override
 	public List<MarcaDto> lista() {
-		return marcaRepositorio.marcas()
+		Empresa empresa = appContext.getEmpresa();
+		return marcaRepositorio.marcas(empresa)
 				.stream()
 				.map(marcaMapper::mapMarcaGetDto).collect(Collectors.toList());
 	}

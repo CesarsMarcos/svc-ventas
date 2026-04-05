@@ -1,5 +1,6 @@
 package com.svc.ventas.service.impl;
 
+import com.svc.ventas.models.entity.Rol;
 import com.svc.ventas.models.entity.Usuario;
 import com.svc.ventas.service.IJwtService;
 import com.svc.ventas.util.Constantes;
@@ -8,6 +9,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class JwtServiceImpl implements IJwtService {
 
     @Value("${key.signature}")
@@ -85,10 +88,14 @@ public class JwtServiceImpl implements IJwtService {
 
     private Map<String, Object> addClaim(Usuario usuario){
         Map<String, Object> claims = new HashMap<>();
-        claims.put(Constantes.CLAIM_USER,usuario.getEmpleado().getPersona().getNombre() + " "
-                + usuario.getEmpleado().getPersona().getApePaterno() + " "
-                + usuario.getEmpleado().getPersona().getApeMaterno()  );
-        claims.put(Constantes.CLAIM_ROL,usuario.getRoles());
+        String nombreCompleto = usuario.getPersona().getNombre()
+                    .concat(" ".concat(usuario.getPersona().getApePaterno())
+                            .concat(" ".concat(usuario.getPersona().getApeMaterno())));
+        claims.put(Constantes.CLAIM_USER, usuario.getUsuario());
+        claims.put(Constantes.CLAIM_ROL, usuario.getRoles().stream().map(Rol::getDesRol).toList());
+        claims.put(Constantes.CLAIM_NOMBRE_COMPLETO, nombreCompleto );
+        claims.put(Constantes.CLAIM_IS_USA_EMPLEADO, usuario.getSucursal().getEmpresa().getIsUsaEmpleados());
+        claims.put(Constantes.CLAIM_SUCURSAL, usuario.getSucursal().getRazonSocial());
         return claims;
     }
 }

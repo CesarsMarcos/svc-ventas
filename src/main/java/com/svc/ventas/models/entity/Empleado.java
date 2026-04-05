@@ -32,10 +32,6 @@ public class Empleado implements Serializable {
 	@JoinColumn(name = "id_sucursal",foreignKey=@ForeignKey(name="fk_empleado_sucursal"))
 	private Sucursal sucursal;
 
-	@ManyToOne
-	@JoinColumn(name = "id_empresa")
-	private Empresa empresa;
-
 	@Column(name="ind_estado")
 	private Boolean indEstado;
 

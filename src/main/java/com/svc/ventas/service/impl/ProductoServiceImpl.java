@@ -1,23 +1,27 @@
 package com.svc.ventas.service.impl;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.svc.ventas.config.AppContext;
 import com.svc.ventas.message.request.ProductoRequest;
-import com.svc.ventas.message.response.ProductoSearchParaVenderResponse;
+import com.svc.ventas.message.response.SearchProductoCompra;
 import com.svc.ventas.models.dao.*;
 import com.svc.ventas.models.entity.*;
 import com.svc.ventas.models.mapstruct.dto.ProductoDTO;
 import com.svc.ventas.models.mapstruct.dto.ProductoDetailsDTO;
-import com.svc.ventas.models.mapstruct.mappers.ProductoStockMapper;
+import com.svc.ventas.models.mapstruct.mappers.SucursalMapper;
 import com.svc.ventas.models.specifications.ProductSpecifications;
 
+import com.svc.ventas.service.ISucursalService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -41,13 +45,17 @@ public class ProductoServiceImpl implements IProductoService {
 
 	private final ProductoMapper productoMapper;
 
-	private final ProductoStockMapper productoStockMapper;
-
 	private final MarcaRepo marcaRepo;
 
 	private final UnidadMedidaRepo unidadMedidaRepo;
 
 	private final CategoriaRepo categoriaRepo;
+
+	private final ISucursalService sucursalService;
+
+	private final SucursalMapper sucursalMapper;
+
+	private final AppContext appContext;
 
 	@Override
 	public List<ProductoDTO> lista() {
@@ -60,6 +68,9 @@ public class ProductoServiceImpl implements IProductoService {
 	@Override
 	public Response agregar(ProductoRequest producto) {
 		log.info("Iniciando registro de producto...");
+
+		log.info("Se obtiene usuario logueado...");
+		Empresa empresa = appContext.getEmpresa();
 
 		log.info("Obtener Marca ::");
 		Marca marca = marcaRepo.findById(producto.getIdMarca())
@@ -76,11 +87,42 @@ public class ProductoServiceImpl implements IProductoService {
 						.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "UnidadMedida",
 										producto.getIdUnidadMedida())));
 
-		productoRepo.save(productoMapper.mapToProducto(producto, marca,categoria, unidadMedida));
+		Producto productoNew = productoMapper.mapToProducto(producto, marca, categoria, unidadMedida);
+
+		productoNew.setEmpresa(empresa);
+
+		productoNew = productoRepo.save(productoNew);
+
+		log.info("Producto guardado con ID: {}", productoNew.getIdProducto());
+
+		log.info("Obtiene sucursales por empresa ::");
+		List<Sucursal> sucursales = sucursalService.lista()
+						.stream().map(sucursalMapper::mapToSucursalPost)
+						.toList();
+
+		log.info("Registrando stock en {} sucursales", sucursales.size());
+
+		Producto finalProductoNew = productoNew;
+
+		sucursales.forEach(sucursal -> {
+			log.info("Guarda producto stock por sucursal ::");
+			ProductoStock productoStock = productoStockRepo.save(ProductoStock
+							.builder()
+							.producto(finalProductoNew)
+							.stock(0)
+							.precioVenta(BigDecimal.ZERO)
+							.indEstado(Constantes.IND_ACTIVO)
+							.minCantidad(5)
+							.maxCantidad(100)
+							.sucursal(sucursal)
+							.build());
+			productoStockRepo.save(productoStock);
+		});
+
 		return Response
-				.builder()
-				.mensaje(Constantes.MENSAJE_SAVE)
-				.build();
+						.builder()
+						.mensaje(Constantes.MENSAJE_SAVE)
+						.build();
 	}
 
 	@Override
@@ -144,6 +186,15 @@ public class ProductoServiceImpl implements IProductoService {
 		productoRepo.save(productoSave);
 	}
 
+	/**
+	 * Se listan los productos al realizar la compra
+	 * @param nombre
+	 * @param categoriaId
+	 * @param estado
+	 * @param page
+	 * @param size
+	 * @return Map<String, Object>
+	 */
 	@Override
 	public Map<String, Object> searchProductos(String nombre, Integer categoriaId,
 																						 Boolean estado, int page, int size) {
@@ -161,7 +212,7 @@ public class ProductoServiceImpl implements IProductoService {
 			spec = spec.and(ProductSpecifications.hasStatus(estado));
 		}
 
-		Pageable pageable = PageRequest.of(page, size);
+		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "fecAdd"));
 
 		Page<Producto> pageProductos = productoRepo.findAll(spec, pageable);
 
@@ -181,17 +232,19 @@ public class ProductoServiceImpl implements IProductoService {
 	}
 
 	@Override
-	public Map<String, Object> searchProductsSales(String nombre, int page, int size) {
+	public Map<String, Object> searchProductosParaCompra(String nombre, int page, int size) {
 
 		String filtro = (nombre != null && !nombre.isBlank()) ? nombre.trim().toLowerCase() : "";
 
+		log.info("Se obtiene usuario logueado...");
+		Long idSucursal = appContext.getSucursalId();
+
 		Pageable pageable = PageRequest.of(page, size);
 
-		Page<ProductoSearchResponse> pageProductos =
-						buscarPorNombreOCodigo(filtro, pageable);
+		Page<SearchProductoCompra> pageProductos = productoRepo.buscarProductosParaCompra(filtro,idSucursal, pageable);
 
 		return Map.of(
-						"productos", pageProductos.getContent(),
+						"products", pageProductos.getContent(),
 						"currentPage", pageProductos.getNumber(),
 						"pageSize", pageProductos.getSize(),
 						"totalItems", pageProductos.getTotalElements(),

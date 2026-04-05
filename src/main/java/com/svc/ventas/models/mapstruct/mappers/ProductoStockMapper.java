@@ -38,6 +38,7 @@ public interface ProductoStockMapper {
   //@Mapping(source = "stock", target = "stock")
   ProductoDTO toProducto (ProductoStock productoStock);
 
+  @Mapping(target = "idProductoStock", source = "idProductoStock")
   @Mapping(target = "idProducto", source = "producto.idProducto")
   @Mapping(target = "codigo", source = "producto.codigo")
   @Mapping(target = "categoria", source = "producto.categoria.desCategoria")
@@ -49,6 +50,7 @@ public interface ProductoStockMapper {
   @Mapping(target = "maxCantidad", source = "producto.maxCantidad")
   @Mapping(target = "precioDescuento", source = "producto.precioDescuento")
   @Mapping(target = "precioVenta", source = "producto.precioVenta")
+  @Mapping(target = "estado", source = "indEstado")
   ProductoStockSearchResponse mapProductoSearch(ProductoStock producto);
 
 }

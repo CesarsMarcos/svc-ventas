@@ -23,10 +23,6 @@ public interface CajaMapper {
 
     CajaMapper INSTANCE = Mappers.getMapper(CajaMapper.class);
 
-    @Mapping(target = "fecha", expression = "java(AppUtils.obtenerFechaActual())")
-    @Mapping(target = "horaApertura", expression = "java(AppUtils.obtenerHoraActual())")
-    Caja toEntity (CajaDTO cajaDTO);
-
     @Mapping(source = "caja.usuario.empleado.persona.nombre", target = "usuario")
     @Mapping(target = "movimiento.ingresos", expression = "java(filtrarPorTipoMovimiento(caja.getMovimientos(), \"INGRESO\"))")
     @Mapping(target = "movimiento.devoluciones", expression = "java(filtrarPorTipoMovimiento(caja.getMovimientos(), \"DEVOLUCIONES\"))")
@@ -36,8 +32,8 @@ public interface CajaMapper {
     CajaDataDto toModelDto (Caja caja, TotalesCaja totales);
 
     @Mapping(target = "cajero", expression = "java(caja.getUsuario().getUsuario())")
-    @Mapping(target = "fecApertura", source = "caja.fecha")
-    @Mapping(target = "fecCierre", source = "caja.fecha")
+    @Mapping(target = "fecApertura", source = "caja.fechaHoraApertura")
+    @Mapping(target = "fecCierre", source = "caja.fechaHoraCierre")
     @Mapping(target = "estado", expression = "java(String.valueOf(caja.getEstado()))")
     @Mapping(target = "moneda", constant = "java(Constantes.MONEDA_PER)")
     @Mapping(target = "totalesPorPago", source = "totalesPorPago")
@@ -76,7 +72,7 @@ public interface CajaMapper {
         dto.setIdCajaMovimiento(movimiento.getIdCajaMovimiento());
         dto.setTipoMovimiento(TipoMovimiento.valueOf(movimiento.getTipoMovimiento().name()));
         dto.setDocumento(movimiento.getDocumento());
-        dto.setTipoPago(Optional.ofNullable(movimiento.getTipoPago()).orElse(null));
+        dto.setTipoPago(movimiento.getTipoPago());
         dto.setMonto(movimiento.getMonto());
         dto.setDescripcion(movimiento.getDescripcion());
         return dto;

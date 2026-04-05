@@ -2,11 +2,13 @@ package com.svc.ventas.service.impl;
 
 import static com.svc.ventas.util.Constantes.IGV;
 
+import com.svc.ventas.config.AppContext;
 import com.svc.ventas.exception.BusinessException;
 import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.request.CompraRequest;
 import com.svc.ventas.message.request.ProductoParaComprar;
-import com.svc.ventas.message.response.Response;
+import com.svc.ventas.message.response.ResponseTransaccion;
+import com.svc.ventas.message.response.SearchCompraResponse;
 import com.svc.ventas.models.dao.*;
 import com.svc.ventas.models.entity.*;
 import com.svc.ventas.models.enums.EstadoCompra;
@@ -17,7 +19,6 @@ import com.svc.ventas.models.specifications.CompraSpecifications;
 import com.svc.ventas.service.*;
 import com.svc.ventas.util.AppUtils;
 import com.svc.ventas.util.Constantes;
-import com.svc.ventas.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -48,23 +49,34 @@ public class CompraServiceImpl implements ICompraService {
 
   private final SucursalRepo sucursalRepo;
 
+  private final TipoDocumentoRepository tipoDocumentoRepo;
+
   private final IProductoService productoService;
 
   private final CompraMapper compraMapper;
 
-  private final SecurityUtils securityUtils;
+  private final AppContext appContext;
 
   @Transactional
   @Override
-  public Response registrar(CompraRequest compra) {
+  public ResponseTransaccion registrar(CompraRequest compra) {
 
     log.info("Iniciando registro de compra...");
+
+    log.info("Obtiene usuario logueado ::");
+    Usuario usuarioLogueado = appContext.getUsuario();
+    Sucursal sucursal = appContext.getSucursal();
 
     log.info("Valida montos ::");
     CompraMontosDto compraMontosDto = validarYCalcularMontos(compra);
 
+    log.info("Obtiene tipo de documento");
+    TipoDocumento tipoDocumento = tipoDocumentoRepo.findById(compra.getIdTipoDocumento())
+            .orElseThrow(() -> new EntityNotFoundException(
+                    String.format(Constantes.MENSAJE_NOT_FOUND, "Tipo Documento", compra.getIdTipoDocumento())));
+
     log.info("Valida si ya se registro documento ::");
-    valiaRegistroDocumento(compra);
+    valiaRegistroDocumento(compra, sucursal);
 
     log.info("Busca proveedor :: ");
     Proveedor proveedorBD = proveedorRepo.findById(compra.getIdProveedor())
@@ -72,12 +84,9 @@ public class CompraServiceImpl implements ICompraService {
                     Constantes.MENSAJE_NOT_FOUND, "Proveedor", compra.getIdProveedor())));
 
     log.info("Busca sucursal existente ::");
-    Sucursal sucursalBD = sucursalRepo.findById(compra.getIdSucursal())
+    Sucursal sucursalBD = sucursalRepo.findById(sucursal.getIdSucursal())
             .orElseThrow(() -> new EntityNotFoundException(String.format(
-                    Constantes.MENSAJE_NOT_FOUND, "Sucursal", compra.getIdSucursal())));
-
-    log.info("Obtiene usuario logueado :: ");
-    Usuario usuarioLogueado = securityUtils.obtenerUsuarioLogueado();
+                    Constantes.MENSAJE_NOT_FOUND, "Sucursal", sucursal.getIdSucursal())));
 
     log.info("Registra los datos del comprobante :: ");
 
@@ -85,7 +94,7 @@ public class CompraServiceImpl implements ICompraService {
             .fecha(AppUtils.convert(compra.getFecha()))
             .serie(compra.getSerie())
             .correlativo(compra.getCorrelativo())
-            .tipoDocumento(compra.getTipoDocumento())
+            .tipoDocumento(tipoDocumento)
             .proveedor(proveedorBD)
             .sucursal(sucursalBD)
             .tipoPago(compra.getTipoPago())
@@ -107,7 +116,7 @@ public class CompraServiceImpl implements ICompraService {
               ProductoDTO productoBD = productoService.obtener(ppc.getIdProducto());
 
               log.info("Busca stock de producto en sucursal ::");
-              ProductoStock productoStock = productoStockRepo.buscar(ppc.getIdProducto(), compra.getIdSucursal())
+              ProductoStock productoStock = productoStockRepo.buscar(ppc.getIdProducto(), sucursal.getIdSucursal())
                       .orElseThrow(() -> new EntityNotFoundException(":: No existe producto registrado"));
 
               log.info("Aumenta existencia para producto :: {} ", productoBD.getNombre());
@@ -133,25 +142,33 @@ public class CompraServiceImpl implements ICompraService {
     String numeroDocumento = compra.getSerie() + "-" + compra.getCorrelativo();
     log.info("Compra registrada correctamente con número {}", numeroDocumento);
 
-    return Response
+    return ResponseTransaccion
             .builder()
+            .total(compraEntity.getTotal())
+            .tipoDocumento(compraEntity.getTipoDocumento().getDescripcion())
+            .tipoPago(compraEntity.getTipoPago().getLabel())
             .mensaje(Constantes.MENSAJE_SAVE)
             .build();
-
   }
 
   @Override
   public Map<String, Object> searchCompras(String ruc, String proveedor,
-                                           String documentoCompra, LocalDate inicio,
+                                           Long documentoCompra, LocalDate inicio,
                                            LocalDate fin, Pageable pageable) {
+
+    log.info("Obtiene usuario en sessión ::");
+    Sucursal sucursal = appContext.getSucursal();
+
     Specification<Compra> spec = Specification
             .where(CompraSpecifications.hasRUC(ruc))
             .and(CompraSpecifications.hasProveedor(proveedor))
+            .and(CompraSpecifications.hasSucursal(sucursal))
             .and(CompraSpecifications.hasDocumento(documentoCompra))
             .and(CompraSpecifications.hasFechaBetween(inicio, fin));
 
     Page<Compra> pageCompra = compraRepo.findAll(spec, pageable);
-    List<CompraGetDto> compraDto = pageCompra.getContent()
+
+    List<SearchCompraResponse> compraDto = pageCompra.getContent()
             .stream().map(compraMapper::mapCompraToDto)
             .collect(Collectors.toList());
 
@@ -166,7 +183,7 @@ public class CompraServiceImpl implements ICompraService {
   }
 
   @Override
-  public Object details(Long id) {
+  public CompraDetailDto details(Long id) {
     return compraRepo.findById(id)
             .map(compraMapper::mapCompraToDetailDto)
             .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Compra", id)));
@@ -176,6 +193,7 @@ public class CompraServiceImpl implements ICompraService {
   @Override
   public List<EnumDto> tipoPagoCompra() {
     return Arrays.stream(TipoPagoCompra.values())
+            .filter(TipoPagoCompra::getEstado)
             .map(tpc -> EnumDto.builder()
                     .value(tpc.getValue())
                     .label(tpc.getLabel())
@@ -231,8 +249,8 @@ public class CompraServiceImpl implements ICompraService {
     return new CompraMontosDto(subtotalCalculado, igvCalculado, totalCalculado);
   }
 
-  private void valiaRegistroDocumento(CompraRequest compra){
-    if(compraRepo.existsBySerieAndCorrelativoAndSucursalIdSucursal(compra.getSerie(), compra.getCorrelativo(), compra.getIdSucursal())){
+  private void valiaRegistroDocumento(CompraRequest compra , Sucursal sucursal) {
+    if(compraRepo.existsBySerieAndCorrelativoAndSucursal(compra.getSerie(), compra.getCorrelativo(), sucursal)){
       throw new BusinessException("El numero de serie y documento ya fue registrado");
     }
   }

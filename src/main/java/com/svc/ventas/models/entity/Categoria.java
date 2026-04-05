@@ -18,7 +18,7 @@ public class Categoria implements Serializable {
 	private Integer idCategoria;
 
 	@ManyToOne
-	@JoinColumn(name = "id_empresa")
+	@JoinColumn(name = "id_empresa", foreignKey=@ForeignKey(name="fk_categoria_empresa"))
 	private Empresa empresa;
 
 	@NotBlank

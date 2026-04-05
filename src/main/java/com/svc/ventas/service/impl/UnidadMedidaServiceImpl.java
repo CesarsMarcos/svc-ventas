@@ -2,10 +2,11 @@ package com.svc.ventas.service.impl;
 
 import java.util.List;
 
+import com.svc.ventas.config.AppContext;
+import com.svc.ventas.models.entity.Empresa;
 import com.svc.ventas.models.mapstruct.dto.UnidadMedidaDto;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.UnidadMedidaRepo;
@@ -14,13 +15,16 @@ import com.svc.ventas.service.IUnidadMedidaService;
 import com.svc.ventas.util.Constantes;
 
 @Service
+@RequiredArgsConstructor
 public class UnidadMedidaServiceImpl implements IUnidadMedidaService {
 
-	@Autowired
-	private UnidadMedidaRepo unidadRepositorio;
+	private final UnidadMedidaRepo unidadRepositorio;
+
+  private final AppContext appContext;
 
 	public List<UnidadMedida> unidades() {
-		return unidadRepositorio.unidades();
+		Empresa empresa = appContext.getEmpresa();
+		return unidadRepositorio.unidades(empresa);
 	}
 
 	public Response guardar(UnidadMedida unidad) {

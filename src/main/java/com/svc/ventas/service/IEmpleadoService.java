@@ -9,6 +9,7 @@ import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.mapstruct.dto.EmpleadoDto;
 import com.svc.ventas.models.mapstruct.dto.EmpleadoGetDto;
 import com.svc.ventas.models.mapstruct.dto.EmpleadoListDto;
+import com.svc.ventas.models.mapstruct.dto.PersonaEmpleadoDto;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface IEmpleadoService {
@@ -16,6 +17,8 @@ public interface IEmpleadoService {
 	List<EmpleadoDto> lista();
 
 	Map<String, Object> empleadosNoUsuario(String nombre, String documento, int page, int size);
+
+	List<PersonaEmpleadoDto> empleadosNoUsuario();
 
 	@Transactional
 	Response agregar(EmpleadoCreateRequest empleadoRequest);

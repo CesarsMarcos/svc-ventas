@@ -27,6 +27,16 @@ public class CategoriaController {
                 .ok(categorias);
     }
 
+    @GetMapping("productos")
+    public ResponseEntity<List<CategoriaDto>> categoriasPorProductoStock(){
+        List<CategoriaDto> categorias = categoriaService.categoriasPorProductoStock();
+        if (categorias.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+        return ResponseEntity
+                .ok(categorias);
+    }
+
     @PostMapping
     public ResponseEntity<Response> guardar(@RequestBody CategoriaDto categoria) {
         Response response = categoriaService.guardar(categoria);

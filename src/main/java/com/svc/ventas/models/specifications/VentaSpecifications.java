@@ -2,6 +2,7 @@ package com.svc.ventas.models.specifications;
 
 import com.svc.ventas.models.entity.Cliente;
 import com.svc.ventas.models.entity.Persona;
+import com.svc.ventas.models.entity.Sucursal;
 import com.svc.ventas.models.entity.Venta;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
@@ -44,6 +45,10 @@ public class VentaSpecifications {
 
   public static Specification<Venta> hasDocumento(String documento) {
     return (root, query, cb) -> cb.equal(root.get("numDocumento"), documento);
+  }
+
+  public static Specification<Venta> hasSucursal (Sucursal sucursal){
+    return (root, query, cb) -> cb.equal(root.get("sucursal"), sucursal);
   }
 
   public static Specification<Venta> hasFechaBetween(LocalDate inicio, LocalDate fin) {

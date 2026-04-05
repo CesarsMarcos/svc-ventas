@@ -1,7 +1,7 @@
 package com.svc.ventas.controller.mantenimiento;
 
-import com.svc.ventas.models.entity.Serie;
-import com.svc.ventas.models.enums.TipoDocumento;
+import com.svc.ventas.message.request.SerieRequest;
+import com.svc.ventas.models.mapstruct.dto.SerieDTO;
 import com.svc.ventas.service.ISerieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,8 +18,8 @@ public class SerieController {
   private final ISerieService serieService;
 
   @GetMapping
-  public ResponseEntity<List<Serie>> listado (){
-    List<Serie> series = serieService.series();
+  public ResponseEntity<List<SerieDTO>> listado (){
+    List<SerieDTO> series = serieService.series();
     if(series.isEmpty()){
       return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -27,13 +27,18 @@ public class SerieController {
   }
 
   @PostMapping
-  public ResponseEntity<?> save (@RequestBody Serie serie){
-      return ResponseEntity.status(HttpStatus.CREATED).body(serieService.save(serie));
+  public ResponseEntity<?> save(@RequestBody SerieRequest serieRequest){
+      return ResponseEntity.status(HttpStatus.CREATED).body(serieService.save(serieRequest));
   }
 
-  @GetMapping("documentType/{idSucursal}")
-  public ResponseEntity<?> getByIdDocumentType (@PathVariable Long idSucursal, @RequestParam TipoDocumento tipoDocumento){
-    return ResponseEntity.ok(serieService.getByIdDocumentType(idSucursal, tipoDocumento));
+  @GetMapping("tipoDocumentos")
+  public ResponseEntity<?> getByIdDocumentType (){
+    return ResponseEntity.ok(serieService.getTipoDocumento());
+  }
+
+  @GetMapping("correlativo")
+  public ResponseEntity<?> getSeriePorTipoDocumento (@RequestParam Long idTipoDocumento){
+    return ResponseEntity.ok(serieService.getSeriePorIdIipoDocumento(idTipoDocumento));
   }
 
 }

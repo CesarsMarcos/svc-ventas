@@ -16,8 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public class UsuarioCreateRequest {
 
-  @NotNull
-  private Integer idEmpleado;
+  private Integer id;
 
   @NotEmpty
   private List<Integer> roles;

@@ -32,13 +32,19 @@ public class Usuario implements Serializable {
 	private Integer idUsuario;
 
 	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-	@ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
-	@JoinColumn(name = "id_empleado",foreignKey=@ForeignKey(name="fk_usuario_empleado"))
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+	@JoinColumn(name = "id_empleado", foreignKey=@ForeignKey(name="fk_usuario_empleado"))
 	private Empleado empleado;
 
-	@ManyToOne
-	@JoinColumn(name = "id_empresa")
-	private Empresa empresa;
+	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+	@JoinColumn(name = "id_persona", foreignKey=@ForeignKey(name="fk_usuario_persona"), nullable = false)
+	private Persona persona;
+
+	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+	@JoinColumn(name = "id_sucursal", foreignKey=@ForeignKey(name="fk_usuario_sucursal"), nullable = false)
+	private Sucursal sucursal;
 
 	@JoinTable(name = "tb_usuario_rol", joinColumns = @JoinColumn(name = "id_usuario"), inverseJoinColumns = @JoinColumn(name = "id_rol"))
 	@ManyToMany(fetch = FetchType.EAGER)

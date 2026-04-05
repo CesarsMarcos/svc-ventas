@@ -1,10 +1,8 @@
 package com.svc.ventas.service;
 
-import com.svc.ventas.message.response.ProductoStockSearchResponse;
 import com.svc.ventas.models.mapstruct.dto.ProductoStockDetailsDTO;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Map;
 
 public interface IAlmacenService {
@@ -14,9 +12,7 @@ public interface IAlmacenService {
 
   Map<String, Object> searchProductosVenta(String codigo, String nombre);
 
-  List<ProductoStockSearchResponse> buscarPorNombreOCodigo(String termino);
-
-  ProductoStockDetailsDTO details (Long idProductoStock);
+  ProductoStockDetailsDTO details(Long idProductoStock);
 
   void updatePrecioVenta(Long idProductoStock, BigDecimal precioVenta);
 

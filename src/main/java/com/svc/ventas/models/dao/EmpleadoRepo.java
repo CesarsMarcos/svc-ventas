@@ -2,7 +2,6 @@ package com.svc.ventas.models.dao;
 
 import java.util.List;
 
-import com.svc.ventas.models.entity.Persona;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,11 +13,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface EmpleadoRepo extends JpaRepository<Empleado, Integer>,
 				JpaSpecificationExecutor<Empleado> {
-
-	@Query("SELECT e FROM Empleado e WHERE e.indEstado = true")
-	List<Empleado> findEmpleados();
-
-	Boolean existsByPersonaNumDocumento(String documento);
 
 	Boolean existsByPersonaIdPersona(Integer id);
 
@@ -32,4 +26,13 @@ public interface EmpleadoRepo extends JpaRepository<Empleado, Integer>,
         LIKE LOWER(CONCAT('%', :termino, '%'))
     """)
 	Page<Empleado> findEmpleadosQueNoTienenUsuario(@Param("termino") String termino, Pageable pageable);
+
+	@Query("""
+    SELECT e
+    FROM Empleado e
+    WHERE NOT EXISTS (
+        SELECT 1 FROM Usuario u WHERE u.empleado.id = e.id
+        )
+    """)
+	List<Empleado> empleadosQueNoTienenUsuario();
 }

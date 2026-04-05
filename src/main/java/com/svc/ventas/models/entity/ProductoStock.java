@@ -22,7 +22,7 @@ public class ProductoStock {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Long idProductoStock;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "id_producto", nullable = false, foreignKey = @ForeignKey(name = "fk_producto_stock_producto"))
@@ -31,10 +31,6 @@ public class ProductoStock {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "id_sucursal", nullable = false, foreignKey = @ForeignKey(name = "fk_producto_stock_sucursal"))
   private Sucursal sucursal;
-
-  @ManyToOne
-  @JoinColumn(name = "id_empresa")
-  private Empresa empresa;
 
   private Integer stock;
 
@@ -47,6 +43,9 @@ public class ProductoStock {
 
   //precio de producto en promocion por sucursal
   private BigDecimal precioDescuento;
+
+  @Column(name = "ind_estado")
+  private Boolean indEstado;
 
   public boolean sinStock() {
     return Objects.isNull(this.stock) || this.stock <= 0;

@@ -20,10 +20,7 @@ public class VentaRequest {
 	private Integer idCliente;
 
 	@NotNull
-	private Long idSucursal;
-
-	@NotNull
-	private TipoDocumento tipoDocumento;
+	private Long idTipoDocumento;
 
 	private Boolean aplicarImpuesto;
 

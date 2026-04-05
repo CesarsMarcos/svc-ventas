@@ -23,13 +23,7 @@ public class Cliente implements Serializable {
 	@JoinColumn(name = "id_persona", foreignKey=@ForeignKey(name= "fk_cliente_persona"))
 	private Persona persona;
 
-	@ManyToOne
-	@JoinColumn(name = "id_empresa")
-	private Empresa empresa;
-
 	private Boolean indEstado;
-
-	private Boolean isClienteGenerico;
 
 	@Column(name = "created_by")
 	private String  createdBy;

@@ -35,6 +35,10 @@ public class Producto implements Serializable {
 	@JoinColumn(name = "id_umedida", foreignKey = @ForeignKey(name = "fk_articulo_unidad_medida"))
 	private UnidadMedida unidadMedida;
 
+	@ManyToOne
+	@JoinColumn(name = "id_empresa", foreignKey=@ForeignKey(name="fk_caja_empresa"))
+	private Empresa empresa;
+
 	private String descripcion;
 
 	private String nombre;

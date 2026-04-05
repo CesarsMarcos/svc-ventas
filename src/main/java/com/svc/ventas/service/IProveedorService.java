@@ -3,6 +3,7 @@ package com.svc.ventas.service;
 import java.util.List;
 import java.util.Map;
 
+import com.svc.ventas.message.request.ProveedorRequest;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.mapstruct.dto.ProveedorDto;
 import com.svc.ventas.models.mapstruct.dto.ProveedorSelectedDto;
@@ -18,7 +19,7 @@ public interface IProveedorService {
 	List<ProveedorSelectedDto> proveedoresListSelected();
 
 	@Transactional
-	Response registrar(ProveedorDto proveedor);
+	Response registrar(ProveedorRequest proveedor);
 
 	@Transactional
 	Response modificar(Long id, ProveedorDto proveedor);

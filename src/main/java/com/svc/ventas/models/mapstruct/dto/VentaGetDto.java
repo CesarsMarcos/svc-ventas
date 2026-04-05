@@ -1,10 +1,11 @@
 package com.svc.ventas.models.mapstruct.dto;
 
-import com.svc.ventas.models.enums.TipoDocumento;
-import com.svc.ventas.models.enums.TipoPago;
 import lombok.*;
 
 import jakarta.validation.constraints.NotNull;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -15,7 +16,7 @@ public class VentaGetDto {
 
 	private Long id;
 
-	private String fecha;
+	private LocalDate fecha;
 
 	private String tipoPago;
 
@@ -26,12 +27,12 @@ public class VentaGetDto {
 	private String estado;
 
 	@NotNull
-	private float igv;
+	private BigDecimal igv;
 
 	@NotNull
-	private float subTotal;
+	private BigDecimal subTotal;
 
 	@NotNull
-	private float total;
+	private BigDecimal total;
 
 }

@@ -1,14 +1,19 @@
 package com.svc.ventas.service.impl;
 
+import com.svc.ventas.config.AppContext;
 import com.svc.ventas.exception.EntityNotFoundException;
+import com.svc.ventas.message.response.PersonaSearchResponse;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.PersonaRepository;
+import com.svc.ventas.models.entity.Empresa;
 import com.svc.ventas.models.entity.Persona;
 import com.svc.ventas.models.entity.Producto;
 import com.svc.ventas.models.mapstruct.dto.PersonaDto;
+import com.svc.ventas.models.mapstruct.dto.PersonaEmpleadoDto;
 import com.svc.ventas.models.mapstruct.dto.PersonaListDto;
 import com.svc.ventas.models.mapstruct.mappers.PersonaMapper;
 import com.svc.ventas.models.specifications.PersonaSpecifications;
+import com.svc.ventas.service.IEmpleadoService;
 import com.svc.ventas.service.IPersonaService;
 import com.svc.ventas.util.Constantes;
 import lombok.RequiredArgsConstructor;
@@ -31,11 +36,23 @@ public class PersonaServiceImpl implements IPersonaService {
 
   private final PersonaMapper personaMapper;
 
+  private final IEmpleadoService empleadoService;
+
+  private final AppContext appContext;
+
   @Override
-  public List<PersonaDto> personas() {
-    return personaRepo.getPersonasActivos()
+  public List<?> listaPersonaEmpleadoSegunEmpresa() {
+    if (appContext.getEmpresa().getIsUsaEmpleados()) {
+      return empleadoService.empleadosNoUsuario();
+    }
+    return personasNoUsuarios();
+  }
+
+  @Override
+  public List<PersonaEmpleadoDto> personasNoUsuarios() {
+    return personaRepo.getPersonasParaUsuario()
             .stream()
-            .map(personaMapper::map)
+            .map(personaMapper::mapToPersonaEmpleado)
             .collect(Collectors.toList());
   }
 
@@ -55,7 +72,10 @@ public class PersonaServiceImpl implements IPersonaService {
 
   @Override
   public Response guardar(PersonaDto personaDto) {
+    Empresa empresa = appContext.getEmpresa();
+
     Persona persona = personaMapper.mapToPersona(personaDto);
+    persona.setEmpresa(empresa);
 
     personaRepo.save(persona);
     return Response
@@ -97,11 +117,6 @@ public class PersonaServiceImpl implements IPersonaService {
   }
 
   @Override
-  public Boolean isSaved(String documento) {
-    return personaRepo.existsByNumDocumento(documento);
-  }
-
-  @Override
   public Map<String, Object> searchPersona(String documento, String nombre, int page, int size) {
 
     Specification<Persona> spec = Specification.where(null);
@@ -116,8 +131,8 @@ public class PersonaServiceImpl implements IPersonaService {
 
     Page<Persona> pagePersona = personaRepo.findAll(spec, pageable);
 
-    List<PersonaDto> listPersonas = pagePersona.getContent().stream()
-            .map(personaMapper::mapToPersonaDto)
+    List<PersonaSearchResponse> listPersonas = pagePersona.getContent().stream()
+            .map(personaMapper::mapToResponseSearch)
             .toList();
 
     return Map.of(

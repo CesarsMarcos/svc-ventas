@@ -1,6 +1,8 @@
 package com.svc.ventas.models.entity;
 
 import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,6 +19,11 @@ public class UnidadMedida implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="id_umedida")
 	private Integer idUmedida;
+
+	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+	@JoinColumn(name = "id_empresa", foreignKey = @ForeignKey(name = "fk_unidad_medida_empresa"))
+	private Empresa empresa;
 
 	private String nombre;
 

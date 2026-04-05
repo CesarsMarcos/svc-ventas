@@ -13,6 +13,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class ProductoStockSearchResponse {
 
+	private Integer idProductoStock;
+
 	private Integer idProducto;
 
 	private String codigo;
@@ -34,5 +36,7 @@ public class ProductoStockSearchResponse {
 	private BigDecimal precioDescuento;
 
 	private BigDecimal precioVenta;
+
+	private Boolean estado;
 
 }

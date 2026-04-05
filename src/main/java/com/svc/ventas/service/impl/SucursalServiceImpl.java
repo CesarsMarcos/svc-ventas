@@ -3,6 +3,8 @@ package com.svc.ventas.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.svc.ventas.config.AppContext;
+import com.svc.ventas.exception.BusinessException;
 import com.svc.ventas.message.request.SucursalRequest;
 import com.svc.ventas.models.dao.EmpresaRepository;
 import com.svc.ventas.models.entity.Empresa;
@@ -29,9 +31,13 @@ public class SucursalServiceImpl implements ISucursalService {
 	
 	private final SucursalMapper sucursalMapper;
 
+	private final AppContext appContext;
+
 	@Override
 	public List<SucursalDto> lista() {
-		return sucursalRepo.findSucursales()
+		Long idEmpresa = appContext.getEmpresaId();
+
+		return sucursalRepo.findSucursalesPorEmpresa(idEmpresa)
 				.stream()
 				.map(sucursalMapper::mapToSucursalDTO)
 				.collect(Collectors.toList());
@@ -39,12 +45,16 @@ public class SucursalServiceImpl implements ISucursalService {
 
 	@Override
 	public Response agregar(SucursalRequest sucursal) {
-		Empresa empresaSave = empresaRepo.findById(sucursal.getIdEmpresa())
-						.orElseThrow(() ->
-										new EntityNotFoundException(String.
-														format(Constantes.MENSAJE_NOT_FOUND, "Sucursal", sucursal.getIdEmpresa())));
 
-		sucursalRepo.save(sucursalMapper.mapRequestToSucursalPost(sucursal, empresaSave));
+		Empresa empresa = appContext.getEmpresa();
+
+		Long cantidadSucursales = sucursalRepo.cantidadSucursal(empresa.getIdEmpresa());
+
+		if(Long.valueOf(empresa.getNumeroSucursales()).compareTo(cantidadSucursales) == 0){
+			throw new BusinessException("Haz registrado las sucursales que tienes permitida en tu subscripción");
+		}
+
+		sucursalRepo.save(sucursalMapper.mapRequestToSucursalPost(sucursal, empresa));
 
 		return Response.builder()
 				.mensaje(Constantes.MENSAJE_SAVE)

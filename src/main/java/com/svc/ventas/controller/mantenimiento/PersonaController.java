@@ -30,7 +30,7 @@ public class PersonaController {
 
   @GetMapping
   public ResponseEntity<?> personas() {
-    return new ResponseEntity<>(personaService.personas(), HttpStatus.OK);
+    return new ResponseEntity<>(personaService.personasNoUsuarios(), HttpStatus.OK);
   }
 
   @GetMapping("no-empleados")
@@ -41,6 +41,11 @@ public class PersonaController {
   @GetMapping("no-clientes")
   public ResponseEntity<?> noClientes() {
     return new ResponseEntity<>(personaService.personasNoClientes(), HttpStatus.OK);
+  }
+
+  @GetMapping("personasEmpleadoDisponibleParaUsuario")
+  public ResponseEntity<?> personasEmpleadoDisponibleParaUsuario() {
+    return new ResponseEntity<>(personaService.listaPersonaEmpleadoSegunEmpresa(), HttpStatus.OK);
   }
 
   @PostMapping

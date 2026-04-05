@@ -15,7 +15,12 @@ public class Marca implements Serializable {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@JoinColumn(name = "id_marca")
 	private Integer idMarca;
+
+	@ManyToOne
+	@JoinColumn(name = "id_empresa", foreignKey=@ForeignKey(name="fk_marca_empresa"))
+	private Empresa empresa;
 
 	private String descripcion;
 

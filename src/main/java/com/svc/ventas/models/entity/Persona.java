@@ -21,6 +21,10 @@ public class Persona implements Serializable {
 	@Column(name = "id_persona")
 	private Integer idPersona;
 
+	@ManyToOne
+	@JoinColumn(name = "id_empresa")
+	private Empresa empresa;
+
 	@Column(name = "tipo_documento")
 	@Enumerated(EnumType.STRING)
 	private TipoDocumentoPersona tipoDocumento;
@@ -52,7 +56,10 @@ public class Persona implements Serializable {
 	private String foto;
 
 	@Column(name = "ind_estado")
-	private Boolean indEstado;
+	private Boolean indEstado = true;
+
+	@Column(name = "is_generico")
+	private Boolean isClienteGenerico = false;
 
 	@Column(name = "created_by")
 	private String  createdBy;

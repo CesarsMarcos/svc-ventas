@@ -8,29 +8,46 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.List;
 
-public interface PersonaRepository extends CrudRepository<Persona, Integer>,
-        JpaSpecificationExecutor<Persona>, PagingAndSortingRepository<Persona, Integer> {
+public interface PersonaRepository extends CrudRepository<Persona, Integer>, JpaSpecificationExecutor<Persona>, PagingAndSortingRepository<Persona, Integer> {
 
-    Boolean existsByNumDocumento(String dni);
+  Boolean existsByNumDocumento(String dni);
 
-    @Query("SELECT u FROM Empleado u WHERE u.indEstado = true")
-    List<Persona> getPersonasActivos();
+  @Query("""
+          SELECT p
+          FROM Persona p
+          WHERE NOT EXISTS (
+           SELECT 1 FROM Usuario u WHERE u.persona.id = p.id
+          )
+          AND p.isClienteGenerico = false
+          """)
+  List<Persona> getPersonasParaUsuario();
 
-    @Query("""
-    SELECT p
-    FROM Persona p
-    WHERE NOT EXISTS (
-        SELECT 1 FROM Empleado e WHERE e.persona.id = p.id
-    )""")
-    List<Persona> findDisponiblesParaEmpleado();
+  @Query("""
+          SELECT p
+          FROM Persona p
+          WHERE NOT EXISTS (
+           SELECT 1 FROM Cliente u WHERE u.persona.id = p.id
+          )
+          AND p.isClienteGenerico = false
+          """)
+  List<Persona> getPersonasParaClienteNoGenerico();
 
-    @Query("""
-    SELECT p
-    FROM Persona p
-    WHERE NOT EXISTS (
-        SELECT 1 FROM Cliente c WHERE c.persona.id = p.id
-    )""")
-    List<Persona> findPersonasQueNoSonClientes();
+  @Query("""
+          SELECT p
+          FROM Persona p
+          WHERE NOT EXISTS (
+              SELECT 1 FROM Empleado e WHERE e.persona.id = p.id
+              )
+          """)
+  List<Persona> findDisponiblesParaEmpleado();
 
+  @Query("""
+          SELECT p
+          FROM Persona p
+          WHERE NOT EXISTS (
+              SELECT 1 FROM Cliente c WHERE c.persona.id = p.id
+          )  AND p.isClienteGenerico = false
+          """)
+  List<Persona> findPersonasQueNoSonClientes();
 
 }

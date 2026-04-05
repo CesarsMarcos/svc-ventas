@@ -34,17 +34,22 @@ public class CompraSpecifications {
     };
   }
 
-  public static Specification<Compra> hasDocumento(String documento) {
+  public static Specification<Compra> hasDocumento(Long documento) {
     return (root, query, cb) -> {
       if (documento == null) {
         return cb.conjunction();
       }
-      Expression<String> serie  = root.get("serie");
-      Expression<String> correlativo = root.get("correlativo");
-      Expression<String> serieCorrelativo = cb.concat(serie,  cb.concat("-",  correlativo));
-      return cb.like(cb.lower(serieCorrelativo), "%" + documento.toLowerCase() + "%"
-      );
+      //String serie  = String.valueOf(root.get("serie"));
+      //Long correlativo = root.get("correlativo") ;
+      //Expression<String> serieCorrelativo = cb.concat(serie,  cb.concat("-",  correlativo));
+      //return cb.like(cb.lower(serieCorrelativo), "%" + documento.toLowerCase() + "%"
+      return cb.equal(root.get("correlativo"), documento);
+      //);
     };
+  }
+
+  public static Specification<Compra> hasSucursal (Sucursal sucursal){
+    return (root, query, cb) -> cb.equal(root.get("sucursal"), sucursal);
   }
 
   public static Specification<Compra> hasFechaBetween(LocalDate inicio, LocalDate fin) {

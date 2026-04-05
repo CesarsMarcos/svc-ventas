@@ -22,21 +22,17 @@ public interface ProductoStockRepo extends CrudRepository<ProductoStock, Long>,
           FROM ProductoStock ps
           WHERE ps.producto.id = :productoId
             AND ps.sucursal.id = :sucursalId
-              """)
+          """)
   Optional<ProductoStock> buscar(Long productoId, Long sucursalId);
 
   @Query("""
           SELECT ps FROM ProductoStock ps
-          WHERE ps.producto.codigo = :termino
-             OR LOWER(ps.producto.nombre) LIKE LOWER(CONCAT('%', :termino, '%'))
-          """)
-  List<ProductoStock> buscarPorNombreOCodigo(String termino);
-
-  @Query("""
-          SELECT ps FROM ProductoStock ps
-          WHERE ps.producto.codigo = : termino 
+          WHERE ps.producto.codigo = : termino
             OR LOWER(ps.producto.nombre) LIKE LOWER(CONCAT('%', :termino, '%'))
           """)
   Page<ProductoStock> buscarPorNombreOCodigoPage(@Param("termino") String termino, Pageable pageable);
+
+
+
 
 }

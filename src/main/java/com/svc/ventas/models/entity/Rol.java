@@ -2,10 +2,8 @@ package com.svc.ventas.models.entity;
 
 import java.io.Serializable;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 
 import lombok.Data;
 
@@ -16,6 +14,11 @@ public class Rol implements Serializable {
 
 	@Id
 	private Integer idRol;
+
+	@JsonIgnore
+	@ManyToOne
+	@JoinColumn(name = "id_empresa")
+	private Empresa empresa;
 
 	@Column(name = "DES_ROL")
 	private String desRol;

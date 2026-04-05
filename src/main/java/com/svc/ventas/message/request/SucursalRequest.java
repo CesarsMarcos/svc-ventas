@@ -14,9 +14,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class SucursalRequest {
 
-  @NotNull
-  private Integer idEmpresa;
-
   private String numDocumento;
 
   @NotBlank

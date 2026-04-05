@@ -26,7 +26,7 @@ public class KardexServiceImpl implements IKardexService {
   @Override
   public List<KardexDetalleDTO> obtenerKardexPorProducto(Long idProducto) {
     String sql = """
-                SELECT 
+                SELECT
                     fecha_movimiento, tipo_movimiento, documento,
                     cantidad_entrada, cantidad_salida,
                     costo_unitario, total_movimiento,

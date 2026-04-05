@@ -3,6 +3,7 @@ package com.svc.ventas.models.mapstruct.dto;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -18,9 +19,9 @@ public class CajaDataDto {
 
     private BigDecimal montoCierre;
 
-    private String horaApertura;
+    private LocalDateTime horaApertura;
 
-    private String horaCierre;
+    private LocalDateTime horaCierre;
 
     private CajaMovimientoDetalleDTO movimiento;
 }

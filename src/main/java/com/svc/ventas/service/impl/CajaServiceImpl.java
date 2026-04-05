@@ -1,13 +1,12 @@
 package com.svc.ventas.service.impl;
 
+import com.svc.ventas.config.AppContext;
 import com.svc.ventas.exception.ConflictException;
 import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.CajaRepo;
 import com.svc.ventas.models.dao.MovimientoRepo;
-import com.svc.ventas.models.entity.Caja;
-import com.svc.ventas.models.entity.CajaMovimiento;
-import com.svc.ventas.models.entity.Usuario;
+import com.svc.ventas.models.entity.*;
 import com.svc.ventas.models.enums.EstadoCaja;
 import com.svc.ventas.models.enums.OrigenMovimiento;
 import com.svc.ventas.models.enums.TipoMovimiento;
@@ -17,14 +16,14 @@ import com.svc.ventas.models.mapstruct.mappers.CajaMapper;
 import com.svc.ventas.models.mapstruct.mappers.MovimientoMapper;
 import com.svc.ventas.models.mapstruct.mappers.UsuarioMapper;
 import com.svc.ventas.service.ICajaService;
-import com.svc.ventas.util.AppUtils;
 import com.svc.ventas.util.Constantes;
-import com.svc.ventas.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -41,27 +40,46 @@ public class CajaServiceImpl implements ICajaService {
 
   private final UsuarioMapper usuarioMapper;
 
-  private final SecurityUtils securityUtils;
+  private final AppContext appContext;
 
   @Override
   public CajaDetalleDTO findByFechaAndUsuario() {
-    Usuario currentUsuario = securityUtils.obtenerUsuarioLogueado();
-    return cajaRepo.findByFechaAndUsuarioUsuario(AppUtils.obtenerFechaActual(), currentUsuario.getUsuario())
+
+    String currentUserName = appContext.getUserName();
+    Long idEmpresa = appContext.getEmpresaId();
+
+    LocalDate fecha = LocalDate.now();
+    LocalDateTime inicio = fecha.atStartOfDay();
+    LocalDateTime fin = fecha.atTime(23, 59, 59);
+
+    return cajaRepo.findByFecha(inicio, fin, currentUserName, idEmpresa)
             .map(this::construirCajaAbiertaDTO)
             .orElseGet(this::construirCajaCerradaDTO);
-
   }
 
   @Override
   public Response aperturaCaja(CajaDTO caja) {
-    Usuario currentUsuario = securityUtils.obtenerUsuarioLogueado();
-    String fechaActual = AppUtils.obtenerFechaActual();
 
-    validarCajaExistenteParaUsuario(fechaActual,currentUsuario.getUsuario());
+    Usuario currentUsuario = appContext.getUsuario();
+    Sucursal currentSucursal = appContext.getSucursal();
+    String currentUserName = appContext.getUserName();
+    Long idEmpresa = appContext.getEmpresaId();
 
-    caja.setUsuario(usuarioMapper.map(currentUsuario));
-    caja.setEstado(String.valueOf(EstadoCaja.ABIERTA));
-    cajaRepo.save(CajaMapper.INSTANCE.toEntity(caja));
+
+
+    LocalDate fecha = LocalDate.now();
+
+    validarCajaExistenteParaUsuario(fecha, currentUserName, idEmpresa);
+
+    cajaRepo.save(Caja.builder()
+            .usuario(currentUsuario)
+            .createdBy(currentUserName)
+            .montoApertura(caja.getMontoApertura())
+            .fechaHoraApertura(LocalDateTime.now())
+            .estado(EstadoCaja.ABIERTA)
+            .empresa(currentUsuario.getEmpleado().getSucursal().getEmpresa())
+            .sucursal(currentSucursal)
+            .build());
     return Response.builder().mensaje(Constantes.MENSAJE_SAVE).build();
   }
 
@@ -69,7 +87,7 @@ public class CajaServiceImpl implements ICajaService {
   public Response cerrarCaja(Long idCaja) {
     cajaRepo.findById(idCaja)
             .map(cajaSave -> {
-              cajaSave.setHoraCierre(AppUtils.obtenerHoraActual());
+              cajaSave.setFechaHoraCierre(LocalDateTime.now());
               cajaSave.setEstado(EstadoCaja.CERRADA);
               return cajaRepo.save(cajaSave);
             })
@@ -118,8 +136,13 @@ public class CajaServiceImpl implements ICajaService {
     return buildResumenCajaDTO(caja, totalesPorPago, totalesPorMovimiento, totales, finales);
   }
 
-  private void validarCajaExistenteParaUsuario(String fecha, String nombreUsuario) {
-    boolean existeCaja = cajaRepo.findByFechaAndUsuarioUsuario(fecha, nombreUsuario).isPresent();
+  private void validarCajaExistenteParaUsuario(LocalDate fecha, String nombreUsuario,
+                                               Long idEmpresa) {
+
+    LocalDateTime fin = fecha.atTime(23, 59, 59);
+
+    boolean existeCaja = cajaRepo.findByFecha(fecha.atStartOfDay(),fin,
+            nombreUsuario, idEmpresa).isPresent();
 
     if (existeCaja) {
       String mensaje = String.format(Constantes.MSJ_CAJA_EXISTE, nombreUsuario, fecha);

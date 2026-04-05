@@ -1,28 +1,20 @@
 package com.svc.ventas.models.enums;
 
-public enum TipoDocumento {
-  FACTURA("FACTURA"),
-  BOLETA("BOLETA"),
-  TICKET("TICKET"),
-  NOTA_CREDITO ("NOTA CREDITO"),
-  GUIA_REMISION ("GUIA REMISIÓN");
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-  private final String label;
+@Getter
+@AllArgsConstructor
+public enum TipoDocumento {
+  FACTURA,
+  BOLETA,
+  TICKET,
+  NOTA_CREDITO,
+  NOTA_DEBITO,
+  GUIA_REMISION;
 
   public static TipoDocumento from(String value) {
-    return TipoDocumento.valueOf(value.replace(" ", "_").toUpperCase());
-  }
-
-  TipoDocumento(String label) {
-    this.label = label;
-  }
-
-  public String getLabel() {
-    return label;
-  }
-
-  public String getValue() {
-    return this.name();
+    return TipoDocumento.valueOf(value);
   }
 
 }

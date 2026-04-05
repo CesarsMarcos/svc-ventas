@@ -1,20 +1,17 @@
 package com.svc.ventas.service.impl;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.svc.ventas.exception.BusinessException;
+import com.svc.ventas.message.request.ProveedorRequest;
 import com.svc.ventas.message.response.Response;
-import com.svc.ventas.models.entity.ProductoStock;
 import com.svc.ventas.models.mapstruct.dto.ProveedorSelectedDto;
-import com.svc.ventas.models.specifications.ProductStockSpecifications;
 import com.svc.ventas.models.specifications.ProveedorSpecifications;
 import com.svc.ventas.service.IServicioExterno;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -55,13 +52,13 @@ public class ProveedorServiceImpl implements IProveedorService {
 						.map(proveedorMapper::mapToProveedorDto)
 						.collect(Collectors.toList());
 
-		Map<String, Object> response = new HashMap<>();
-		response.put("proveedores", proveedoresDto);
-		response.put("currentPage", proveedorPage.getNumber());
-		response.put("totalItems", proveedorPage.getTotalElements());
-		response.put("totalPages", proveedorPage.getTotalPages());
-
-		return response;
+		return Map.of(
+						"proveedores", proveedoresDto,
+						"currentPage", proveedorPage.getNumber(),
+						"pageSize", proveedorPage.getSize(),
+						"totalItems", proveedorPage.getTotalElements(),
+						"totalPages", proveedorPage.getTotalPages(),
+						"empty", proveedorPage.isEmpty());
 	}
 
 	@Override
@@ -79,8 +76,15 @@ public class ProveedorServiceImpl implements IProveedorService {
 	}
 
 	@Override
-	public Response registrar(ProveedorDto proveedorDto) {
-		proveedorRepo.save(proveedorMapper.mapToProveedor(proveedorDto));
+	public Response registrar(ProveedorRequest proveedorRequest) {
+
+		Boolean existeProveedor = proveedorRepo.existsBynumDocumento(proveedorRequest.getNumDocumento());
+
+		if (existeProveedor){
+			throw new BusinessException("Existe proveedir ya registrado con el documento ingresado");
+		}
+
+		proveedorRepo.save(proveedorMapper.mapToProveedor(proveedorRequest));
 		return Response.builder().mensaje(Constantes.MENSAJE_SAVE).build();
 	}
 

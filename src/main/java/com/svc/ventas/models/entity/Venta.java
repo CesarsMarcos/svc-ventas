@@ -2,12 +2,10 @@ package com.svc.ventas.models.entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
 import com.svc.ventas.models.enums.EstadoVenta;
-import com.svc.ventas.models.enums.TipoDocumento;
 import com.svc.ventas.models.enums.TipoPago;
 import jakarta.persistence.*;
 
@@ -59,13 +57,13 @@ public class Venta implements Serializable {
 	@JoinColumn(name = "id_sucursal", foreignKey = @ForeignKey(name = "fk_venta_sucursal"))
 	private Sucursal sucursal;
 
-	@ManyToOne
-	@JoinColumn(name = "id_empresa")
-	private Empresa empresa;
-
-	@Column(name = "tipo_documento")
-	@Enumerated(EnumType.STRING)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "id_tipo_documento", foreignKey = @ForeignKey(name = "fk_venta_tipo_documento"))
 	private TipoDocumento tipoDocumento;
+
+	private String serie;
+
+	private Long correlativo;
 
 	@JsonManagedReference
 	@OneToMany(mappedBy = "venta", cascade = CascadeType.ALL)
@@ -76,14 +74,8 @@ public class Venta implements Serializable {
 
 	private Boolean aplicarImpuesto;
 
-	private String serie;
-
-	private Integer correlativo;
-
 	@Column(name = "igv")
 	private BigDecimal igv;
-
-	private LocalDate fecha;
 
 	@Column(name = "sub_total")
 	private BigDecimal subTotal;

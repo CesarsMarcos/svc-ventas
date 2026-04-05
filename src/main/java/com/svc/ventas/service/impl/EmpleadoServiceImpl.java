@@ -2,29 +2,22 @@ package com.svc.ventas.service.impl;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.svc.ventas.exception.ConflictException;
 import com.svc.ventas.message.request.EmpleadoCreateRequest;
 import com.svc.ventas.message.response.EmpleadoSearchResponse;
-import com.svc.ventas.message.response.ProductoSearchResponse;
 import com.svc.ventas.models.dao.PersonaRepository;
 import com.svc.ventas.models.dao.SucursalRepo;
 import com.svc.ventas.models.entity.Persona;
 import com.svc.ventas.models.entity.Sucursal;
 import com.svc.ventas.models.mapstruct.dto.EmpleadoDto;
 import com.svc.ventas.models.mapstruct.dto.EmpleadoGetDto;
-import com.svc.ventas.models.mapstruct.dto.EmpleadoListDto;
+import com.svc.ventas.models.mapstruct.dto.PersonaEmpleadoDto;
 import com.svc.ventas.models.mapstruct.mappers.PersonaMapper;
-import com.svc.ventas.models.specifications.EmpleadoSpecifications;
-import com.svc.ventas.models.specifications.PersonaSpecifications;
-import com.svc.ventas.service.IPersonaService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.svc.ventas.exception.EntityNotFoundException;
@@ -49,16 +42,22 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
 	
 	private final EmpleadoMapper empleadoMapper;
 
-	private final IPersonaService personaService;
-
 	private final PersonaMapper personaMapper;
 
 	@Override
 	public List<EmpleadoDto> lista() {
-		return empleadoRepo.findEmpleados()
+		return empleadoRepo.empleadosQueNoTienenUsuario()
 				.stream()
 				.map(empleadoMapper::mapToEmpleadoDto)
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<PersonaEmpleadoDto> empleadosNoUsuario() {
+		return empleadoRepo.empleadosQueNoTienenUsuario()
+						.stream()
+						.map(empleadoMapper::mapPersonaEmpleado)
+						.collect(Collectors.toList());
 	}
 
 	@Override

@@ -3,7 +3,7 @@ package com.svc.ventas.models.dao;
 import java.util.List;
 import java.util.Optional;
 
-import com.svc.ventas.models.entity.Empleado;
+import com.svc.ventas.models.entity.Empresa;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,23 +14,29 @@ import com.svc.ventas.models.entity.Usuario;
 
 public interface UsuarioRepo extends JpaRepository<Usuario, Integer> {
 
-	@Query("SELECT u FROM Usuario u WHERE  u.usuario = :usuario ")
-	Usuario getByUserName (@Param ("usuario") String login);
+	@Query("""
+					SELECT u FROM Usuario u WHERE u.usuario = :usuario
+					AND u.indEstado = true
+					""")
+	Optional<Usuario> getByUserName(@Param ("usuario") String userName);
 
-	@Query("SELECT u FROM Usuario u WHERE u.indEstado = true")
-	List<Usuario> getUsuariosActivos();
-
-	Boolean existsByEmpleadoIdEmpleado(Integer idEmpleado);
-
-  Optional<Usuario> findByUsuario(String username);
+	@Query("SELECT u FROM Usuario u WHERE u.indEstado = true AND u.persona.empresa = :empresa")
+	List<Usuario> getUsuariosActivos(@Param("empresa") Empresa empresa);
 
 	@Query("""
-				 SELECT u
-				 FROM Usuario u
-				 WHERE u.empleado.persona.numDocumento = :termino
-				 OR LOWER(CONCAT(u.empleado.persona.nombre, CONCAT(' ', u.empleado.persona.apePaterno)))
-				 LIKE LOWER(CONCAT('%', :termino, '%'))
-				 """)
+					SELECT u
+					FROM Usuario u
+					WHERE
+					    LOWER(u.persona.numDocumento) LIKE LOWER(CONCAT('%', :termino, '%'))
+					OR  LOWER(CONCAT(u.persona.nombre, ' ', u.persona.apePaterno))
+					    LIKE LOWER(CONCAT('%', :termino, '%'))
+					OR  LOWER(CONCAT(u.persona.nombre, ' ', u.persona.apePaterno, ' ', u.persona.apeMaterno))
+					    LIKE LOWER(CONCAT('%', :termino, '%'))
+					""")
 	Page<Usuario> findUsuario(@Param("termino") String termino, Pageable pageable);
+
+	Boolean existsByPersonaIdPersona(Integer idPersona);
+
+	Boolean existsByEmpleadoIdEmpleado(Integer idEmpleado);
 
 }
