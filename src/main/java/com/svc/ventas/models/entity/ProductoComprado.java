@@ -32,6 +32,10 @@ public class ProductoComprado {
 	
 	private Long idProducto;
 
+	private Long idPresentacion;
+
+	private String presentacion;
+
 	private String nombre;
 
 	private String descripcion;
@@ -39,7 +43,8 @@ public class ProductoComprado {
 	@Column(name = "precio_compra")
 	private BigDecimal precioCompra;
 
-	private Integer cantidad;
+	@Column(precision = 14, scale = 3)
+	private BigDecimal cantidad;
 
 	@Column(name = "cantidad_recibida")
 	private Integer cantidadRecibida;

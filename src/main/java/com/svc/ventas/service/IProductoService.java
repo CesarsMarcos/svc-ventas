@@ -31,8 +31,6 @@ public interface IProductoService {
   Map<String, Object> searchProductos(String nombre, Integer categoriaId,
 																			Boolean estado, int page, int size);
 
-	Map<String, Object> searchProductosParaCompra(String nombre, int page, int size);
-
 	Page<ProductoSearchResponse> buscarPorNombreOCodigo(String termino, Pageable pageable);
 
 	void updateEstado(Long idProducto);

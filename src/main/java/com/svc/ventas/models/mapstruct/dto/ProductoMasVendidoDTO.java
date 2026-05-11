@@ -14,11 +14,9 @@ public class ProductoMasVendidoDTO implements Serializable {
 
   private String nombre;
 
-  private Long cantidadVendida;
+  private BigDecimal cantidadVendida;
 
   private BigDecimal valorVentas;
-
-  //private Integer stock;
 
   private Boolean estado;
 

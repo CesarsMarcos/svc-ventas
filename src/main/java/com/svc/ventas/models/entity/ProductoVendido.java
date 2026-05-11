@@ -49,7 +49,7 @@ public class ProductoVendido {
 
 	private String descripcion;
 	
-	private Integer cantidad;
+	private BigDecimal cantidad;
 
 	private BigDecimal precioDescuento;
 

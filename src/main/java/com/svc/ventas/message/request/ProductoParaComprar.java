@@ -19,13 +19,15 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class ProductoParaComprar extends ProductoDTO {
 
-  private Integer cantidad;
+  private BigDecimal cantidad;
 
   private Integer cantidadRecibida;
 
   private BigDecimal precioCompra;
 
   private BigDecimal subTotal;
+
+  private Long idPresentacion;
 
   public ProductoParaComprar(Long idProducto,
                              @NotNull CategoriaDto categoria, @NotNull MarcaDto marca,

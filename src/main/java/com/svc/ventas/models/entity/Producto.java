@@ -1,8 +1,10 @@
 package com.svc.ventas.models.entity;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import lombok.*;
@@ -36,8 +38,12 @@ public class Producto implements Serializable {
 	private UnidadMedida unidadMedida;
 
 	@ManyToOne
-	@JoinColumn(name = "id_empresa", foreignKey=@ForeignKey(name="fk_caja_empresa"))
+	@JoinColumn(name = "id_empresa", foreignKey=@ForeignKey(name="fk_producto_empresa"))
 	private Empresa empresa;
+
+	@JsonManagedReference
+	@OneToMany(mappedBy = "producto", cascade = CascadeType.ALL)
+	private List<ProductoPresentacion> presentaciones;
 
 	private String descripcion;
 
@@ -47,8 +53,7 @@ public class Producto implements Serializable {
 
 	private String imagen;
 
-	//precio de referencia
-	private BigDecimal precioBase;
+	private Boolean manejaPresentaciones = Boolean.FALSE;
 
 	@Transient
 	private Integer cantidad;

@@ -4,6 +4,8 @@ import com.svc.ventas.message.request.CompraRequest;
 import com.svc.ventas.message.response.ResponseTransaccion;
 import com.svc.ventas.models.mapstruct.dto.CompraDetailDto;
 import com.svc.ventas.models.mapstruct.dto.EnumDto;
+import com.svc.ventas.models.mapstruct.dto.PresentacionesCompraDto;
+import com.svc.ventas.models.mapstruct.dto.ProductoSearchCompraDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,4 +26,9 @@ public interface ICompraService {
 
 	List<EnumDto> tipoPagoCompra ();
 
+	List<ProductoSearchCompraDto> searchProductosParaCompra(String filtro);
+
+	Map<String, Object> searchProductosParaCompraPage(String nombre,int page,int size);
+
+	List<PresentacionesCompraDto> presentacionesPorIdProducto(Long idProducto);
 }

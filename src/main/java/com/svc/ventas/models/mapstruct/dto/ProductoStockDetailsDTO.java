@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Setter
 @Getter
@@ -29,10 +30,10 @@ public class ProductoStockDetailsDTO {
 
 	private Integer minCantidad;
 
+	private BigDecimal costoPromedio;
+
 	private Integer stock;
-
-	private BigDecimal precioDescuento;
-
-	private BigDecimal precioVenta;
+	
+	private List<ProductoStockPresentacionDto> presentaciones;
 
 }
