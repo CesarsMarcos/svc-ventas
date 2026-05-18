@@ -1,5 +1,6 @@
 package com.svc.ventas.models.mapstruct.dto;
 
+import com.svc.ventas.message.request.PersonaRequest;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +16,6 @@ public class ClienteDto {
 	private Integer idCliente;
 	
 	@NotNull
-	private PersonaDto persona;
+	private PersonaRequest persona;
 	
 }

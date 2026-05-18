@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface PersonaRepository extends CrudRepository<Persona, Integer>, JpaSpecificationExecutor<Persona>, PagingAndSortingRepository<Persona, Integer> {
 
-  Boolean existsByNumDocumento(String dni);
+  Boolean existsBynumDocumento(String documento);
 
   @Query("""
           SELECT p
@@ -21,16 +21,6 @@ public interface PersonaRepository extends CrudRepository<Persona, Integer>, Jpa
           AND p.isClienteGenerico = false
           """)
   List<Persona> getPersonasParaUsuario();
-
-  @Query("""
-          SELECT p
-          FROM Persona p
-          WHERE NOT EXISTS (
-           SELECT 1 FROM Cliente u WHERE u.persona.id = p.id
-          )
-          AND p.isClienteGenerico = false
-          """)
-  List<Persona> getPersonasParaClienteNoGenerico();
 
   @Query("""
           SELECT p

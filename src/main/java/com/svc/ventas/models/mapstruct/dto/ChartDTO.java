@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -12,7 +13,7 @@ import java.util.List;
 @Builder
 public class ChartDTO implements Serializable {
 
-  private Long numCompras;
+  private BigDecimal valorVentas;
 
   private Long numVentas;
 
@@ -22,13 +23,13 @@ public class ChartDTO implements Serializable {
 
   private List<ProductoMasVendidoDTO> productosMasVendidos;
 
-  private VariacionVentasDTO ventasHoy;
+  //private VariacionVentasDTO ventasHoy;
 
-  private VariacionVentasDTO ventasSemana;
+  //private VariacionVentasDTO ventasSemana;
 
-  private VariacionVentasDTO ventasMes;
+  //private VariacionVentasDTO ventasMes;
 
-  private List<VentasPorMesDTO> ventas12Meses;
+  //private List<VentasPorMesDTO> ventas12Meses;
 
   private List<BajoStockDTO> productosBajoStock;
 

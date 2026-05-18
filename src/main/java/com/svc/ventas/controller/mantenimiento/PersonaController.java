@@ -3,6 +3,7 @@ package com.svc.ventas.controller.mantenimiento;
 import java.util.List;
 import java.util.Map;
 
+import com.svc.ventas.message.request.PersonaRequest;
 import com.svc.ventas.models.entity.Persona;
 import com.svc.ventas.models.mapstruct.mappers.PersonaMapper;
 import jakarta.validation.Valid;
@@ -49,7 +50,7 @@ public class PersonaController {
   }
 
   @PostMapping
-  public ResponseEntity<Response> guardar(@Valid @RequestBody PersonaDto persona) {
+  public ResponseEntity<Response> guardar(@Valid @RequestBody PersonaRequest persona) {
     return new ResponseEntity<>(personaService.guardar(persona), HttpStatus.CREATED);
   }
 

@@ -56,8 +56,6 @@ public class VentaServiceImpl implements IVentaService {
 
   private final VentaRepo ventaRepo;
 
-  private final ProductoRepo productoRepo;
-
   private final SerieRepository serieRepo;
 
   private final TipoDocumentoRepository tipoDocumentoRepo;
@@ -77,7 +75,7 @@ public class VentaServiceImpl implements IVentaService {
     log.info("Obtiene usuario logueado ::");
     String usuario = appContext.getUserName();
     Long idSucursal = appContext.getSucursalId();
-    Long idEmpresa  = appContext.getEmpresaId();
+    Long idEmpresa = appContext.getEmpresaId();
 
     log.info("Valida montos ::");
     log.info("Valida disponibilidad de stock para producto ::");
@@ -107,11 +105,11 @@ public class VentaServiceImpl implements IVentaService {
                     String.format(Constantes.MENSAJE_NOT_FOUND, "Sucursal", idSucursal)));
 
     log.info("Validar correlativo ::");
-    Serie serieBD = serieRepo.obtenerSerieForUpdate(idEmpresa, idSucursal, venta.getIdTipoDocumento() )
+    Serie serieBD = serieRepo.obtenerSerieForUpdate(idEmpresa, idSucursal, venta.getIdTipoDocumento())
             .orElseThrow(() -> new EntityNotFoundException(
                     String.format(Constantes.MENSAJE_NOT_FOUND, "Serie", venta.getIdTipoDocumento())));
 
-    Long nextCorrelativo = serieBD.getCorrelativo() + 1 ;
+    Long nextCorrelativo = serieBD.getCorrelativo() + 1;
     log.info("Número de documento generado: {}", nextCorrelativo);
 
     log.info("Actualizar correlativo en series ::");
@@ -141,28 +139,30 @@ public class VentaServiceImpl implements IVentaService {
 
     venta.getProductos()
             .forEach(ppv -> {
-              log.info("Busca producto y actualiza el stock del producto ::");
-              Producto productoBD = productoRepo.findById(ppv.getIdProducto())
-                      .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Producto", ppv.getIdProducto())));
 
               log.info("Busca stock de producto en sucursal ::");
-              ProductoStock productoStock = productoStockRepo.buscar(ppv.getIdProducto(), idSucursal)
+              ProductoStock productoStockBD = productoStockRepo.buscar(ppv.getIdProducto(), idSucursal)
                       .orElseThrow(() -> new EntityNotFoundException(":: No existe producto registrado"));
 
-              productoStock.restarStock(ppv.getCantidad());
+              ProductoStockPresentacion equivalencia = productoStockBD.getPresentaciones()
+                              .stream().filter(presentacion -> presentacion.getIdPresentacion()
+                              .equals(ppv.getIdPresentacion()))
+                              .findFirst().orElse(null);
 
-              log.info("Actualiza stock de producto :: {}, en local {} ", productoBD.getNombre(),
-                      productoStock.getSucursal().getCodigo());
-              productoStockRepo.save(productoStock);
+              productoStockBD.restarStock(ppv.getCantidad().multiply(equivalencia.getEquivalencia()));
+
+              log.info("Actualiza stock de producto :: {}, en local {} ", productoStockBD.getProducto().getNombre(),
+                      productoStockBD.getSucursal().getCodigo());
+              productoStockRepo.save(productoStockBD);
 
               productoVendidoRepo.save(ProductoVendido
                       .builder()
                       .venta(ventaEntity)
-                      .idProducto(productoBD.getIdProducto())
-                      .descripcion(productoBD.getDescripcion())
-                      .nombre(productoBD.getNombre())
-                      .precio(productoStock.getPrecioVenta())
-                      .subTotal(productoStock.getPrecioVenta().multiply(BigDecimal.valueOf(ppv.getCantidad())))
+                      .idProducto(productoStockBD.getProducto().getIdProducto())
+                      .descripcion(productoStockBD.getProducto().getDescripcion())
+                      .nombre(productoStockBD.getProducto().getNombre())
+                      .precio(equivalencia.getPrecioVenta())
+                      .subTotal(equivalencia.getPrecioVenta().multiply(ppv.getCantidad()))
                       .precioDescuento(BigDecimal.ZERO)
                       .cantidad(ppv.getCantidad())
                       .build());
@@ -185,20 +185,20 @@ public class VentaServiceImpl implements IVentaService {
             .tipoDocumento(ventaEntity.getTipoDocumento().getDescripcion())
             .total(ventaEntity.getTotal())
             .tipoPago(ventaEntity.getTipoPago().getLabel())
-            //.serieCorrelativo()
+            .serieCorrelativo(ventaEntity.getSerie().concat("-").concat(AppUtils.formatearSunat(ventaEntity.getCorrelativo())))
             .build();
   }
 
   @Override
   public Map<String, Object> searchVenta(String nombre, String documentoCliente,
-                                       String documentoVenta, LocalDate inicio,
-                                       LocalDate fin,  Integer page, Integer size) {
+                                         String documentoVenta, LocalDate inicio,
+                                         LocalDate fin, Integer page, Integer size) {
 
     Sucursal currentSucursal = appContext.getSucursal();
 
     Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "fecAdd"));
 
-    Specification<Venta> spec =  Specification
+    Specification<Venta> spec = Specification
             .where(VentaSpecifications.hasClienteNombre(nombre))
             .and(VentaSpecifications.hasClienteDNI(documentoCliente))
             .and(VentaSpecifications.hasSucursal(currentSucursal))
@@ -236,7 +236,7 @@ public class VentaServiceImpl implements IVentaService {
   @Override
   public List<EnumDto> tipoPago() {
     return Arrays.stream(TipoPago.values())
-            .map(tp ->  EnumDto.builder()
+            .map(tp -> EnumDto.builder()
                     .value(tp.getValue())
                     .label(tp.getLabel())
                     .build())
@@ -254,9 +254,37 @@ public class VentaServiceImpl implements IVentaService {
   }
 
   @Override
-  public byte[] generarPdf (DetalleImpresionDto venta, com.svc.ventas.models.enums.TipoDocumento tipoDocumento) {
+  public byte[] generarPdf(DetalleImpresionDto venta, com.svc.ventas.models.enums.TipoDocumento tipoDocumento) {
     DocumentoPdfStrategy strategy = documentoPdfFactory.obtener(tipoDocumento);
     return strategy.generar(venta);
+  }
+
+  @Override
+  public List<ProductoSearchVentaDto> buscarPorNombreOCodigoPresentacionesParaVenta(String termino) {
+    if (Objects.isNull(termino) || termino.trim().isEmpty()) {
+      return Collections.emptyList();
+    }
+    Long idSucursal = appContext.getSucursalId();
+    return ventaRepo.buscarPorNombreOCodigoPresentacionesParaVenta(termino, idSucursal);
+  }
+
+  @Override
+  public Map<String, Object> searchProductosVentaPos(String nombre,
+                                                     Long categoriaId, int page, int size) {
+
+    Long idSucursal = appContext.getSucursalId();
+    Pageable pageable = PageRequest.of(page, size);
+    Page<ProductoSearchVentaDto> pageVenta =
+            ventaRepo.buscarPorNombreOCodigoPresentacionesParaVentaPos(nombre, categoriaId, idSucursal, pageable);
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("productos", pageVenta.getContent());
+    response.put("currentPage", pageVenta.getNumber());
+    response.put("totalItems", pageVenta.getTotalElements());
+    response.put("totalPages", pageVenta.getTotalPages());
+
+    return response;
+
   }
 
   private VentaMontosDto validarStockYCalcularMontos(VentaRequest venta, Long idSucursal) {
@@ -268,22 +296,26 @@ public class VentaServiceImpl implements IVentaService {
       ProductoStock productoStock = productoStockRepo.buscar(p.getIdProducto(), idSucursal)
               .orElseThrow(() -> new EntityNotFoundException(":: No existe producto registrado"));
 
-      if(BigDecimal.ZERO.compareTo(productoStock.getPrecioVenta()) == 0) {
-        throw new BusinessException("Precio no registrado para el producto: " + productoStock.getProducto().getNombre());
-      }
+      //if(BigDecimal.ZERO.compareTo(productoStock.getPrecioVenta()) == 0) {
+      //  throw new BusinessException("Precio no registrado para el producto: " + productoStock.getProducto().getNombre());
+      //}
 
-      if(productoStock.sinStock()) {
+      if (productoStock.sinStock()) {
         throw new BusinessException("Stock insuficiente para el producto: " + productoStock.getProducto().getNombre() +
                 ". Disponible: " + productoStock.getStock() + ", Solicitado: " + p.getCantidad());
       }
 
-      if (productoStock.getStock() < p.getCantidad()) {
+      if (productoStock.getStock().compareTo(p.getCantidad()) < 0) {
         throw new BusinessException("Stock insuficiente para el producto: " + productoStock.getProducto().getNombre() +
                 ". Disponible: " + productoStock.getStock() + ", Solicitado: " + p.getCantidad());
       }
 
-      BigDecimal subtotalProducto = productoStock.getPrecioVenta()
-              .multiply(BigDecimal.valueOf(p.getCantidad()));
+      BigDecimal subtotalProducto = productoStock.getPresentaciones()
+              .stream().filter(pre -> Objects.equals(pre.getIdPresentacion(), p.getIdPresentacion()))
+              .findFirst()
+              .map(ProductoStockPresentacion::getPrecioVenta)
+              .orElse(BigDecimal.ZERO)
+              .multiply(p.getCantidad());
 
       subtotalCalculado = subtotalCalculado.add(subtotalProducto);
     }
@@ -321,7 +353,7 @@ public class VentaServiceImpl implements IVentaService {
   }
 
   private static void validarFacturaParaClienteFinal(Cliente clienteBD, TipoDocumento tipoDocumento) {
-    if(clienteBD.getPersona().getIsClienteGenerico() && "01".equalsIgnoreCase(tipoDocumento.getCodigoSunat())) {
+    if (clienteBD.getPersona().getIsClienteGenerico() && "01".equalsIgnoreCase(tipoDocumento.getCodigoSunat())) {
       throw new BusinessException("No se puede generar una Factura para un cliente final");
     }
   }

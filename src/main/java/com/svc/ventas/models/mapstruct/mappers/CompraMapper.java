@@ -40,6 +40,7 @@ public interface CompraMapper {
                 .map(p -> ProductoDetalleCompraDto.builder()
                         .idProducto(p.getIdProducto())
                         .nombre(p.getNombre())
+                        .presentacion(p.getPresentacion())
                         .descripcion(p.getDescripcion())
                         .precioCompra(p.getPrecioCompra())
                         .cantidadRecibida(p.getCantidadRecibida())

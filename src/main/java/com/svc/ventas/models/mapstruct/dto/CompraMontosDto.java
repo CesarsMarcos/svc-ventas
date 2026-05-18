@@ -14,7 +14,9 @@ import java.math.BigDecimal;
 public class CompraMontosDto {
 
   private BigDecimal subTotal;
+
   private BigDecimal igv;
+
   private BigDecimal total;
 
 }

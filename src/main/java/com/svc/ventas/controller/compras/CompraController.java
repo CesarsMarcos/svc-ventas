@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +26,7 @@ public class CompraController {
 
   @GetMapping("searchCompras")
   public ResponseEntity<?> searchCompras(@RequestParam(required = false) String ruc,
-																				 @RequestParam(required = false) String proveedor,
+                                         @RequestParam(required = false) String proveedor,
                                          @RequestParam(required = false) Long documento,
                                          @RequestParam(required = false) LocalDate inicio,
                                          @RequestParam(required = false) LocalDate fin,
@@ -44,6 +45,26 @@ public class CompraController {
   @GetMapping("{id}")
   public ResponseEntity<?> details(@PathVariable Long id) {
     return new ResponseEntity<>(compraService.details(id), HttpStatus.OK);
+  }
+
+  @GetMapping("searchProductoCompraV2")
+  public ResponseEntity<?> searchProductosParaCompra(@RequestParam(required = false) String filtro) {
+    return new ResponseEntity<>(compraService.searchProductosParaCompra(filtro), HttpStatus.OK);
+  }
+
+  @GetMapping("searchProductoCompraV3")
+  public ResponseEntity<Map<String, Object>> searchProductosParaCompraPage(
+          @RequestParam(required = false) String nombre,
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size) {
+
+    Map<String, Object> response = compraService.searchProductosParaCompraPage(nombre, page, size);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("presentacionesPorProducto")
+  public ResponseEntity<?> presentacionesPorIdProducto(@RequestParam Long idProducto) {
+    return new ResponseEntity<>(compraService.presentacionesPorIdProducto(idProducto), HttpStatus.OK);
   }
 
   @GetMapping("tipoPagoCompras")

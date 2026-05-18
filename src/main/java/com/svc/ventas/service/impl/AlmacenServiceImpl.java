@@ -2,11 +2,15 @@ package com.svc.ventas.service.impl;
 
 import com.svc.ventas.config.AppContext;
 import com.svc.ventas.exception.EntityNotFoundException;
+import com.svc.ventas.message.request.PresentacionUpdateRequest;
 import com.svc.ventas.message.response.ProductoStockSearchResponse;
+import com.svc.ventas.models.dao.ProductoStockPresentacionRepo;
 import com.svc.ventas.models.dao.ProductoStockRepo;
 import com.svc.ventas.models.entity.ProductoStock;
+import com.svc.ventas.models.entity.ProductoStockPresentacion;
 import com.svc.ventas.models.entity.Sucursal;
 import com.svc.ventas.models.mapstruct.dto.ProductoStockDetailsDTO;
+import com.svc.ventas.models.mapstruct.dto.ProductoStockPresentacionDto;
 import com.svc.ventas.models.mapstruct.mappers.ProductoStockMapper;
 import com.svc.ventas.models.specifications.ProductStockSpecifications;
 import com.svc.ventas.service.IAlmacenService;
@@ -19,7 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -30,6 +33,8 @@ import java.util.Objects;
 public class AlmacenServiceImpl implements IAlmacenService {
 
   private final ProductoStockRepo productoStockRepo;
+
+  private final ProductoStockPresentacionRepo presentacionRepo;
 
   private final ProductoStockMapper productoStockMapper;
 
@@ -44,59 +49,21 @@ public class AlmacenServiceImpl implements IAlmacenService {
     log.info("Obtiene usuario en sessión ::");
     Sucursal sucursal = appContext.getSucursal();
 
-    log.info("Sucursal {}" , sucursal.getIdSucursal());
-
-    if(Objects.nonNull(nombre) && !nombre.isEmpty()) {
+    if (Objects.nonNull(nombre) && !nombre.isEmpty()) {
       spec = spec.and(ProductStockSpecifications.hasName(nombre));
     }
 
-    if(Objects.nonNull(categoriaId)){
+    if (Objects.nonNull(categoriaId)) {
       spec = spec.and(ProductStockSpecifications.hasCategory(categoriaId));
     }
 
-    if(Objects.nonNull(estado)){
+    if (Objects.nonNull(estado)) {
       spec = spec.and(ProductStockSpecifications.hasStatus(estado));
     }
 
     spec = spec.and(ProductStockSpecifications.hasSucursal(sucursal));
 
     Pageable pageable = PageRequest.of(page, size);
-
-    Page<ProductoStock> pageProductos = productoStockRepo.findAll(spec, pageable);
-
-    List<ProductoStockSearchResponse> listProducts = pageProductos.getContent()
-            .stream()
-            .map(productoStockMapper::mapProductoSearch)
-            .toList();
-
-    /*BigDecimal costoTotal =  pageProductos.getContent()
-            .stream().map(ProductoStock::getPrecioVenta)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);*/
-
-    return Map.of(
-            "products", listProducts,
-            "currentPage", pageProductos.getNumber(),
-            "pageSize", pageProductos.getSize(),
-            "totalItems", pageProductos.getTotalElements(),
-            "totalPages", pageProductos.getTotalPages(),
-            "empty", pageProductos.isEmpty()
-    );
-  }
-
-  @Override
-  public Map<String, Object> searchProductosVenta(String codigo, String nombre) {
-
-    Specification<ProductoStock> spec = Specification.where(null);
-
-    if(Objects.nonNull(codigo) && !nombre.isEmpty()) {
-      spec = spec.and(ProductStockSpecifications.hasCodigo(codigo));
-    }
-
-    if(Objects.nonNull(nombre) && !nombre.isEmpty()) {
-      spec = spec.and(ProductStockSpecifications.hasName(nombre));
-    }
-
-    Pageable pageable = PageRequest.of(0, 5);
 
     Page<ProductoStock> pageProductos = productoStockRepo.findAll(spec, pageable);
 
@@ -123,13 +90,44 @@ public class AlmacenServiceImpl implements IAlmacenService {
   }
 
   @Override
-  public void updatePrecioVenta(Long idProductoStock, BigDecimal precioVenta) {
+  public List<ProductoStockPresentacionDto> presentacionesPorProductoStock(Long idProductoStock) {
+    ProductoStock productoStock = productoStockRepo.findById(idProductoStock)
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "ProductoStock", idProductoStock)));
+
+    return productoStock.getPresentaciones().stream()
+            .map(presentacion -> mapToProductoStockPresentacion(presentacion)
+                    .build()).toList();
+  }
+
+  @Override
+  public void updatePrecioVentaPresentaciones(List<PresentacionUpdateRequest> presentaciones) {
     log.info("Se inicia actualizacion de precio venta ::");
-    productoStockRepo.findById(idProductoStock)
-            .map(stock -> {
-              stock.setPrecioVenta(precioVenta);
-              return productoStockRepo.save(stock);
-            }).orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "ProductoStock", idProductoStock)));
+
+    List<ProductoStockPresentacion> list = presentaciones.stream()
+            .map(presentacionRequest -> {
+              ProductoStockPresentacion psp = presentacionRepo.findById(presentacionRequest.getIdPresentacion())
+                      .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Presentacion", presentacionRequest.getIdPresentacion())));
+
+              psp.setPrecioVenta(presentacionRequest.getPrecioVenta());
+              psp.setPrecioSugerido(presentacionRequest.getPrecioSugerido());
+              psp.setEstado(presentacionRequest.getEstado());
+              return psp;
+            }).toList();
+
+    presentacionRepo.saveAll(list);
+
+  }
+
+  private static ProductoStockPresentacionDto.ProductoStockPresentacionDtoBuilder mapToProductoStockPresentacion(ProductoStockPresentacion presentacion) {
+    return ProductoStockPresentacionDto.builder()
+            .idPresentacion(presentacion.getIdPresentacion())
+            .idProductoStock(presentacion.getProductoStock().getIdProductoStock())
+            .presentacion(presentacion.getNombre())
+            .precioSugerido(presentacion.getPrecioSugerido())
+            .equivalencia(presentacion.getEquivalencia())
+            .precioVenta(presentacion.getPrecioVenta())
+            .estado(presentacion.getEstado())
+            .precioSugerido(presentacion.getPrecioSugerido());
   }
 
 }

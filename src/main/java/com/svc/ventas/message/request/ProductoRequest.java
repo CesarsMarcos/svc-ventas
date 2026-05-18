@@ -1,11 +1,8 @@
 package com.svc.ventas.message.request;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-
-import java.math.BigDecimal;
 
 @Setter
 @Getter
@@ -15,6 +12,9 @@ import java.math.BigDecimal;
 public class ProductoRequest {
 
 	private Long idProducto;
+
+	@NotNull
+	private String codigo;
 
 	@NotNull
 	private Integer idCategoria;
@@ -33,8 +33,6 @@ public class ProductoRequest {
 
 	private String imagen;
 
-	@NotNull
-	@Min(0)
-	private BigDecimal precioBase;
+	private Boolean manejaPresentaciones;
 
 }

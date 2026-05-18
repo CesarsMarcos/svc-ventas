@@ -3,6 +3,7 @@ package com.svc.ventas.service.impl;
 import com.svc.ventas.config.AppContext;
 import com.svc.ventas.exception.ConflictException;
 import com.svc.ventas.exception.EntityNotFoundException;
+import com.svc.ventas.message.request.CajaAperturaRequest;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.CajaRepo;
 import com.svc.ventas.models.dao.MovimientoRepo;
@@ -58,28 +59,26 @@ public class CajaServiceImpl implements ICajaService {
   }
 
   @Override
-  public Response aperturaCaja(CajaDTO caja) {
+  public Response aperturaCaja(CajaAperturaRequest caja) {
 
     Usuario currentUsuario = appContext.getUsuario();
     Sucursal currentSucursal = appContext.getSucursal();
-    String currentUserName = appContext.getUserName();
-    Long idEmpresa = appContext.getEmpresaId();
-
-
+    Empresa empresa = appContext.getEmpresa();
 
     LocalDate fecha = LocalDate.now();
 
-    validarCajaExistenteParaUsuario(fecha, currentUserName, idEmpresa);
+    validarCajaExistenteParaUsuario(fecha, currentUsuario.getUsuario(), empresa.getIdEmpresa());
 
     cajaRepo.save(Caja.builder()
             .usuario(currentUsuario)
-            .createdBy(currentUserName)
+            .createdBy(currentUsuario.getUsuario())
             .montoApertura(caja.getMontoApertura())
             .fechaHoraApertura(LocalDateTime.now())
             .estado(EstadoCaja.ABIERTA)
-            .empresa(currentUsuario.getEmpleado().getSucursal().getEmpresa())
+            .empresa(empresa)
             .sucursal(currentSucursal)
             .build());
+
     return Response.builder().mensaje(Constantes.MENSAJE_SAVE).build();
   }
 

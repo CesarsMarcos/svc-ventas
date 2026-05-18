@@ -1,8 +1,8 @@
 package com.svc.ventas.models.dao;
 
-import com.svc.ventas.models.mapstruct.dto.BajoStockDTO;
-import com.svc.ventas.models.mapstruct.dto.UltimasVentasDTO;
-import com.svc.ventas.models.mapstruct.dto.VentasPorMesDTO;
+import com.svc.ventas.models.mapstruct.dto.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.svc.ventas.models.entity.Venta;
@@ -24,6 +24,10 @@ public interface VentaRepo extends JpaRepository<Venta, Long>,
   @Query("SELECT COALESCE(SUM(v.total), 0) FROM Venta v WHERE v.fecAdd BETWEEN :inicio AND :fin")
   BigDecimal obtenerSumaVentasPorRango(LocalDateTime inicio, LocalDateTime fin);
 
+  @Query("SELECT COUNT(v.idVenta) FROM Venta v WHERE v.fecAdd BETWEEN :inicio AND :fin")
+  Long countVentas(LocalDateTime inicio, LocalDateTime fin);
+
+
   @Query("""
           SELECT new com.svc.ventas.models.mapstruct.dto.VentasPorMesDTO(
           YEAR(v.fecAdd), MONTH(v.fecAdd), SUM(v.total))
@@ -40,7 +44,9 @@ public interface VentaRepo extends JpaRepository<Venta, Long>,
           ps.stock)
           FROM ProductoStock ps
           INNER JOIN Producto p ON ps.producto.idProducto = p.idProducto
-          WHERE ps.stock <= 5
+          WHERE ps.estado = TRUE
+          AND ps.sucursal.idSucursal = 1
+          AND ps.stock <= 5
           ORDER BY ps.stock desc
           LIMIT 5
           """)
@@ -50,7 +56,7 @@ public interface VentaRepo extends JpaRepository<Venta, Long>,
           SELECT new com.svc.ventas.models.mapstruct.dto.UltimasVentasDTO(
           v.idVenta,
           v.cliente.persona.nombre,
-          v.tipoDocumento,
+          v.tipoDocumento.descripcion,
           v.fecAdd,
           v.total)
           FROM Venta v
@@ -59,8 +65,68 @@ public interface VentaRepo extends JpaRepository<Venta, Long>,
           """)
   List<UltimasVentasDTO> obtenerUltimas5Ventas();
 
-  @Query("SELECT COUNT(v.idVenta) FROM Venta v WHERE v.fecAdd BETWEEN :inicio AND :fin")
-  Long countVentas (LocalDateTime inicio, LocalDateTime fin);
+
+  @Query("""
+           SELECT DISTINCT new com.svc.ventas.models.mapstruct.dto.ProductoSearchVentaDto(
+                   ps.idProductoStock,
+                   psp.idPresentacion,
+                   ps.producto.nombre,
+                   ps.producto.marca.descripcion,
+                   psp.nombre,
+                   psp.isPrincipal,
+                   psp.precioVenta,
+                   ps.stock)
+          FROM ProductoStock ps
+          JOIN ps.presentaciones psp
+          WHERE ps.estado = true
+          AND ps.sucursal.idSucursal = 1
+          AND psp.estado = true
+            AND (
+                  LOWER(COALESCE(ps.producto.codigo, '')) LIKE LOWER(CONCAT('%', TRIM(:termino), '%'))
+               OR LOWER(TRIM(ps.producto.nombre)) LIKE LOWER(CONCAT('%', TRIM(:termino), '%')))
+            AND ps.sucursal.idSucursal = :sucursalId
+          """)
+  List<ProductoSearchVentaDto> buscarPorNombreOCodigoPresentacionesParaVenta(
+          @Param("termino") String termino,
+          @Param("sucursalId") Long sucursalId);
+
+  @Query(value = """
+           SELECT DISTINCT new com.svc.ventas.models.mapstruct.dto.ProductoSearchVentaDto(
+                   ps.idProductoStock,
+                   psp.idPresentacion,
+                   ps.producto.nombre,
+                   ps.producto.marca.descripcion,
+                   psp.nombre,
+                   psp.isPrincipal,
+                   psp.precioVenta,
+                   ps.stock)
+          FROM ProductoStock ps
+          JOIN ps.presentaciones psp
+          WHERE ps.estado = true AND psp.estado = true
+            AND
+                (:categoriaId IS NULL OR ps.producto.categoria.idCategoria = :categoriaId)
+            AND (
+                  LOWER(COALESCE(ps.producto.codigo, '')) LIKE LOWER(CONCAT('%', TRIM(:termino), '%'))
+               OR LOWER(TRIM(ps.producto.nombre)) LIKE LOWER(CONCAT('%', TRIM(:termino), '%')))
+            AND ps.sucursal.idSucursal = :sucursalId
+          """,
+          countQuery = """
+          SELECT COUNT(ps)
+          FROM ProductoStock ps
+          JOIN ps.presentaciones psp
+          WHERE ps.estado = true AND psp.estado = true
+            AND
+                (:categoriaId IS NULL OR ps.producto.categoria.idCategoria = :categoriaId)
+            AND (
+                  LOWER(COALESCE(ps.producto.codigo, '')) LIKE LOWER(CONCAT('%', TRIM(:termino), '%'))
+               OR LOWER(TRIM(ps.producto.nombre)) LIKE LOWER(CONCAT('%', TRIM(:termino), '%')))
+            AND ps.sucursal.idSucursal = :sucursalId
+          """)
+  Page<ProductoSearchVentaDto> buscarPorNombreOCodigoPresentacionesParaVentaPos(
+          @Param("termino") String termino,
+          @Param("categoriaId") Long categoriaId,
+          @Param("sucursalId") Long sucursalId,
+          Pageable pageable);
 
 }
 

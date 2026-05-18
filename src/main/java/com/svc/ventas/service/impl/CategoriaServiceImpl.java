@@ -1,6 +1,8 @@
 package com.svc.ventas.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.svc.ventas.config.AppContext;
@@ -9,6 +11,9 @@ import com.svc.ventas.models.entity.Sucursal;
 import com.svc.ventas.models.mapstruct.dto.CategoriaDto;
 import com.svc.ventas.models.mapstruct.mappers.CategoriaMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.svc.ventas.exception.EntityNotFoundException;
@@ -17,6 +22,7 @@ import com.svc.ventas.models.dao.CategoriaRepo;
 import com.svc.ventas.service.ICategoriaService;
 import com.svc.ventas.util.Constantes;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class CategoriaServiceImpl implements ICategoriaService {
@@ -34,6 +40,22 @@ public class CategoriaServiceImpl implements ICategoriaService {
 				.stream()
 				.map(categoriaMapper::mapToGetDto)
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public Map<String, Object> searchCategorias(String nombre, Pageable pageable) {
+		log.info("Obtiene usuario en sessión ::");
+		Long idEmpresa = appContext.getEmpresaId();
+
+		Page<CategoriaDto> pageCategoria = categoriaRepo.buscarCategoriaPorDescripcion(nombre, idEmpresa, pageable);
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("categorias", pageCategoria.getContent());
+		response.put("currentPage", pageCategoria.getNumber());
+		response.put("totalItems", pageCategoria.getTotalElements());
+		response.put("totalPages", pageCategoria.getTotalPages());
+
+		return response;
 	}
 
 	@Override

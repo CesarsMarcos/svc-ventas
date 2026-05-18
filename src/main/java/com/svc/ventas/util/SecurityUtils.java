@@ -1,7 +1,7 @@
 package com.svc.ventas.util;
 
 import com.svc.ventas.models.entity.Usuario;
-import com.svc.ventas.service.impl.IUsuarioContext;
+import com.svc.ventas.service.IUsuarioContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

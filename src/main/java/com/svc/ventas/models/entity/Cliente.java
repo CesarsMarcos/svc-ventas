@@ -1,6 +1,8 @@
 package com.svc.ventas.models.entity;
 
 import java.io.Serializable;
+import java.util.stream.Stream;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,6 +11,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Entity
 @Table(name="tb_clientes")
 public class Cliente implements Serializable {

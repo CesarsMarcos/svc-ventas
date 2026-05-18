@@ -17,20 +17,22 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class ProductoParaVender extends ProductoDTO {
 
-	private Integer cantidad;
+	private BigDecimal cantidad;
 
 	private BigDecimal precioVenta;
+
+	private Long idPresentacion;
 
 	public ProductoParaVender(Long idProducto,
 														@NotNull CategoriaDto categoria, @NotNull MarcaDto marca,
 														@NotNull UnidadMedidaDto unidadMedida, @NotBlank String descripcion,
 														@NotBlank String nombre, String imagen, @NotNull BigDecimal precioReferencial,
 														@NotNull BigDecimal precioVenta, Boolean indEstado) {
-		super(idProducto, categoria, marca, unidadMedida, descripcion, nombre, imagen, precioReferencial,precioVenta, indEstado);
+		super(idProducto, categoria, marca, unidadMedida, descripcion, nombre, imagen, precioReferencial, precioVenta, indEstado);
   }
 
 	public BigDecimal getTotal() {
-		return this.getPrecioReferencial().multiply(new BigDecimal(this.cantidad));
+		return this.getPrecioReferencial().multiply(this.cantidad);
 	}
 
 }

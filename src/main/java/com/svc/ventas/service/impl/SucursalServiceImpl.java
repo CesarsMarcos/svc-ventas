@@ -25,69 +25,69 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SucursalServiceImpl implements ISucursalService {
 
-	private final SucursalRepo sucursalRepo;
+  private final SucursalRepo sucursalRepo;
 
-	private final EmpresaRepository empresaRepo;
-	
-	private final SucursalMapper sucursalMapper;
+  private final EmpresaRepository empresaRepo;
 
-	private final AppContext appContext;
+  private final SucursalMapper sucursalMapper;
 
-	@Override
-	public List<SucursalDto> lista() {
-		Long idEmpresa = appContext.getEmpresaId();
+  private final AppContext appContext;
 
-		return sucursalRepo.findSucursalesPorEmpresa(idEmpresa)
-				.stream()
-				.map(sucursalMapper::mapToSucursalDTO)
-				.collect(Collectors.toList());
-	}
+  @Override
+  public List<SucursalDto> lista() {
+    Long idEmpresa = appContext.getEmpresaId();
 
-	@Override
-	public Response agregar(SucursalRequest sucursal) {
+    return sucursalRepo.findSucursalesPorEmpresa(idEmpresa)
+            .stream()
+            .map(sucursalMapper::mapToSucursalDTO)
+            .collect(Collectors.toList());
+  }
 
-		Empresa empresa = appContext.getEmpresa();
+  @Override
+  public Response agregar(SucursalRequest sucursal) {
 
-		Long cantidadSucursales = sucursalRepo.cantidadSucursal(empresa.getIdEmpresa());
+    Empresa empresa = appContext.getEmpresa();
 
-		if(Long.valueOf(empresa.getNumeroSucursales()).compareTo(cantidadSucursales) == 0){
-			throw new BusinessException("Haz registrado las sucursales que tienes permitida en tu subscripción");
-		}
+    Long cantidadSucursales = sucursalRepo.cantidadSucursal(empresa.getIdEmpresa());
 
-		sucursalRepo.save(sucursalMapper.mapRequestToSucursalPost(sucursal, empresa));
+    if (Long.valueOf(empresa.getNumeroSucursales()).compareTo(cantidadSucursales) == 0) {
+      throw new BusinessException("Haz registrado las sucursales que tienes permitida en tu subscripción");
+    }
 
-		return Response.builder()
-				.mensaje(Constantes.MENSAJE_SAVE)
-				.build();
-	}
+    sucursalRepo.save(sucursalMapper.mapRequestToSucursalPost(sucursal, empresa));
 
-	@Override
-	public Response modificar(Long id, SucursalDto sucursalDto) {
-		sucursalRepo.findById(id)
-				.map(sucursal -> {
-					sucursal = sucursalMapper.mapToSucursalPost(sucursalDto);
-					return sucursalRepo.save(sucursal);
-				}).orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Sucursal", id)));
+    return Response.builder()
+            .mensaje(Constantes.MENSAJE_SAVE)
+            .build();
+  }
 
-		return Response.builder()
-				.mensaje(Constantes.MENSAJE_MOD)
-				.build();
-	}
+  @Override
+  public Response modificar(Long id, SucursalDto sucursalDto) {
+    sucursalRepo.findById(id)
+            .map(sucursal -> {
+              sucursal = sucursalMapper.mapToSucursalPost(sucursalDto);
+              return sucursalRepo.save(sucursal);
+            }).orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Sucursal", id)));
 
-	@Override
-	public SucursalDto obtener(Long id) {
-		return sucursalRepo.findById(id)
-				.map(sucursalMapper::mapToSucursalDTO)
-				.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Sucursal", id)));
-	}
+    return Response.builder()
+            .mensaje(Constantes.MENSAJE_MOD)
+            .build();
+  }
 
-	@Override
-	public void eliminar(Long id) {
-		Sucursal sucursalSave = sucursalRepo.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Sucursal", id)));
+  @Override
+  public SucursalDto obtener(Long id) {
+    return sucursalRepo.findById(id)
+            .map(sucursalMapper::mapToSucursalDTO)
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Sucursal", id)));
+  }
 
-		sucursalSave.setIndEstado(Constantes.IND_INACTIVO);
-		sucursalRepo.save(sucursalSave);
-	}
+  @Override
+  public void eliminar(Long id) {
+    Sucursal sucursalSave = sucursalRepo.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Sucursal", id)));
+
+    sucursalSave.setIndEstado(Constantes.IND_INACTIVO);
+    sucursalRepo.save(sucursalSave);
+  }
 
 }

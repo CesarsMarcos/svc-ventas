@@ -9,9 +9,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DetalleTipoDocumentoDTO {
+public class AlmacenParaCompraDto {
 
-  private String serie;
+  private Long idProducto;
 
-  private String correlativo;
+  private String nombre;
+
 }

@@ -15,9 +15,7 @@ public class SearchProductoCompra {
 
   private String nombre;
 
-  private BigDecimal precioVenta;
-
-  private Integer stock;
+  private BigDecimal stock;
 
   private String imagen;
 

@@ -82,14 +82,4 @@ public class ProductoController {
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 
-  @GetMapping("searchProductoCompra")
-  public ResponseEntity<Map<String, Object>> searchProductosParaCompra(
-          @RequestParam(required = false) String nombre,
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size) {
-
-    Map<String, Object> response = articuloService.searchProductosParaCompra(nombre, page, size);
-    return ResponseEntity.ok(response);
-  }
-
 }

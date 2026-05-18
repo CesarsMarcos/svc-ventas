@@ -18,52 +18,55 @@ import com.svc.ventas.util.Constantes;
 @RequiredArgsConstructor
 public class UnidadMedidaServiceImpl implements IUnidadMedidaService {
 
-	private final UnidadMedidaRepo unidadRepositorio;
+  private final UnidadMedidaRepo unidadRepositorio;
 
   private final AppContext appContext;
 
-	public List<UnidadMedida> unidades() {
-		Empresa empresa = appContext.getEmpresa();
-		return unidadRepositorio.unidades(empresa);
-	}
+  public List<UnidadMedida> unidades() {
+    Empresa empresa = appContext.getEmpresa();
+    return unidadRepositorio.unidades(empresa);
+  }
 
-	public Response guardar(UnidadMedida unidad) {
-		unidad.setIndEstado(Constantes.IND_ACTIVO);
-		unidadRepositorio.save(unidad);
-		return Response.builder()
-						.mensaje(Constantes.MENSAJE_SAVE)
-				.build();
-	}
+  public Response guardar(UnidadMedida unidad) {
+    unidad.setIndEstado(Constantes.IND_ACTIVO);
+    unidadRepositorio.save(unidad);
+    return Response.builder()
+            .mensaje(Constantes.MENSAJE_SAVE)
+            .build();
+  }
 
-	@Override
-	public Response modificar(int id, UnidadMedida unidad) {
-		UnidadMedida uMedidaSave = unidadRepositorio.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "UnidadMedida", id)));
+  @Override
+  public Response modificar(int id, UnidadMedida unidad) {
+    UnidadMedida uMedidaSave =  getUnidadMedida(id);
 
-		uMedidaSave.setNombre(unidad.getNombre());
-		uMedidaSave.setPrefijo(unidad.getPrefijo());
-		unidadRepositorio.save(uMedidaSave);
+    uMedidaSave.setNombre(unidad.getNombre());
+    uMedidaSave.setPrefijo(unidad.getPrefijo());
+    unidadRepositorio.save(uMedidaSave);
 
-		return Response.builder()
-				.mensaje(Constantes.MENSAJE_MOD)
-				.build();
-	}
+    return Response.builder()
+            .mensaje(Constantes.MENSAJE_MOD)
+            .build();
+  }
 
-	public UnidadMedidaDto obtener(int id) {
-		return unidadRepositorio.findById(id)
-				.map(unidadMedida -> UnidadMedidaDto
-                        .builder()
-                        .prefijo(unidadMedida.getPrefijo())
-                        .build())
-				.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "UnidadMedida", id)));
-	}
+  public UnidadMedidaDto obtener(int id) {
+    return unidadRepositorio.findById(id)
+            .map(unidadMedida -> UnidadMedidaDto
+                    .builder()
+                    .prefijo(unidadMedida.getPrefijo())
+                    .build())
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "UnidadMedida", id)));
+  }
 
-	@Override
-	public void eliminar(int id) {
-		UnidadMedida uMedidaSave = unidadRepositorio.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "UnidadMedida", id)));
-		uMedidaSave.setIndEstado(Constantes.IND_INACTIVO);
-		unidadRepositorio.save(uMedidaSave);
-	}
+  @Override
+  public void eliminar(int id) {
+    UnidadMedida uMedidaSave = getUnidadMedida(id);
+    uMedidaSave.setIndEstado(Constantes.IND_INACTIVO);
+    unidadRepositorio.save(uMedidaSave);
+  }
+
+  private UnidadMedida getUnidadMedida(int id) {
+    return unidadRepositorio.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "UnidadMedida", id)));
+  }
 
 }

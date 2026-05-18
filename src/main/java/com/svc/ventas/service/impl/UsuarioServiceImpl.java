@@ -158,6 +158,11 @@ public class UsuarioServiceImpl implements IUsuarioService {
   }
 
   @Override
+  public void modifyEstado(Integer id) {
+
+  }
+
+  @Override
   public UsuarioDto obtener(int id) {
     return usuarioRepo.findById(id)
             .map(usuarioMapper::map)

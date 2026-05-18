@@ -22,6 +22,8 @@ public interface IUsuarioService {
 	@Transactional
 	Response modificar(Integer id, UsuarioDto usuario);
 
+	void modifyEstado(Integer id);
+
 	UsuarioDto obtener(int id);
 
 	void eliminar(int id);

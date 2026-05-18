@@ -15,7 +15,9 @@ import com.svc.ventas.models.entity.Usuario;
 public interface UsuarioRepo extends JpaRepository<Usuario, Integer> {
 
 	@Query("""
-					SELECT u FROM Usuario u WHERE u.usuario = :usuario
+					SELECT u FROM Usuario u
+					JOIN FETCH u.sucursal
+					WHERE u.usuario = :usuario
 					AND u.indEstado = true
 					""")
 	Optional<Usuario> getByUserName(@Param ("usuario") String userName);

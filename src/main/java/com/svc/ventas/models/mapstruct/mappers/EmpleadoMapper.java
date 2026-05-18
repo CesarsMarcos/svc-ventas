@@ -3,10 +3,8 @@ package com.svc.ventas.models.mapstruct.mappers;
 import com.svc.ventas.message.response.EmpleadoSearchResponse;
 import com.svc.ventas.models.entity.Persona;
 import com.svc.ventas.models.entity.Sucursal;
-import com.svc.ventas.models.entity.Usuario;
 import com.svc.ventas.models.mapstruct.dto.EmpleadoDto;
 import com.svc.ventas.models.mapstruct.dto.EmpleadoGetDto;
-import com.svc.ventas.models.mapstruct.dto.EmpleadoListDto;
 import com.svc.ventas.models.mapstruct.dto.PersonaEmpleadoDto;
 import org.mapstruct.Mapper;
 
@@ -30,10 +28,10 @@ public interface EmpleadoMapper {
 	Empleado mapEmpleadoRequestToEmpleado(Persona persona, Sucursal sucursal);
 
 	@Mapping(source = "idEmpleado", target = "id")
-	@Mapping(source = "empleado.persona.nombreCompleto", target = "nombreCompleto")
+	@Mapping(source = "empleado.persona.nombreMostrado", target = "nombreCompleto")
 	PersonaEmpleadoDto mapPersonaEmpleado(Empleado empleado);
 
-	@Mapping(source = "empleado.persona.nombreCompleto", target = "nombreCompleto")
+	@Mapping(source = "empleado.persona.nombreMostrado", target = "nombreCompleto")
 	@Mapping(target = "tipoDocumento", source = "persona.tipoDocumento")
 	@Mapping(target = "numDocumento", source = "persona.numDocumento")
 	@Mapping(target = "correo", source = "persona.correo")
@@ -47,7 +45,7 @@ public interface EmpleadoMapper {
 
 	@Mapping(source = "idEmpleado", target = "idEmpleado")
 	@Mapping(source = "codEmpleado", target = "codEmpleado")
-	@Mapping(source = "empleado.persona.nombreCompleto", target = "nombreCompleto")
+	@Mapping(source = "empleado.persona.nombreMostrado", target = "nombreCompleto")
 	@Mapping(target = "tipoDocumento", source = "persona.tipoDocumento")
 	@Mapping(target = "numDocumento", source = "persona.numDocumento")
 	@Mapping(target = "celular", source = "persona.celular")

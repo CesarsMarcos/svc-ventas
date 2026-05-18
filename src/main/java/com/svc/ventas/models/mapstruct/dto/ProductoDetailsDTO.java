@@ -1,10 +1,11 @@
 package com.svc.ventas.models.mapstruct.dto;
 
+import com.svc.ventas.models.entity.ProductoPresentacion;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 @Setter
 @Getter
@@ -34,8 +35,7 @@ public class ProductoDetailsDTO {
 
 	private String imagen;
 
-	@NotNull
-	private BigDecimal precioBase;
+	private List<ProductoPresentacion> presentaciones;
 
 	private Boolean estado;
 

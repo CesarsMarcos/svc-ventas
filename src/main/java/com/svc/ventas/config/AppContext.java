@@ -34,7 +34,7 @@ public class AppContext {
       return usuario.getEmpleado().getSucursal();
     }
 
-    throw new RuntimeException("Usuario suin sucursal");
+    throw new RuntimeException("Usuario sin sucursal");
 
   }
 

@@ -10,26 +10,33 @@ import com.svc.ventas.models.entity.Venta;
 import com.svc.ventas.models.enums.TipoDocumento;
 import com.svc.ventas.models.mapstruct.dto.DetalleImpresionDto;
 import com.svc.ventas.models.mapstruct.dto.EnumDto;
+import com.svc.ventas.models.mapstruct.dto.ProductoSearchVentaDto;
 import com.svc.ventas.models.mapstruct.dto.VentaDetailDto;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface IVentaService {
 
-	Map<String, Object> searchVenta(String nombre, String documentoCliente,
-																	String documentoVenta, LocalDate inicio,
-																	LocalDate fin, Integer page, Integer size );
+  Map<String, Object> searchVenta(String nombre, String documentoCliente,
+                                  String documentoVenta, LocalDate inicio,
+                                  LocalDate fin, Integer page, Integer size);
 
-	@Transactional
-	ResponseTransaccion registrar(VentaRequest ventaDto);
-	
-	List<Venta> listadoVentasPorCliente (String dni);
+  @Transactional
+  ResponseTransaccion registrar(VentaRequest ventaDto);
 
-	VentaDetailDto details(Long id);
+  List<Venta> listadoVentasPorCliente(String dni);
 
-	List<EnumDto> tipoPago();
+  VentaDetailDto details(Long id);
 
-	List<EnumDto> tipoDocumentoPersona();
+  List<EnumDto> tipoPago();
 
-	byte[] generarPdf (DetalleImpresionDto venta, TipoDocumento tipoDocumento);
+  List<EnumDto> tipoDocumentoPersona();
+
+  byte[] generarPdf(DetalleImpresionDto venta, TipoDocumento tipoDocumento);
+
+  List<ProductoSearchVentaDto> buscarPorNombreOCodigoPresentacionesParaVenta(String termino);
+
+	Map<String, Object> searchProductosVentaPos(String nombre, Long categoriaId,
+                                                        int page, int size);
+
 
 }

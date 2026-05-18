@@ -1,12 +1,14 @@
 package com.svc.ventas.controller.almacen;
 
+import com.svc.ventas.message.request.PresentacionUpdateRequest;
+import com.svc.ventas.models.mapstruct.dto.ProductoStockPresentacionDto;
 import com.svc.ventas.service.IAlmacenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -37,30 +39,19 @@ public class InventarioController {
     return ResponseEntity.ok(response);
   }
 
-  @GetMapping("searchProductosVentasPOS")
-  public ResponseEntity<Map<String, Object>> searchProductoVenta(
-          @RequestParam(required = false) String codigo,
-          @RequestParam(required = false) String nombre) {
-    Map<String, Object> response = almacenService.searchProductosVenta(codigo, nombre);
-    return ResponseEntity.ok(response);
-  }
-
-  @GetMapping("searchProductosVentas")
-  public ResponseEntity<Map<String, Object>> searchProductoVentaV2(
-          @RequestParam(required = false) String codigo,
-          @RequestParam(required = false) String termino) {
-    Map<String, Object> response = almacenService.searchProductosVenta(codigo, termino);
-    return ResponseEntity.ok(response);
-  }
-
   @GetMapping("details/{id}")
   public ResponseEntity<?> details(@PathVariable Long id) {
     return new ResponseEntity<>(almacenService.details(id), HttpStatus.OK);
   }
 
-  @PatchMapping("{idProductoStock}/updatePrecioVenta")
-  public ResponseEntity<Void> updatePrecioVenta (@PathVariable Long idProductoStock, @RequestParam BigDecimal precioVenta){
-    almacenService.updatePrecioVenta(idProductoStock, precioVenta);
+  @GetMapping("{id}/presentaciones")
+  public ResponseEntity<List<ProductoStockPresentacionDto>> presentaciones(@PathVariable Long id) {
+    return new ResponseEntity<>(almacenService.presentacionesPorProductoStock(id), HttpStatus.OK);
+  }
+
+  @PatchMapping("updatePrecioVenta")
+  public ResponseEntity<Void> updatePrecioVenta(@RequestBody List<PresentacionUpdateRequest> presentaciones) {
+    almacenService.updatePrecioVentaPresentaciones(presentaciones);
     return ResponseEntity.ok().build();
   }
 

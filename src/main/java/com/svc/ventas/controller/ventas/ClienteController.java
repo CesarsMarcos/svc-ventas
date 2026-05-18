@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.svc.ventas.message.request.ClienteCreateParaVentaRequest;
 import com.svc.ventas.message.request.ClienteCreateRequest;
 import com.svc.ventas.models.mapstruct.dto.ClienteGetDto;
 import com.svc.ventas.service.UbigeoService;
@@ -38,10 +39,21 @@ public class ClienteController {
     return new ResponseEntity<>(clienteService.clientes(), HttpStatus.OK);
   }
 
+  @GetMapping("list")
+  public ResponseEntity<?> clientesSelected() {
+    return new ResponseEntity<>(clienteService.clientesListSelected(), HttpStatus.OK);
+  }
+
   @PostMapping
   public ResponseEntity<?> guardar(@RequestBody @Valid ClienteCreateRequest cliente) {
     return ResponseEntity.status(HttpStatus.CREATED)
             .body(clienteService.agregar(cliente));
+  }
+
+  @PostMapping("registroVentas")
+  public ResponseEntity<?> guardarParaVentas(@RequestBody @Valid ClienteCreateParaVentaRequest cliente) {
+    return ResponseEntity.status(HttpStatus.CREATED)
+            .body(clienteService.agregarParaVenta(cliente));
   }
 
   @PatchMapping("{idCliente}")

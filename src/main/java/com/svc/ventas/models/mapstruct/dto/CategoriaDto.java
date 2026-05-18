@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CategoriaDto {
 
-	private Long idCategoria;
+	private Integer idCategoria;
 
 	private String desCategoria;
 

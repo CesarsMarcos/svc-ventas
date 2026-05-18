@@ -20,53 +20,53 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EmpresaServiceImpl implements IEmpresaService {
 
-	private final EmpresaRepository empresaRepo;
+  private final EmpresaRepository empresaRepo;
 
-	private final Empresamapper empresaMapper;
+  private final Empresamapper empresaMapper;
 
-	@Override
-	public List<EmpresaDto> listar() {
-		return empresaRepo.findAll()
-						.stream()
-						.map(empresaMapper::mapToDto)
-						.collect(Collectors.toList());
-	}
+  @Override
+  public List<EmpresaDto> listar() {
+    return empresaRepo.findAll()
+            .stream()
+            .map(empresaMapper::mapToDto)
+            .collect(Collectors.toList());
+  }
 
-	@Override
-	public EmpresaDto obtener(Integer id) {
-		return empresaRepo.findById(id)
-				.map(empresaMapper::mapToGetDto)
-				.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Empresa", id)));
+  @Override
+  public EmpresaDto obtener(Integer id) {
+    return empresaRepo.findById(id)
+            .map(empresaMapper::mapToGetDto)
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Empresa", id)));
 
-	}
+  }
 
-	@Override
-	public Response guardar(EmpresaDto empresaDto) {
-		empresaRepo.save(empresaMapper.mapToEntity(empresaDto));
-		return Response
-				.builder()
-				.mensaje(Constantes.MENSAJE_SAVE)
-				.build();
-	}
+  @Override
+  public Response guardar(EmpresaDto empresaDto) {
+    empresaRepo.save(empresaMapper.mapToEntity(empresaDto));
+    return Response
+            .builder()
+            .mensaje(Constantes.MENSAJE_SAVE)
+            .build();
+  }
 
-	@Override
-	public Response modificar(Integer id, EmpresaDto empresa) {
-		 empresaRepo.findById(id)
-				.map(empresaMapper::mapToDto)
-				.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Empresa", id)));
+  @Override
+  public Response modificar(Integer id, EmpresaDto empresa) {
+    empresaRepo.findById(id)
+            .map(empresaMapper::mapToDto)
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Empresa", id)));
 
-		return Response
-				.builder()
-				.mensaje(Constantes.MENSAJE_MOD)
-				.build();
-	}
+    return Response
+            .builder()
+            .mensaje(Constantes.MENSAJE_MOD)
+            .build();
+  }
 
-	@Override
-	public void eliminar(Integer id) {
-		Empresa empresaSave = empresaRepo.findById(id)
-						.orElseThrow(()-> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND,"Empresa",id)));
-		empresaSave.setIndEstado(Constantes.IND_INACTIVO);
-		empresaRepo.save(empresaSave);
-	}
+  @Override
+  public void eliminar(Integer id) {
+    Empresa empresaSave = empresaRepo.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Empresa", id)));
+    empresaSave.setIndEstado(Constantes.IND_INACTIVO);
+    empresaRepo.save(empresaSave);
+  }
 
 }

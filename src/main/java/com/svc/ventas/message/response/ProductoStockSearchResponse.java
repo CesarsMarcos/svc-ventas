@@ -35,6 +35,12 @@ public class ProductoStockSearchResponse {
 
 	private BigDecimal precioDescuento;
 
+	private BigDecimal precioCompra;
+
+	private BigDecimal costoPromedio;
+
+	private BigDecimal precioSugerido;
+
 	private BigDecimal precioVenta;
 
 	private Boolean estado;

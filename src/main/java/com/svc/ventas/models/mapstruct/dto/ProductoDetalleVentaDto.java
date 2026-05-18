@@ -17,7 +17,7 @@ public class ProductoDetalleVentaDto {
 
 	private String nombre;
 
-	private Integer cantidad;
+	private BigDecimal cantidad;
 
 	private BigDecimal precioVenta;
 

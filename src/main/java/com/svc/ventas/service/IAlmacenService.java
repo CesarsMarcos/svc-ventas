@@ -1,8 +1,10 @@
 package com.svc.ventas.service;
 
+import com.svc.ventas.message.request.PresentacionUpdateRequest;
 import com.svc.ventas.models.mapstruct.dto.ProductoStockDetailsDTO;
+import com.svc.ventas.models.mapstruct.dto.ProductoStockPresentacionDto;
 
-import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 public interface IAlmacenService {
@@ -10,11 +12,11 @@ public interface IAlmacenService {
   Map<String, Object> searchProductos(String nombre, Integer categoriaId,
                                       Boolean estado, int page, int size);
 
-  Map<String, Object> searchProductosVenta(String codigo, String nombre);
-
   ProductoStockDetailsDTO details(Long idProductoStock);
 
-  void updatePrecioVenta(Long idProductoStock, BigDecimal precioVenta);
+  List<ProductoStockPresentacionDto> presentacionesPorProductoStock(Long idProductoStock);
+
+  void updatePrecioVentaPresentaciones(List<PresentacionUpdateRequest> presentaciones);
 
 }
 

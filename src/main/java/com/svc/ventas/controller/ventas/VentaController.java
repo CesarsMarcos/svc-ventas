@@ -48,6 +48,24 @@ public class VentaController {
 
   }
 
+
+  @GetMapping("searchProductosVentas")
+  public ResponseEntity<?> listProductosPresentacionesParaVenta(
+          @RequestParam(required = false) String filtro,
+          @RequestParam(required = false) Long idCategoria) {
+    return new ResponseEntity<>(ventaService.buscarPorNombreOCodigoPresentacionesParaVenta(filtro), HttpStatus.OK);
+  }
+
+  @GetMapping("searchProductosVentasPos")
+  public ResponseEntity<Map<String, Object>> searchProductoVenta(
+          @RequestParam(required = false) String filtro,
+          @RequestParam(required = false) Long categoriaId,
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "15") int size) {
+    Map<String, Object> response = ventaService.searchProductosVentaPos(filtro, categoriaId, page, size);
+    return ResponseEntity.ok(response);
+  }
+
   @GetMapping("/printDocumento/{id}/pdf")
   public ResponseEntity<byte[]> generarPdf(@PathVariable Long id) {
 

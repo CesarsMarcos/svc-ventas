@@ -1,6 +1,7 @@
 package com.svc.ventas.models.entity;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import jakarta.persistence.*;
 import lombok.*;
@@ -46,6 +47,9 @@ public class Empresa implements Serializable {
 
 	@Column(name="simbolo_moneda")
 	private String simboloMoneda;
+
+	@Column(name="margen_default", precision = 5, scale = 2)
+	private BigDecimal margenDefault;
 
 	@Column(name="usa_empleados")
 	private Boolean isUsaEmpleados;
