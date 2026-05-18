@@ -52,6 +52,12 @@ public class UsuarioController {
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
+	@PatchMapping("{id}/update-estado")
+	public ResponseEntity<?> modifyEstado(@PathVariable("id") int id) {
+		usuarioService.modifyEstado(id);
+		return new ResponseEntity<Void>(HttpStatus.OK);
+	}
+
 	@DeleteMapping()
 	public ResponseEntity<Void> eliminar(@PathVariable("id") int id) {
 		usuarioService.eliminar(id);

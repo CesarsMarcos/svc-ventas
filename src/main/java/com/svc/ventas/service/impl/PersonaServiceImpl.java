@@ -1,13 +1,14 @@
 package com.svc.ventas.service.impl;
 
 import com.svc.ventas.config.AppContext;
+import com.svc.ventas.exception.BusinessException;
 import com.svc.ventas.exception.EntityNotFoundException;
+import com.svc.ventas.message.request.PersonaRequest;
 import com.svc.ventas.message.response.PersonaSearchResponse;
 import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.PersonaRepository;
 import com.svc.ventas.models.entity.Empresa;
 import com.svc.ventas.models.entity.Persona;
-import com.svc.ventas.models.entity.Producto;
 import com.svc.ventas.models.mapstruct.dto.PersonaDto;
 import com.svc.ventas.models.mapstruct.dto.PersonaEmpleadoDto;
 import com.svc.ventas.models.mapstruct.dto.PersonaListDto;
@@ -71,10 +72,17 @@ public class PersonaServiceImpl implements IPersonaService {
   }
 
   @Override
-  public Response guardar(PersonaDto personaDto) {
+  public Response guardar(PersonaRequest request) {
     Empresa empresa = appContext.getEmpresa();
 
-    Persona persona = personaMapper.mapToPersona(personaDto);
+    Boolean existePersona = personaRepo.existsBynumDocumento(request.getNumDocumento());
+
+    if (existePersona) {
+      throw new BusinessException("Existe persona ya registrada con el documento ingresado");
+    }
+
+    Persona persona = personaMapper.mapToPersona(request);
+    persona.setIsClienteGenerico(Boolean.FALSE);
     persona.setEmpresa(empresa);
 
     personaRepo.save(persona);

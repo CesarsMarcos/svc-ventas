@@ -1,6 +1,6 @@
 package com.svc.ventas.models.mapstruct.dto;
 
-import com.svc.ventas.message.request.PersonaRequest;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,14 +10,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class EmpleadoDto {
+public class ClienteSelectedDto {
 
-	private Integer idEmpleado;
+	private Long idCliente;
 
-	private PersonaRequest persona;
-
-	private SucursalDto sucursal;
-
-	private Boolean indEstado;
-
+	private String nombreCompleto;
+	
 }
