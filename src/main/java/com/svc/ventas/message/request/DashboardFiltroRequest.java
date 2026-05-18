@@ -13,6 +13,7 @@ public class DashboardFiltroRequest {
   private TipoFiltroDashboard tipoFiltro;
 
   private LocalDate fechaInicio;
+
   private LocalDate fechaFin;
 
 }

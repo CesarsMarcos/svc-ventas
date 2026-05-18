@@ -7,7 +7,6 @@ import com.svc.ventas.models.mapstruct.dto.ProductoDetalleVentaDto;
 import com.svc.ventas.util.AppUtils;
 import com.svc.ventas.util.Constantes;
 import com.svc.ventas.util.NumeroATexto;
-import org.aspectj.weaver.Utils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -29,7 +28,7 @@ public interface ImpresionVentaMapper {
   @Mapping(source = "venta.tipoDocumento.descripcion", target = "tipoDocumento")
   @Mapping(target = "serieCorrelativo", expression = "java(mapCorrelativo(venta))")
   @Mapping(target = "fecha", expression = "java(mapFecha(venta.getFecAdd()))")
-  @Mapping(source = "venta.cliente.persona.nombreCompleto", target = "nomCliente")
+  @Mapping(source = "venta.cliente.persona.nombreMostrado", target = "nomCliente")
   @Mapping(source = "venta.cliente.persona.numDocumento", target = "numDocumento")
   @Mapping(source = "venta.tipoPago", target = "tipoPago")
   @Mapping(target = "productos", expression = "java(listProductos(venta))")

@@ -16,7 +16,7 @@ public class UltimasVentasDTO {
 
   private String cliente;
 
-  private TipoDocumento comprobante;
+  private String comprobante;
 
   private LocalDateTime fecha;
 
