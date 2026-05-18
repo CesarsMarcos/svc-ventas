@@ -24,6 +24,10 @@ public interface VentaRepo extends JpaRepository<Venta, Long>,
   @Query("SELECT COALESCE(SUM(v.total), 0) FROM Venta v WHERE v.fecAdd BETWEEN :inicio AND :fin")
   BigDecimal obtenerSumaVentasPorRango(LocalDateTime inicio, LocalDateTime fin);
 
+  @Query("SELECT COUNT(v.idVenta) FROM Venta v WHERE v.fecAdd BETWEEN :inicio AND :fin")
+  Long countVentas(LocalDateTime inicio, LocalDateTime fin);
+
+
   @Query("""
           SELECT new com.svc.ventas.models.mapstruct.dto.VentasPorMesDTO(
           YEAR(v.fecAdd), MONTH(v.fecAdd), SUM(v.total))
@@ -40,7 +44,9 @@ public interface VentaRepo extends JpaRepository<Venta, Long>,
           ps.stock)
           FROM ProductoStock ps
           INNER JOIN Producto p ON ps.producto.idProducto = p.idProducto
-          WHERE ps.stock <= 5
+          WHERE ps.estado = TRUE
+          AND ps.sucursal.idSucursal = 1
+          AND ps.stock <= 5
           ORDER BY ps.stock desc
           LIMIT 5
           """)
@@ -50,7 +56,7 @@ public interface VentaRepo extends JpaRepository<Venta, Long>,
           SELECT new com.svc.ventas.models.mapstruct.dto.UltimasVentasDTO(
           v.idVenta,
           v.cliente.persona.nombre,
-          v.tipoDocumento,
+          v.tipoDocumento.descripcion,
           v.fecAdd,
           v.total)
           FROM Venta v
@@ -72,7 +78,9 @@ public interface VentaRepo extends JpaRepository<Venta, Long>,
                    ps.stock)
           FROM ProductoStock ps
           JOIN ps.presentaciones psp
-          WHERE ps.estado = true AND psp.estado = true
+          WHERE ps.estado = true
+          AND ps.sucursal.idSucursal = 1
+          AND psp.estado = true
             AND (
                   LOWER(COALESCE(ps.producto.codigo, '')) LIKE LOWER(CONCAT('%', TRIM(:termino), '%'))
                OR LOWER(TRIM(ps.producto.nombre)) LIKE LOWER(CONCAT('%', TRIM(:termino), '%')))
@@ -119,9 +127,6 @@ public interface VentaRepo extends JpaRepository<Venta, Long>,
           @Param("categoriaId") Long categoriaId,
           @Param("sucursalId") Long sucursalId,
           Pageable pageable);
-
-  @Query("SELECT COUNT(v.idVenta) FROM Venta v WHERE v.fecAdd BETWEEN :inicio AND :fin")
-  Long countVentas(LocalDateTime inicio, LocalDateTime fin);
 
 }
 

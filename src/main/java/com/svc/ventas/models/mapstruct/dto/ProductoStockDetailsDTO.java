@@ -33,6 +33,8 @@ public class ProductoStockDetailsDTO {
 	private BigDecimal costoPromedio;
 
 	private Integer stock;
+
+	private Boolean estado;
 	
 	private List<ProductoStockPresentacionDto> presentaciones;
 

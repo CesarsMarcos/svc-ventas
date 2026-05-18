@@ -23,6 +23,7 @@ public interface ProductoStockMapper {
   @Mapping(source = "costoPromedio", target = "costoPromedio")
   @Mapping(source = "maxCantidad", target = "maxCantidad")
   @Mapping(source = "stock", target = "stock")
+  @Mapping(source = "estado", target = "estado")
   @Mapping(target = "presentaciones", expression = "java(getPresentaciones(productoStock))")
   ProductoStockDetailsDTO toProductoDetails (ProductoStock productoStock);
 
