@@ -1,11 +1,8 @@
 package com.svc.ventas.config;
 
-
 import com.svc.ventas.exception.CustomAccessDeniedHandler;
 import com.svc.ventas.exception.CustomAuthenticationEntryPoint;
-import com.svc.ventas.models.CustomUserDetails;
 import com.svc.ventas.service.CustomUserDetailsService;
-import com.svc.ventas.service.IUsuarioService;
 import com.svc.ventas.util.Constantes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

@@ -17,29 +17,29 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor
 public class ServicioExternoImpl implements IServicioExterno {
 
-    private final ReniecClient reniecClient;
+  private final ReniecClient reniecClient;
 
-    @Value("${token.apis.externa}")
-    private String tokenApisExterna;
+  @Value("${token.apis.externa}")
+  private String tokenApisExterna;
 
-    @Override
-    public PersonaReniecResponse getInfoReniec(String dni) {
-        return fetchDataFromApi(
-                () -> reniecClient.getInfoReniec(dni, tokenApisExterna),
-                String.format(Constantes.MENSAJE_ERROR_DNI, dni)
-        );
-    }
+  @Override
+  public PersonaReniecResponse getInfoReniec(String dni) {
+    return fetchDataFromApi(
+            () -> reniecClient.getInfoReniec(dni, tokenApisExterna),
+            String.format(Constantes.MENSAJE_ERROR_DNI, dni)
+    );
+  }
 
-    @Override
-    public EmpresaSunatResponse getInfoSunat(String ruc) {
-        return fetchDataFromApi(
-                () -> reniecClient.getInfoSunat(ruc, tokenApisExterna),
-                String.format(Constantes.MENSAJE_ERROR_SUNAT, ruc)
-        );
-    }
+  @Override
+  public EmpresaSunatResponse getInfoSunat(String ruc) {
+    return fetchDataFromApi(
+            () -> reniecClient.getInfoSunat(ruc, tokenApisExterna),
+            String.format(Constantes.MENSAJE_ERROR_SUNAT, ruc)
+    );
+  }
 
-    private <T> T fetchDataFromApi(Supplier<T> apiCall, String notFoundMessage) {
-        return Optional.ofNullable(apiCall.get())
-                .orElseThrow(() -> new EntityNotFoundException(notFoundMessage));
-    }
+  private <T> T fetchDataFromApi(Supplier<T> apiCall, String notFoundMessage) {
+    return Optional.ofNullable(apiCall.get())
+            .orElseThrow(() -> new EntityNotFoundException(notFoundMessage));
+  }
 }

@@ -24,78 +24,83 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtServiceImpl implements IJwtService {
 
-    @Value("${key.signature}")
-    private String keySignature;
-    @Override
-    public String extractUsername(String token) {
-        return extractClaim(token,Claims::getSubject);
-    }
+  private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60 * 5; // 5 horas
+  private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 7; // 7 horas
 
-    @Override
-    public String generateToken(Usuario usuario) {
-        return Jwts.builder()
-                .setHeaderParam("typ","JWT")
-                .setClaims(addClaim(usuario))
-                .setSubject(usuario.getUsuario())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 600000))
-                .claim(Constantes.TYPE_TOKEN, Constantes.ACCESS)
-                .signWith(getSignKey(), SignatureAlgorithm.HS512)
-                .compact();
-    }
+  @Value("${key.signature}")
+  private String keySignature;
 
-    @Override
-    public boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())
-                && !isTokenExpired(token));
-    }
+  @Override
+  public String extractUsername(String token) {
+    return extractClaim(token, Claims::getSubject);
+  }
 
-    @Override
-    public String generateRefreshToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return Jwts.builder()
-                .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1200000))
-                .claim(Constantes.TYPE_TOKEN, Constantes.REFRESH)
-                .signWith(getSignKey(), SignatureAlgorithm.HS512)
-                .compact();
-    }
+  @Override
+  public String generateToken(Usuario usuario) {
+    return Jwts.builder()
+            .setHeaderParam("typ", "JWT")
+            .setClaims(addClaim(usuario))
+            .setSubject(usuario.getUsuario())
+            .setIssuedAt(new Date(System.currentTimeMillis()))
+            .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
+            .claim(Constantes.TYPE_TOKEN, Constantes.ACCESS)
+            .signWith(getSignKey(), SignatureAlgorithm.HS512)
+            .compact();
+  }
 
-    @Override
-    public boolean isRefreshToken(String token) {
-        Claims claims = extractAllClaims(token);
-        String tokenType = claims.get("type",String.class);
-        return Constantes.REFRESH.equalsIgnoreCase(tokenType);
-    }
+  @Override
+  public boolean validateToken(String token, UserDetails userDetails) {
+    final String username = extractUsername(token);
+    return (username.equals(userDetails.getUsername())
+            && !isTokenExpired(token));
+  }
 
-    private Key getSignKey(){
-        byte[] key = Decoders.BASE64.decode(keySignature);
-        return Keys.hmacShaKeyFor(key);
-    }
-    private Claims extractAllClaims(String token){
-        return Jwts.parserBuilder().setSigningKey(getSignKey()).build()
-                .parseClaimsJws(token).getBody();
-    }
-    private <T> T extractClaim(String token,
-                               Function<Claims, T> claimsTFunction){
-        return claimsTFunction.apply(extractAllClaims(token));
-    }
-    private boolean isTokenExpired(String token){
-        return extractClaim(token, Claims::getExpiration).before(new Date());
-    }
+  @Override
+  public String generateRefreshToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+    return Jwts.builder()
+            .setClaims(extraClaims)
+            .setSubject(userDetails.getUsername())
+            .setIssuedAt(new Date(System.currentTimeMillis()))
+            .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
+            .claim(Constantes.TYPE_TOKEN, Constantes.REFRESH)
+            .signWith(getSignKey(), SignatureAlgorithm.HS512)
+            .compact();
+  }
 
-    private Map<String, Object> addClaim(Usuario usuario){
-        Map<String, Object> claims = new HashMap<>();
-        String nombreCompleto = usuario.getPersona().getNombre()
-                    .concat(" ".concat(usuario.getPersona().getApePaterno())
-                            .concat(" ".concat(usuario.getPersona().getApeMaterno())));
-        claims.put(Constantes.CLAIM_USER, usuario.getUsuario());
-        claims.put(Constantes.CLAIM_ROL, usuario.getRoles().stream().map(Rol::getDesRol).toList());
-        claims.put(Constantes.CLAIM_NOMBRE_COMPLETO, nombreCompleto );
-        claims.put(Constantes.CLAIM_IS_USA_EMPLEADO, usuario.getSucursal().getEmpresa().getIsUsaEmpleados());
-        claims.put(Constantes.CLAIM_SUCURSAL, usuario.getSucursal().getRazonSocial());
-        return claims;
-    }
+  @Override
+  public boolean isRefreshToken(String token) {
+    Claims claims = extractAllClaims(token);
+    String tokenType = claims.get("type", String.class);
+    return Constantes.REFRESH.equalsIgnoreCase(tokenType);
+  }
+
+  private Key getSignKey() {
+    byte[] key = Decoders.BASE64.decode(keySignature);
+    return Keys.hmacShaKeyFor(key);
+  }
+
+  private Claims extractAllClaims(String token) {
+    return Jwts.parserBuilder().setSigningKey(getSignKey()).build()
+            .parseClaimsJws(token).getBody();
+  }
+
+  private <T> T extractClaim(String token,
+                             Function<Claims, T> claimsTFunction) {
+    return claimsTFunction.apply(extractAllClaims(token));
+  }
+
+  private boolean isTokenExpired(String token) {
+    return extractClaim(token, Claims::getExpiration).before(new Date());
+  }
+
+  private Map<String, Object> addClaim(Usuario usuario) {
+    Map<String, Object> claims = new HashMap<>();
+    String nombreCompleto = usuario.getPersona().getNombreMostrado();
+    claims.put(Constantes.CLAIM_USER, usuario.getUsuario());
+    claims.put(Constantes.CLAIM_ROL, usuario.getRoles().stream().map(Rol::getDesRol).toList());
+    claims.put(Constantes.CLAIM_NOMBRE_COMPLETO, nombreCompleto);
+    claims.put(Constantes.CLAIM_IS_USA_EMPLEADO, usuario.getSucursal().getEmpresa().getIsUsaEmpleados());
+    claims.put(Constantes.CLAIM_SUCURSAL, usuario.getSucursal().getRazonSocial());
+    return claims;
+  }
 }
