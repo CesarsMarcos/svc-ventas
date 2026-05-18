@@ -1,7 +1,7 @@
 package com.svc.ventas.controller.caja;
 
+import com.svc.ventas.message.request.CajaAperturaRequest;
 import com.svc.ventas.message.response.Response;
-import com.svc.ventas.models.mapstruct.dto.CajaDTO;
 import com.svc.ventas.models.mapstruct.dto.CajaDetalleDTO;
 import com.svc.ventas.models.mapstruct.dto.CajaMovimientosDTO;
 import com.svc.ventas.service.ICajaService;
@@ -19,7 +19,7 @@ public class CajaController {
     private final ICajaService cajaService;
 
     @PostMapping("aperturar")
-    public ResponseEntity<Response> aperturarCaja (@Valid @RequestBody CajaDTO caja){
+    public ResponseEntity<Response> aperturarCaja (@Valid @RequestBody CajaAperturaRequest caja){
         return new ResponseEntity<>(cajaService.aperturaCaja(caja), HttpStatus.OK);
     }
 
