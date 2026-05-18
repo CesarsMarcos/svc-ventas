@@ -7,7 +7,9 @@ import java.util.stream.Collectors;
 
 import com.svc.ventas.exception.BusinessException;
 import com.svc.ventas.message.request.ProveedorRequest;
+import com.svc.ventas.message.response.ProveedorSaveResponse;
 import com.svc.ventas.message.response.Response;
+import com.svc.ventas.message.response.ResponseData;
 import com.svc.ventas.models.mapstruct.dto.ProveedorSelectedDto;
 import com.svc.ventas.models.specifications.ProveedorSpecifications;
 import com.svc.ventas.service.IServicioExterno;
@@ -30,114 +32,120 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProveedorServiceImpl implements IProveedorService {
 
-	private final  ProveedorRepo proveedorRepo;
-	
-	private final ProveedorMapper proveedorMapper;
+  private final ProveedorRepo proveedorRepo;
 
-	private final IServicioExterno iServicioExterno;
+  private final ProveedorMapper proveedorMapper;
 
-	@Override
-	public Map<String, Object> searchProveedor(String razonSocial, Pageable pageable) {
+  private final IServicioExterno iServicioExterno;
 
-		Specification<Proveedor> spec =  Specification.where(null);
+  @Override
+  public Map<String, Object> searchProveedor(String razonSocial, Pageable pageable) {
 
-		if(Objects.nonNull(razonSocial) && !razonSocial.isEmpty()) {
-			spec = spec.and(ProveedorSpecifications.hasRazonSocial(razonSocial));
-		}
+    Specification<Proveedor> spec = Specification.where(null);
 
-		Page<Proveedor> proveedorPage = proveedorRepo.findAll(spec, pageable);
+    if (Objects.nonNull(razonSocial) && !razonSocial.isEmpty()) {
+      spec = spec.and(ProveedorSpecifications.hasRazonSocial(razonSocial));
+    }
 
-		List<ProveedorDto> proveedoresDto = proveedorPage.getContent()
-						.stream()
-						.map(proveedorMapper::mapToProveedorDto)
-						.collect(Collectors.toList());
+    Page<Proveedor> proveedorPage = proveedorRepo.findAll(spec, pageable);
 
-		return Map.of(
-						"proveedores", proveedoresDto,
-						"currentPage", proveedorPage.getNumber(),
-						"pageSize", proveedorPage.getSize(),
-						"totalItems", proveedorPage.getTotalElements(),
-						"totalPages", proveedorPage.getTotalPages(),
-						"empty", proveedorPage.isEmpty());
-	}
+    List<ProveedorDto> proveedoresDto = proveedorPage.getContent()
+            .stream()
+            .map(proveedorMapper::mapToProveedorDto)
+            .collect(Collectors.toList());
 
-	@Override
-	public List<ProveedorDto> proveedores() {
-		return proveedorRepo.findAll()
-						.stream()
-						.map(proveedorMapper::mapToProveedorDto)
-						.collect(Collectors.toList());
-	}
+    return Map.of(
+            "proveedores", proveedoresDto,
+            "currentPage", proveedorPage.getNumber(),
+            "pageSize", proveedorPage.getSize(),
+            "totalItems", proveedorPage.getTotalElements(),
+            "totalPages", proveedorPage.getTotalPages(),
+            "empty", proveedorPage.isEmpty());
+  }
 
-	public List<ProveedorSelectedDto> proveedoresListSelected() {
-		return proveedorRepo.findAll()
-				.stream().map(proveedorMapper::mapToProveedorSelected)
-				.collect(Collectors.toList());
-	}
+  @Override
+  public List<ProveedorDto> proveedores() {
+    return proveedorRepo.findAll()
+            .stream()
+            .map(proveedorMapper::mapToProveedorDto)
+            .collect(Collectors.toList());
+  }
 
-	@Override
-	public Response registrar(ProveedorRequest proveedorRequest) {
+  public List<ProveedorSelectedDto> proveedoresListSelected() {
+    return proveedorRepo.findAll()
+            .stream().map(proveedorMapper::mapToProveedorSelected)
+            .collect(Collectors.toList());
+  }
 
-		Boolean existeProveedor = proveedorRepo.existsBynumDocumento(proveedorRequest.getNumDocumento());
+  @Override
+  public ResponseData<ProveedorSaveResponse> registrar(ProveedorRequest proveedorRequest) {
 
-		if (existeProveedor){
-			throw new BusinessException("Existe proveedir ya registrado con el documento ingresado");
-		}
+    Boolean existeProveedor = proveedorRepo.existsBynumDocumento(proveedorRequest.getNumDocumento());
 
-		proveedorRepo.save(proveedorMapper.mapToProveedor(proveedorRequest));
-		return Response.builder().mensaje(Constantes.MENSAJE_SAVE).build();
-	}
+    if (existeProveedor) {
+      throw new BusinessException("Existe proveedir ya registrado con el documento ingresado");
+    }
 
-	@Override
-	public Response modificar(Long id, ProveedorDto proveedorDto) {
-		proveedorRepo.findById(id)
-		.orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Proveedor", id)));
-		return Response.builder().mensaje(Constantes.MENSAJE_MOD).build();
-	}
+    Proveedor proveedorSave = proveedorRepo.save(proveedorMapper.mapToProveedor(proveedorRequest));
 
-	@Override
-	public ProveedorDto obtener(Long id) {
-		return proveedorRepo.findById(id)
-				.map(proveedorMapper::mapToProveedorDto)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Proveedor", id)));
-	}
+    return ResponseData.<ProveedorSaveResponse>builder()
+            .data(ProveedorSaveResponse.builder()
+                    .idProveedor(proveedorSave.getIdProveedor())
+                    .numDocumento(proveedorSave.getNumDocumento())
+                    .razonSocial(proveedorSave.getRazonSocial()).build())
+            .mensaje(Constantes.MENSAJE_SAVE).build();
+  }
 
-	@Override
-	public void eliminar(Long id) {
-		Proveedor proveedorSave = proveedorRepo.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Proveedor", id)));
-		proveedorSave.setIndEstado(Constantes.IND_ACTIVO);
-		proveedorRepo.save(proveedorSave);
-	}
+  @Override
+  public Response modificar(Long id, ProveedorDto proveedorDto) {
+    proveedorRepo.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Proveedor", id)));
+    return Response.builder().mensaje(Constantes.MENSAJE_MOD).build();
+  }
 
-	@Override
-	public Object searchProveedor(String tipoDocuento, String numDocumento) {
-		validarLongtudDocumento(tipoDocuento, numDocumento);
-		if("DNI".equalsIgnoreCase(tipoDocuento)) {
-			return iServicioExterno.getInfoReniec(numDocumento);
-		} else {
-			return iServicioExterno.getInfoSunat(numDocumento);
-		}
-	}
+  @Override
+  public ProveedorDto obtener(Long id) {
+    return proveedorRepo.findById(id)
+            .map(proveedorMapper::mapToProveedorDto)
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Proveedor", id)));
+  }
 
-	private void validarLongtudDocumento(String tipoDocumento, String numDocumento) {
-		int longitud = numDocumento.trim().length();
-		if (Objects.isNull(numDocumento) || numDocumento.isBlank()) {
-			throw new BusinessException("El número de documento es obligatorio");
-		}
-		switch (tipoDocumento.toUpperCase()) {
-			case "DNI" -> {
-				if (longitud != 8) {
-					throw new BusinessException("El DNI debe tener 8 dígitos");
-				}
-			}
-			case "RUC" -> {
-				if (longitud != 11) {
-					throw new BusinessException("El RUC debe tener 11 dígitos");
-				}
-			}
-			default -> throw new BusinessException("Tipo de documento no válido");
-		}
-	}
+  @Override
+  public void eliminar(Long id) {
+    Proveedor proveedorSave = proveedorRepo.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Proveedor", id)));
+    proveedorSave.setIndEstado(Constantes.IND_ACTIVO);
+    proveedorRepo.save(proveedorSave);
+  }
+
+  @Override
+  public Object searchProveedor(String tipoDocuento, String numDocumento) {
+    validarLongtudDocumento(tipoDocuento, numDocumento);
+    if ("DNI".equalsIgnoreCase(tipoDocuento)) {
+      return iServicioExterno.getInfoReniec(numDocumento);
+    } else {
+      return iServicioExterno.getInfoSunat(numDocumento);
+    }
+  }
+
+  private void validarLongtudDocumento(String tipoDocumento, String numDocumento) {
+    int longitud = numDocumento.trim().length();
+    if (Objects.isNull(numDocumento) || numDocumento.isBlank()) {
+      throw new BusinessException("El número de documento es obligatorio");
+    }
+    switch (tipoDocumento.toUpperCase()) {
+      case "DNI" -> {
+        if (longitud != 8) {
+          throw new BusinessException("El DNI debe tener 8 dígitos");
+        }
+      }
+      case "RUC" -> {
+        if (longitud != 11) {
+          throw new BusinessException("El RUC debe tener 11 dígitos");
+        }
+      }
+      default -> throw new BusinessException("Tipo de documento no válido");
+    }
+  }
 
 }

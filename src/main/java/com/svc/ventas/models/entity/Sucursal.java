@@ -1,6 +1,7 @@
 package com.svc.ventas.models.entity;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
@@ -45,6 +46,9 @@ public class Sucursal implements Serializable {
 	private String representante;
 
 	private String telefono;
+
+	@Column(name="valor_margen", precision = 5, scale = 2)
+	private BigDecimal margen;
 
 	@Column(name = "created_by")
 	private String  createdBy;

@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.svc.ventas.message.request.ProveedorRequest;
+import com.svc.ventas.message.response.ProveedorSaveResponse;
 import com.svc.ventas.message.response.Response;
+import com.svc.ventas.message.response.ResponseData;
+import com.svc.ventas.models.entity.Proveedor;
 import com.svc.ventas.models.mapstruct.dto.ProveedorDto;
 import com.svc.ventas.models.mapstruct.dto.ProveedorSelectedDto;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +22,7 @@ public interface IProveedorService {
 	List<ProveedorSelectedDto> proveedoresListSelected();
 
 	@Transactional
-	Response registrar(ProveedorRequest proveedor);
+	ResponseData<ProveedorSaveResponse> registrar(ProveedorRequest proveedor);
 
 	@Transactional
 	Response modificar(Long id, ProveedorDto proveedor);
