@@ -1,18 +1,21 @@
+server:
+  port: ${PORT}
 spring:
   application:
     name: svc-ventas
   jpa:
     hibernate:
       ddl-auto: update
-    #generate-ddl: true
-    show-sql: true
+    generate-ddl: true
+    #show-sql: true
     database-platform: org.hibernate.dialect.MySQLDialect
   datasource:
-    url: jdbc:mysql://localhost:3314/db_ventas_v2?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true
-    username: root
-    password: root
+    url: jdbc:mysql://${DB_HOST}/${DB_DATABASE}?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     hikari:
-      maximum-pool-size: 30
+      maximum-pool-size: 5
+      minimum-idle: 2
       pool-name: namePool
     tomcat:
       max-wait: 20000
@@ -23,6 +26,11 @@ spring:
     init:
       mode: never
       continue-on-error: true
+  main:
+    lazy-initialization: true
+  open-in-view: false
+  thymeleaf:
+    cache: true
 token:
   apis:
     externa: apis-token-11190.XuZgRhBonrjpjA5JmQdGWN5mlOfUhujN
@@ -31,6 +39,6 @@ logging:
     org:
       hibernate:
         SQL: OFF
-    #root: debug
+    #root: WARN
 key:
   signature: Ub4GiF7+MS8VG8s8Wh/6W/Uwu1LYqsRpVFDugnSlcphOuLHPsyiaEi+Xo0ARBjEDCNfujsWTKEluKyvvSpV0Qg==
