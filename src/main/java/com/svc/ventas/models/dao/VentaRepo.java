@@ -27,7 +27,6 @@ public interface VentaRepo extends JpaRepository<Venta, Long>,
   @Query("SELECT COUNT(v.idVenta) FROM Venta v WHERE v.fecAdd BETWEEN :inicio AND :fin")
   Long countVentas(LocalDateTime inicio, LocalDateTime fin);
 
-
   @Query("""
           SELECT new com.svc.ventas.models.mapstruct.dto.VentasPorMesDTO(
           YEAR(v.fecAdd), MONTH(v.fecAdd), SUM(v.total))

@@ -1,17 +1,12 @@
 package com.svc.ventas.controller.mantenimiento;
 
-import java.util.List;
 import java.util.Map;
 
 import com.svc.ventas.message.request.PersonaRequest;
-import com.svc.ventas.models.entity.Persona;
 import com.svc.ventas.models.mapstruct.mappers.PersonaMapper;
 import jakarta.validation.Valid;
 import com.svc.ventas.models.mapstruct.dto.PersonaDto;
 import com.svc.ventas.service.IPersonaService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -2,7 +2,6 @@ package com.svc.ventas.controller.mantenimiento;
 
 import com.svc.ventas.message.request.UsuarioCreateRequest;
 import jakarta.validation.Valid;
-import com.svc.ventas.util.Constantes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

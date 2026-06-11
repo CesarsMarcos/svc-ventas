@@ -1,7 +1,7 @@
 package com.svc.ventas.models.dao;
 
+import com.svc.ventas.message.response.ResumenProductoResponse;
 import com.svc.ventas.models.entity.ProductoStock;
-import com.svc.ventas.models.mapstruct.dto.AlmacenParaCompraDto;
 import com.svc.ventas.models.mapstruct.dto.PresentacionesCompraDto;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
@@ -23,7 +23,7 @@ public interface ProductoStockRepo extends CrudRepository<ProductoStock, Long>,
           SELECT ps
           FROM ProductoStock ps
           WHERE ps.idProductoStock = :productoId
-            AND ps.sucursal.id = :sucursalId
+            AND ps.sucursal.id = :sucursalId AND ps.estado = true
           """)
   Optional<ProductoStock> buscar(Long productoId, Long sucursalId);
 
@@ -31,7 +31,7 @@ public interface ProductoStockRepo extends CrudRepository<ProductoStock, Long>,
           SELECT ps
           FROM ProductoStock ps
           WHERE ps.producto.codigo = : termino
-            OR LOWER(ps.producto.nombre) LIKE LOWER(CONCAT('%', :termino, '%'))
+            OR LOWER(ps.producto.nombre) LIKE LOWER(CONCAT('%', :termino, '%')) AND ps.estado = true
           """)
   Page<ProductoStock> buscarPorNombreOCodigoPage(@Param("termino") String termino, Pageable pageable);
 
@@ -43,16 +43,18 @@ public interface ProductoStockRepo extends CrudRepository<ProductoStock, Long>,
            ps.precioVenta
           )
           FROM ProductoStockPresentacion   ps
-          WHERE  ps.productoStock.idProductoStock = :idProducto
+          WHERE  ps.productoStock.idProductoStock = :idProducto AND ps.estado = true
           """)
   List<PresentacionesCompraDto> presentacionesPorIdProducto(@Param("idProducto") Long idProducto);
 
   @Query("""
-          SELECT new com.svc.ventas.models.mapstruct.dto.AlmacenParaCompraDto(
-            ps.idProductoStock,
-            ps.producto.nombre)
-            FROM ProductoStock ps
-          WHERE ps.idProductoStock = :idProductoStock""")
-  Optional<AlmacenParaCompraDto> obtenerProductoInventario(@Param("idProductoStock") Long idProductoStock);
+        SELECT new com.svc.ventas.message.response.ResumenProductoResponse(
+            COUNT(ps),
+            COALESCE(SUM(ps.costoPromedio * ps.stock),0),
+            SUM(CASE WHEN ps.stock < 5 THEN 1 ELSE 0 END),
+            COUNT(DISTINCT ps.producto.categoria))
+        FROM ProductoStock ps
+    """)
+  ResumenProductoResponse obtenerResumen();
 
 }

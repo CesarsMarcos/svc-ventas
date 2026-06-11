@@ -208,7 +208,6 @@ public class ProductoServiceImpl implements IProductoService {
             .stream()
             .map(productoMapper::mapProductoSearch)
             .toList();
-
     return Map.of(
             "products", listProducts,
             "currentPage", pageProductos.getNumber(),
@@ -218,28 +217,6 @@ public class ProductoServiceImpl implements IProductoService {
             "empty", pageProductos.isEmpty()
     );
   }
-
-  /*@Override
-  public Map<String, Object> searchProductosParaCompra(String nombre, int page, int size) {
-
-    String filtro = (nombre != null && !nombre.isBlank()) ? nombre.trim().toLowerCase() : "";
-
-    log.info("Se obtiene usuario logueado...");
-    Long idSucursal = appContext.getSucursalId();
-
-    Pageable pageable = PageRequest.of(page, size);
-
-    Page<SearchProductoCompra> pageProductos = productoRepo.buscarProductosParaCompra(filtro, idSucursal, pageable);
-
-    return Map.of(
-            "products", pageProductos.getContent(),
-            "currentPage", pageProductos.getNumber(),
-            "pageSize", pageProductos.getSize(),
-            "totalItems", pageProductos.getTotalElements(),
-            "totalPages", pageProductos.getTotalPages(),
-            "empty", pageProductos.isEmpty()
-    );
-  }*/
 
   @Override
   public void updateEstado(Long idProducto) {
