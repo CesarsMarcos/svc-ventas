@@ -133,4 +133,15 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
             .map(empleadoMapper::mapToSearch);
   }
 
+  @Override
+  public void updateEstado(Integer idEmpleado) {
+    empleadoRepo.findById(idEmpleado)
+            .map(p -> {
+              Boolean estado = !p.getIndEstado();
+              p.setIndEstado(estado);
+              return empleadoRepo.save(p);
+            }).orElseThrow(() -> new EntityNotFoundException
+                    (String.format(Constantes.MENSAJE_NOT_FOUND, "Empleado", idEmpleado)));
+  }
+
 }

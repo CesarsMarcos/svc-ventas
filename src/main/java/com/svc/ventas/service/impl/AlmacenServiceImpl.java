@@ -4,6 +4,7 @@ import com.svc.ventas.config.AppContext;
 import com.svc.ventas.exception.EntityNotFoundException;
 import com.svc.ventas.message.request.PresentacionUpdateRequest;
 import com.svc.ventas.message.response.ProductoStockSearchResponse;
+import com.svc.ventas.message.response.ResumenProductoResponse;
 import com.svc.ventas.models.dao.ProductoStockPresentacionRepo;
 import com.svc.ventas.models.dao.ProductoStockRepo;
 import com.svc.ventas.models.entity.ProductoStock;
@@ -72,7 +73,10 @@ public class AlmacenServiceImpl implements IAlmacenService {
             .map(productoStockMapper::mapProductoSearch)
             .toList();
 
+    ResumenProductoResponse resumen = productoStockRepo.obtenerResumen();
+
     return Map.of(
+            "resumen", resumen,
             "products", listProducts,
             "currentPage", pageProductos.getNumber(),
             "pageSize", pageProductos.getSize(),
@@ -116,6 +120,16 @@ public class AlmacenServiceImpl implements IAlmacenService {
 
     presentacionRepo.saveAll(list);
 
+  }
+
+  public void updateEstado(Long idProducto) {
+    productoStockRepo.findById(idProducto)
+            .map(p -> {
+              Boolean estado = !p.getEstado();
+              p.setEstado(estado);
+              return productoStockRepo.save(p);
+            }).orElseThrow(() -> new EntityNotFoundException
+                    (String.format(Constantes.MENSAJE_NOT_FOUND, "Producto", idProducto)));
   }
 
   private static ProductoStockPresentacionDto.ProductoStockPresentacionDtoBuilder mapToProductoStockPresentacion(ProductoStockPresentacion presentacion) {

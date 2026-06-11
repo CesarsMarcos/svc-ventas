@@ -28,4 +28,6 @@ public interface IEmpleadoService {
 	
 	void eliminar(int id);
 
+	void updateEstado(Integer idEmpleado);
+
 }

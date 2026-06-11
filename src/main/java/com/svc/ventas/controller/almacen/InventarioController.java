@@ -55,4 +55,10 @@ public class InventarioController {
     return ResponseEntity.ok().build();
   }
 
+  @PutMapping("{idProducto}/update-estado")
+  public ResponseEntity<Void> updateEstado(@PathVariable Long idProducto) {
+    almacenService.updateEstado(idProducto);
+    return ResponseEntity.status(HttpStatus.OK).build();
+  }
+
 }

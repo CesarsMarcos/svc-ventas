@@ -59,4 +59,10 @@ public class EmpleadoController {
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
+  @PutMapping("{id}/update-estado")
+  public ResponseEntity<Void> updateEstado(@PathVariable Integer idEmpleado) {
+    empleadoService.updateEstado(idEmpleado);
+    return ResponseEntity.status(HttpStatus.OK).build();
+  }
+
 }

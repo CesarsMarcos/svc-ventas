@@ -3,7 +3,6 @@ package com.svc.ventas.service;
 import com.svc.ventas.message.request.PresentacionUpdateRequest;
 import com.svc.ventas.models.mapstruct.dto.ProductoStockDetailsDTO;
 import com.svc.ventas.models.mapstruct.dto.ProductoStockPresentacionDto;
-
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +16,8 @@ public interface IAlmacenService {
   List<ProductoStockPresentacionDto> presentacionesPorProductoStock(Long idProductoStock);
 
   void updatePrecioVentaPresentaciones(List<PresentacionUpdateRequest> presentaciones);
+
+   void updateEstado(Long idProducto);
 
 }
 
