@@ -9,10 +9,7 @@ import com.svc.ventas.message.response.Response;
 import com.svc.ventas.models.dao.SerieRepository;
 import com.svc.ventas.models.dao.SucursalRepo;
 import com.svc.ventas.models.dao.TipoDocumentoRepository;
-import com.svc.ventas.models.entity.Serie;
-import com.svc.ventas.models.entity.Sucursal;
-import com.svc.ventas.models.entity.TipoDocumento;
-import com.svc.ventas.models.entity.Usuario;
+import com.svc.ventas.models.entity.*;
 import com.svc.ventas.models.mapstruct.dto.CorrelativoDTO;
 import com.svc.ventas.models.mapstruct.dto.SerieDTO;
 import com.svc.ventas.models.mapstruct.dto.TipoDocumentoDTO;
@@ -56,6 +53,8 @@ public class SerieServiceImpl implements ISerieService {
 
     Long empresaId = appContext.getEmpresaId();
 
+    Empresa empresa = appContext.getEmpresa();
+
     TipoDocumento tipoDocumento = tipoDocumentoRepo.findById(serieRequest.getIdTipoDocumento())
             .orElseThrow(() -> new EntityNotFoundException("Tipo de documento no válido"));
 
@@ -83,7 +82,7 @@ public class SerieServiceImpl implements ISerieService {
     }
 
     serieRepo.save(Serie.builder()
-            .empresa(usuarioLogueado.getEmpleado().getSucursal().getEmpresa())
+            .empresa(empresa)
             .sucursal(sucursalBD)
             .tipoDocumento(tipoDocumento)
             .serie(serieRequest.getSerie())

@@ -1,5 +1,6 @@
 package com.svc.ventas.service.impl;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 import com.svc.ventas.message.request.EmpresaPostRequest;
@@ -46,7 +47,7 @@ public class EmpresaServiceImpl implements IEmpresaService {
 
     if(request.getAplicaImpuesto().equals(Boolean.TRUE)){
       request.setNombreImpuesto("");
-      request.setPorcentajeImpuesto(Double.parseDouble("0.00"));
+      request.setPorcentajeImpuesto(BigDecimal.ZERO);
     }
 
     empresaRepo.save(empresaMapper.mapToEntity(request));

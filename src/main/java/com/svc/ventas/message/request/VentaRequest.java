@@ -1,6 +1,8 @@
 package com.svc.ventas.message.request;
 
-import com.svc.ventas.models.enums.TipoDocumento;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -14,28 +16,37 @@ import java.util.List;
 @NoArgsConstructor
 public class VentaRequest {
 
-	private String fecha;
+  private String fecha;
 
-	@NotNull
-	private Integer idCliente;
+  @NotNull(message = "El cliente es obligatorio")
+  @Min(value = 1, message = "El cliente es inválido")
+  private Integer idCliente;
 
-	@NotNull
-	private Long idTipoDocumento;
+  @NotNull(message = "El tipo de documento es obligatorio")
+  @Min(value = 1, message = "El tipo de documento es inválido")
+  private Long idTipoDocumento;
 
-	private Boolean aplicarImpuesto;
+  private Boolean aplicarImpuesto;
 
-	private String tipoPago;
+  @NotNull(message = "El tipo de pago es obligatorio")
+  private String tipoPago;
 
-	@NotNull
-	private List<ProductoParaVender> productos;
+  @NotEmpty(message = "Debe agregar al menos un producto")
+  private List<ProductoParaVender> productos;
 
-	@NotNull
-	private BigDecimal igv;
+  @NotNull(message = "El IGV es obligatorio")
+  @DecimalMin(value = "0.00", inclusive = true,
+          message = "El IGV no puede ser negativo")
+  private BigDecimal igv;
 
-	@NotNull
-	private BigDecimal subTotal;
+  @NotNull(message = "El subtotal es obligatorio")
+  @DecimalMin(value = "0.00", inclusive = true,
+          message = "El subtotal no puede ser negativo")
+  private BigDecimal subTotal;
 
-	@NotNull
-	private BigDecimal total;
+  @NotNull(message = "El total es obligatorio")
+  @DecimalMin(value = "0.00", inclusive = true,
+          message = "El total no puede ser negativo")
+  private BigDecimal total;
 
 }
