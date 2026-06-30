@@ -13,21 +13,25 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface ClienteMapper {
 
-	@Mapping(target = "persona", source = "persona")
-	@Mapping(target = "indEstado", constant = "true")
-	Cliente mapCliente (ClienteCreateRequest clienteRequest,
-											Persona persona);
+  @Mapping(target = "persona", source = "persona")
+  @Mapping(target = "indEstado", constant = "true")
+  Cliente mapCliente(ClienteCreateRequest clienteRequest,
+                     Persona persona);
 
-	@Mapping(target = "idCliente", source = "idCliente")
-	@Mapping(target = "nombreCompleto", source = "cliente.persona.nombreMostrado")
-	ClienteSelectedDto mapToClienteSelected(Cliente cliente);
+  @Mapping(target = "idCliente", source = "idCliente")
+  @Mapping(target = "nombreCompleto", source = "cliente.persona.nombreMostrado")
+  @Mapping(target = "isClienteFinal", source = "isClienteGenerico")
+  @Mapping(target = "tipoDocumento", source = "persona.tipoDocumento")
+  @Mapping(target = "numDocumento", source = "persona.numDocumento")
+  ClienteSelectedDto mapToClienteVenta(Cliente cliente);
 
-	ClienteDto mapClienteDto (Cliente cliente);
+  ClienteDto mapClienteDto(Cliente cliente);
 
-	@Mapping(source = "cliente.persona.nombreMostrado", target = "nombreCompleto")
-	@Mapping(source = "persona.numDocumento", target="numDocumento")
-	@Mapping(source = "persona.telefono", target="telefono")
-	@Mapping(source = "persona.tipoDocumento", target="tipoDocumento")
-	ClienteGetDto mapClienteGet (Cliente cliente);
+  @Mapping(source = "cliente.persona.nombreMostrado", target = "nombreCompleto")
+  @Mapping(source = "persona.numDocumento", target = "numDocumento")
+  @Mapping(source = "persona.telefono", target = "telefono")
+  @Mapping(source = "persona.tipoDocumento", target = "tipoDocumento")
+  @Mapping(source = "isClienteGenerico", target = "isClienteFinal")
+  ClienteGetDto mapClienteGet(Cliente cliente);
 
 }

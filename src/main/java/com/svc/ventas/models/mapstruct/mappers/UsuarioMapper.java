@@ -16,6 +16,7 @@ public interface UsuarioMapper {
 	@Mapping(source = "idUsuario", target = "idUsuario")
 	@Mapping(source = "usuario.persona.nombreMostrado", target = "nombreCompleto")
 	@Mapping(target = "tipoDocumento", expression = "java(getTipoDocumento(usuario))")
+	@Mapping(target = "sucursal", source = "sucursal.razonSocial")
 	@Mapping(target = "numDocumento", expression = "java(getNumeroDocumento(usuario))")
   @Mapping(target = "roles", expression = "java(usuario.getRoles().stream().map(Rol::getDesRol).toArray(String[]::new))")
   @Mapping(target = "usuario", source = "usuario")

@@ -20,7 +20,6 @@ public class ClienteCreateParaVentaRequest {
   @NotBlank(message = "El número de documento es obligatorio")
   private String numDocumento;
 
-  @NotBlank(message = "La Razón Social es obligatoria")
   private String razonSocial;
 
   @NotBlank(message = "El nombre obligatoria")

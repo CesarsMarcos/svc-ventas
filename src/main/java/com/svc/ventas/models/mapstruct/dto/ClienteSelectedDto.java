@@ -15,5 +15,11 @@ public class ClienteSelectedDto {
 	private Long idCliente;
 
 	private String nombreCompleto;
+
+	private String tipoDocumento;
+
+	private String numDocumento;
+
+	private Boolean isClienteFinal;
 	
 }

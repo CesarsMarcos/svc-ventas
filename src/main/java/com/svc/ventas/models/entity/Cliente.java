@@ -1,8 +1,6 @@
 package com.svc.ventas.models.entity;
 
 import java.io.Serializable;
-import java.util.stream.Stream;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,6 +23,9 @@ public class Cliente implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_persona", foreignKey=@ForeignKey(name= "fk_cliente_persona"))
 	private Persona persona;
+
+	@Column(name = "is_cliente_final")
+	private Boolean isClienteGenerico = false;
 
 	private Boolean indEstado;
 

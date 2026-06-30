@@ -1,16 +1,15 @@
 package com.svc.ventas.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.svc.ventas.config.AppContext;
 import com.svc.ventas.exception.ConflictException;
 import com.svc.ventas.message.request.ClienteCreateParaVentaRequest;
 import com.svc.ventas.message.request.ClienteCreateRequest;
 import com.svc.ventas.message.response.ClienteSaveResponse;
-import com.svc.ventas.message.response.ProveedorSaveResponse;
 import com.svc.ventas.message.response.ResponseData;
 import com.svc.ventas.models.dao.PersonaRepository;
 import com.svc.ventas.models.entity.Empresa;
@@ -62,11 +61,11 @@ public class ClienteServiceImpl implements IClienteService {
   }
 
   @Override
-  public List<ClienteSelectedDto> clientesListSelected() {
+  public List<ClienteSelectedDto> clientesParaVenta() {
     Empresa empresa = appContext.getEmpresa();
     return clienteRepo.clientesActivosPorEmpresa(empresa)
             .stream()
-            .map(clienteMapper::mapToClienteSelected)
+            .map(clienteMapper::mapToClienteVenta)
             .collect(Collectors.toList());
   }
 
@@ -102,12 +101,12 @@ public class ClienteServiceImpl implements IClienteService {
     Persona.PersonaBuilder builder = Persona.builder()
             .tipoDocumento(clienterRequest.getTipoDocumento())
             .numDocumento(clienterRequest.getNumDocumento())
-            .isClienteGenerico(Boolean.FALSE)
+            .indEstado(Boolean.TRUE)
             .empresa(empresa);
     if (clienterRequest.getTipoDocumento() == TipoDocumentoPersona.RUC) {
       builder.razonSocial(clienterRequest.getRazonSocial());
     } else {
-      builder.nombre(clienterRequest.getNombre())
+      builder.nombres(clienterRequest.getNombre())
               .apePaterno(clienterRequest.getApePaterno())
               .apeMaterno(clienterRequest.getApeMaterno());
     }
@@ -118,6 +117,7 @@ public class ClienteServiceImpl implements IClienteService {
     log.info(":: Registra cliente con documento {}", clienterRequest.getNumDocumento());
     Cliente clienteNew = Cliente.builder()
             .persona(personaNew)
+            .isClienteGenerico(Boolean.FALSE)
             .indEstado(Boolean.TRUE)
             .build();
 
@@ -153,15 +153,42 @@ public class ClienteServiceImpl implements IClienteService {
   }
 
   @Override
-  public Page<Cliente> searchCliente(String documento, String nombre, Pageable pageable) {
+  public Page<Cliente> searchCliente(String termino, Pageable pageable) {
     Specification<Cliente> spec = Specification.where(null);
-    if (documento != null && !documento.isEmpty()) {
-      spec = spec.and(ClienteSpecifications.hasClienteDocumento(documento));
-    }
-    if (nombre != null && !nombre.isEmpty()) {
-      spec = spec.and(ClienteSpecifications.hasClienteNombre(nombre));
+
+    if (termino != null && !termino.isEmpty()) {
+      spec = spec.and(ClienteSpecifications.search(termino));
     }
     return clienteRepo.findAll(spec, pageable);
+  }
+
+  @Override
+  public Map<String, Object> searchClientesParaVenta(String termino, Pageable pageable) {
+    Specification<Cliente> spec = Specification.where(null);
+    if (termino != null && !termino.isEmpty()) {
+      spec = spec.and(ClienteSpecifications.search(termino));
+    }
+
+    Page<Cliente> pageCliente = clienteRepo.findAll(spec, pageable);
+
+    List<ClienteSelectedDto> clientesDto = pageCliente.getContent()
+            .stream()
+            .map(clienteMapper::mapToClienteVenta)
+            .toList();
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("clientes", clientesDto);
+    response.put("currentPage", pageCliente.getNumber());
+    response.put("totalItems", pageCliente.getTotalElements());
+    response.put("totalPages", pageCliente.getTotalPages());
+
+    return response;
+
+  }
+
+  @Override
+  public ClienteSelectedDto getClienteFinal() {
+    return clienteMapper.mapToClienteVenta(clienteRepo.getCienteFinal());
   }
 
 }

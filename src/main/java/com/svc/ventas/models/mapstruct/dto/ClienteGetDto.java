@@ -21,6 +21,8 @@ public class ClienteGetDto {
 
 	private String telefono;
 
+	private Boolean isClienteFinal;
+
 	private Boolean indEstado;
 	
 }

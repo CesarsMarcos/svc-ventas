@@ -14,6 +14,7 @@ import com.svc.ventas.models.mapstruct.dto.ClienteDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,9 +40,9 @@ public class ClienteController {
     return new ResponseEntity<>(clienteService.clientes(), HttpStatus.OK);
   }
 
-  @GetMapping("list")
-  public ResponseEntity<?> clientesSelected() {
-    return new ResponseEntity<>(clienteService.clientesListSelected(), HttpStatus.OK);
+  @GetMapping("ventas")
+  public ResponseEntity<?> clientesParaVenta() {
+    return new ResponseEntity<>(clienteService.clientesParaVenta(), HttpStatus.OK);
   }
 
   @PostMapping
@@ -68,14 +69,13 @@ public class ClienteController {
 
   @GetMapping("search")
   public ResponseEntity<Map<String, Object>> searchCliente(
-          @RequestParam(required = false) String nombre,
-          @RequestParam(required = false) String documento,
+          @RequestParam(required = false) String termino,
           @RequestParam(defaultValue = "0") int page,
           @RequestParam(defaultValue = "3") int size) {
 
     Pageable paging = PageRequest.of(page, size);
 
-    Page<Cliente> pageCliente = clienteService.searchCliente(documento, nombre, paging);
+    Page<Cliente> pageCliente = clienteService.searchCliente(termino, paging);
 
     List<ClienteGetDto> clientesDto = pageCliente.getContent().stream()
             .map(clienteMapper::mapClienteGet).collect(Collectors.toList());
@@ -87,6 +87,19 @@ public class ClienteController {
     response.put("totalPages", pageCliente.getTotalPages());
 
     return new ResponseEntity<>(response, HttpStatus.OK);
+  }
+
+  @GetMapping("search-ventas-v2")
+  public ResponseEntity<?> clientesParaVentaV2(@RequestParam(required = false) String termino,
+                                               @RequestParam(defaultValue = "0") int page,
+                                               @RequestParam(defaultValue = "5") int size) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "idCliente"));
+    return new ResponseEntity<>(clienteService.searchClientesParaVenta(termino, pageable), HttpStatus.OK);
+  }
+
+  @GetMapping("cliente-final")
+  public ResponseEntity<?> getClienteFinal() {
+    return new ResponseEntity<>(clienteService.getClienteFinal(), HttpStatus.OK);
   }
 
   @GetMapping("departamentos")

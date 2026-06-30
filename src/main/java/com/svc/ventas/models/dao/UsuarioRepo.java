@@ -30,9 +30,9 @@ public interface UsuarioRepo extends JpaRepository<Usuario, Integer> {
 					FROM Usuario u
 					WHERE
 					    LOWER(u.persona.numDocumento) LIKE LOWER(CONCAT('%', :termino, '%'))
-					OR  LOWER(CONCAT(u.persona.nombre, ' ', u.persona.apePaterno))
+					OR  LOWER(CONCAT(u.persona.nombres, ' ', u.persona.apePaterno))
 					    LIKE LOWER(CONCAT('%', :termino, '%'))
-					OR  LOWER(CONCAT(u.persona.nombre, ' ', u.persona.apePaterno, ' ', u.persona.apeMaterno))
+					OR  LOWER(CONCAT(u.persona.nombres, ' ', u.persona.apePaterno, ' ', u.persona.apeMaterno))
 					    LIKE LOWER(CONCAT('%', :termino, '%'))
 					""")
 	Page<Usuario> findUsuario(@Param("termino") String termino, Pageable pageable);

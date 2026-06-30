@@ -23,7 +23,7 @@ public interface PersonaMapper {
 	@Mapping(source = "persona.nombreMostrado", target = "nombreCompleto")
 	PersonaEmpleadoDto mapToPersonaEmpleado(Persona persona);
 
-	@Mapping(source = "persona.nombreMostrado", target = "nombre")
+	@Mapping(source = "persona.nombreMostrado", target = "nombres")
 	PersonaListDto mapToPersonaListDto(Persona persona);
 
 	@Mapping(target = "idPersona", source = "idPersona")

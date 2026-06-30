@@ -1,6 +1,7 @@
 package com.svc.ventas.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.svc.ventas.message.request.ClienteCreateParaVentaRequest;
 import com.svc.ventas.message.request.ClienteCreateRequest;
@@ -19,7 +20,7 @@ public interface IClienteService {
 
 	List<ClienteDto> clientes();
 
-	List<ClienteSelectedDto> clientesListSelected();
+	List<ClienteSelectedDto> clientesParaVenta();
 
 	@Transactional
 	Response agregar(ClienteCreateRequest clienterRequest);
@@ -32,6 +33,10 @@ public interface IClienteService {
 
 	ClienteDto obtener(Integer id);
 
-	Page<Cliente> searchCliente(String nombre, String documento, Pageable pageable);
+	Page<Cliente> searchCliente(String termino, Pageable pageable);
+
+	Map<String, Object> searchClientesParaVenta(String termino, Pageable pageable);
+
+	ClienteSelectedDto getClienteFinal();
 
 }

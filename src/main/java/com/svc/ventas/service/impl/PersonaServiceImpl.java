@@ -82,7 +82,6 @@ public class PersonaServiceImpl implements IPersonaService {
     }
 
     Persona persona = personaMapper.mapToPersona(request);
-    persona.setIsClienteGenerico(Boolean.FALSE);
     persona.setEmpresa(empresa);
 
     personaRepo.save(persona);
@@ -98,7 +97,7 @@ public class PersonaServiceImpl implements IPersonaService {
     Persona personaSave = personaRepo.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Persona", id)));
 
-    personaSave.setNombre(personaDto.getNombre());
+    personaSave.setNombres(personaDto.getNombres());
     personaSave.setApeMaterno(personaDto.getApeMaterno());
     personaSave.setApePaterno(personaDto.getApePaterno());
     personaSave.setCelular(personaDto.getCelular());

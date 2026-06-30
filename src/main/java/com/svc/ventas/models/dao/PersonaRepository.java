@@ -18,7 +18,6 @@ public interface PersonaRepository extends CrudRepository<Persona, Integer>, Jpa
           WHERE NOT EXISTS (
            SELECT 1 FROM Usuario u WHERE u.persona.id = p.id
           )
-          AND p.isClienteGenerico = false
           """)
   List<Persona> getPersonasParaUsuario();
 
@@ -26,8 +25,7 @@ public interface PersonaRepository extends CrudRepository<Persona, Integer>, Jpa
           SELECT p
           FROM Persona p
           WHERE NOT EXISTS (
-              SELECT 1 FROM Empleado e WHERE e.persona.id = p.id
-              )
+              SELECT 1 FROM Empleado e WHERE e.persona.id = p.id)
           """)
   List<Persona> findDisponiblesParaEmpleado();
 
@@ -35,8 +33,7 @@ public interface PersonaRepository extends CrudRepository<Persona, Integer>, Jpa
           SELECT p
           FROM Persona p
           WHERE NOT EXISTS (
-              SELECT 1 FROM Cliente c WHERE c.persona.id = p.id
-          )  AND p.isClienteGenerico = false
+              SELECT 1 FROM Cliente c WHERE c.persona.id = p.id)
           """)
   List<Persona> findPersonasQueNoSonClientes();
 

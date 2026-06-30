@@ -22,7 +22,7 @@ public interface EmpleadoRepo extends JpaRepository<Empleado, Integer>,
     WHERE NOT EXISTS (
         SELECT 1 FROM Usuario u WHERE u.empleado.id = e.id)
         AND e.persona.numDocumento = :termino
-        OR LOWER(CONCAT(e.persona.nombre, CONCAT(' ', e.persona.apePaterno)))
+        OR LOWER(CONCAT(e.persona.nombres, CONCAT(' ', e.persona.apePaterno)))
         LIKE LOWER(CONCAT('%', :termino, '%'))
     """)
 	Page<Empleado> findEmpleadosQueNoTienenUsuario(@Param("termino") String termino, Pageable pageable);
