@@ -15,6 +15,7 @@ import com.svc.ventas.message.response.MenuResponse;
 import com.svc.ventas.message.response.SearchUsuarioResponse;
 import com.svc.ventas.models.dao.*;
 import com.svc.ventas.models.entity.*;
+import com.svc.ventas.service.ISucursalService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -48,6 +49,8 @@ public class UsuarioServiceImpl implements IUsuarioService {
   private final EmpleadoMapper empleadoMapper;
 
   private final MenuRepository menuRepo;
+
+  private final ISucursalService sucursalService;
 
   private final AppContext appContext;
 
@@ -133,7 +136,8 @@ public class UsuarioServiceImpl implements IUsuarioService {
     if (empresa.getIsUsaEmpleados()) {
       usuario.setSucursal(empleado.getSucursal());
     } else {
-      usuario.setSucursal(appContext.getSucursal());
+      Sucursal sucursalBD = sucursalService.obtener(request.getIdSucursal());
+      usuario.setSucursal(sucursalBD);
     }
 
     usuarioRepo.save(usuario);
@@ -214,7 +218,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
       dto.setName(m.getNombre());
       dto.setIcon(m.getIcono());
       dto.setRouteLink(m.getUrl());
-      dto.setSubmenus(new ArrayList<>());
+      dto.setSubMenus(new ArrayList<>());
 
       map.put(m.getIdMenu(), dto);
     }
@@ -227,7 +231,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
       } else {
         MenuResponse padre = map.get(m.getIdMenuPadre().getIdMenu());
         if (padre != null) {
-          padre.getSubmenus().add(dto);
+          padre.getSubMenus().add(dto);
         }
       }
     }

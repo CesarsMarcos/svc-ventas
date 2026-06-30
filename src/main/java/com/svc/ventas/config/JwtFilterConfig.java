@@ -2,7 +2,6 @@ package com.svc.ventas.config;
 
 import com.svc.ventas.service.CustomUserDetailsService;
 import com.svc.ventas.service.IJwtService;
-import com.svc.ventas.service.IUsuarioService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,6 +24,10 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class JwtFilterConfig extends OncePerRequestFilter {
 
+    private static final int NUM_SIETE = 7;
+    private static final String AUTHORIZATION = "Authorization";
+    private static final String BEARER = "Bearer ";
+
     private final IJwtService jwtService;
     private final CustomUserDetailsService usuarioService;
 
@@ -33,18 +36,18 @@ public class JwtFilterConfig extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        final String tokenExtraidoHeader = request.getHeader("Authorization");
+        final String tokenExtraidoHeader = request.getHeader(AUTHORIZATION);
 
         final String tokenLimpio;
         final String userEmail;
 
         if (!StringUtils.hasText(tokenExtraidoHeader)
-                || !StringUtils.startsWithIgnoreCase(tokenExtraidoHeader, "Bearer ")) {
+                || !StringUtils.startsWithIgnoreCase(tokenExtraidoHeader, BEARER)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        tokenLimpio = tokenExtraidoHeader.substring(7);
+        tokenLimpio = tokenExtraidoHeader.substring(NUM_SIETE);
         try {
             userEmail = jwtService.extractUsername(tokenLimpio);
 

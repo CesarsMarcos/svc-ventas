@@ -1,15 +1,37 @@
 package com.svc.ventas.models.specifications;
 
+import com.svc.ventas.config.AppContext;
 import com.svc.ventas.models.entity.*;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
-
-import javax.swing.*;
 import java.time.LocalDate;
 
 public class CompraSpecifications {
+
+  public static Specification<Compra> filtroSeguridad(AppContext appContext) {
+
+    return (root, query, cb) -> {
+
+      if (appContext.isAdmin()) {
+        return cb.conjunction();
+      }
+
+      if (appContext.isSupervisor()) {
+        return cb.equal(
+                root.get("sucursal"),
+                appContext.getSucursal()
+        );
+      }
+
+      return cb.equal(
+              root.get("createdBy"),
+              appContext.getUserName()
+      );
+    };
+
+  }
 
   public static Specification<Compra> hasRUC(String ruc) {
     return (root, query, cb) -> {

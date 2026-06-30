@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.svc.ventas.service.ICompraService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class CompraController {
   private final ICompraService compraService;
 
   @GetMapping("searchCompras")
+  @PreAuthorize("hasAuthority('VER_COMPRAS')")
   public ResponseEntity<?> searchCompras(@RequestParam(required = false) String ruc,
                                          @RequestParam(required = false) String proveedor,
                                          @RequestParam(required = false) Long documento,
@@ -38,21 +40,25 @@ public class CompraController {
   }
 
   @PostMapping
+  @PreAuthorize("hasAuthority('REGISTRAR_COMPRA')")
   public ResponseEntity<?> registrar(@Valid @RequestBody CompraRequest compra) {
     return new ResponseEntity<>(compraService.registrar(compra), HttpStatus.CREATED);
   }
 
   @GetMapping("{id}")
+  @PreAuthorize("hasAuthority('VER_COMPRAS')")
   public ResponseEntity<?> details(@PathVariable Long id) {
     return new ResponseEntity<>(compraService.details(id), HttpStatus.OK);
   }
 
   @GetMapping("searchProductoCompraV2")
+  @PreAuthorize("hasAuthority('VER_COMPRAS')")
   public ResponseEntity<?> searchProductosParaCompra(@RequestParam(required = false) String filtro) {
     return new ResponseEntity<>(compraService.searchProductosParaCompra(filtro), HttpStatus.OK);
   }
 
   @GetMapping("searchProductoCompraV3")
+  @PreAuthorize("hasAuthority('VER_COMPRAS')")
   public ResponseEntity<Map<String, Object>> searchProductosParaCompraPage(
           @RequestParam(required = false) String nombre,
           @RequestParam(defaultValue = "0") int page,

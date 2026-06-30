@@ -57,21 +57,19 @@ public class Constantes {
   public static final String CLAIM_NOMBRE_COMPLETO = "nombreCompleto";
   public static final String CLAIM_IS_USA_EMPLEADO = "isUsaEmpleado";
   public static final String CLAIM_SUCURSAL = "sucursal";
-
+  public static final String CLAIM_APLICA_IMPUESTO = "aplicaImpuesto";
 
   public static final String REFRESH = "refreshToken";
   public static final String TYPE_TOKEN = "type";
   public static final String ACCESS = "accessToken";
+  public static final String PERMISSIONS = "permissions";
 
   public static final String[] ENDPOINTS_PERMIT = {
-          "/api/autenticacion/**",
-          "/api/articulos/**",
-          "/api/empresas/**"
+          "/api/autenticacion/**"
   };
 
-  public static final String[] ENDPOINTS_VENDEDOR = {
-          "/api/articulos/**",
-          "/api/ventas/**"
+  public static final String[] ENDPOINTS_SUPER_ADMIN = {
+          "/api/empresas/**"
   };
 
   public static final String[] ENDPOINTS_ADMIN = {
@@ -79,33 +77,44 @@ public class Constantes {
           "/api/empleados/**",
           "/api/usuarios/**",
           "/api/sucursales/**",
-          "/api/empresas/**",
           "/api/series/**",
-          "/api/articulos/**",
-
-          "/api/inventario/**",
           "/api/categorias/**",
           "/api/marcas/**",
           "/api/unidadMedidas/**",
-          "/api/kardex/**",
-
-          "/api/clientes/**",
-          "/api/ventas/**",
-
-          "/api/proveedores/**",
-          "/api/compras/**",
-
-          "/api/caja/**",
-          "/api/servicio/externo/**",
+          "/api/servicio/externo/**"
   };
 
-  public static final String ROL_ADMIN = "ROLE_ADMIN";
-  public static final String ROL_VENDEDOR = "ROLE_VENDEDOR";
+  public static final String[] ENDPOINTS_SUPERVISOR = {
+          "/api/articulos/**",
+          "/api/inventario/**",
+          "/api/kardex/**",
+          "/api/proveedores/**",
+          "/api/compras/**",
+          "/api/reportes/**",
+          "/api/sucursales/**",
+  };
+
+  public static final String[] ENDPOINTS_VENDEDOR = {
+          "/api/ventas/**",
+          "/api/clientes/**",
+          "/api/caja/**",
+          //para ventas
+          "/api/series/tipoDocumentos",
+          "/api/series/correlativo",
+          "/api/categorias/"
+  };
+
+
   public static final String ROLE_SUPER_ADMIN = "ROLE_SUPER_ADMIN";
+  public static final String ROLE_ADMIN = "ROLE_ADMIN";
+  public static final String ROLE_SUPERVISOR = "ROLE_SUPERVISOR";
+  public static final String ROLE_VENDEDOR = "ROLE_VENDEDOR";
 
   public static final String URL_BASE_CLIENT = "http://localhost:4200";
   public static final String[] ALLOWED_METHODS = {
           "GET", "POST", "PUT", "DELETE", "PATCH"
   };
+
+  /*PRODUCTOS*/
 
 }

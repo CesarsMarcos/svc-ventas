@@ -1,9 +1,7 @@
 package com.svc.ventas.models.specifications;
 
-import com.svc.ventas.models.entity.Cliente;
-import com.svc.ventas.models.entity.Persona;
-import com.svc.ventas.models.entity.Sucursal;
-import com.svc.ventas.models.entity.Venta;
+import com.svc.ventas.config.AppContext;
+import com.svc.ventas.models.entity.*;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
@@ -12,6 +10,29 @@ import org.springframework.data.jpa.domain.Specification;
 import java.time.LocalDate;
 
 public class VentaSpecifications {
+
+  public static Specification<Venta> filtroSeguridad(AppContext appContext) {
+
+    return (root, query, cb) -> {
+
+      if (appContext.isAdmin()) {
+        return cb.conjunction();
+      }
+
+      if (appContext.isSupervisor()) {
+        return cb.equal(
+                root.get("sucursal"),
+                appContext.getSucursal()
+        );
+      }
+
+      return cb.equal(
+              root.get("createdBy"),
+              appContext.getUserName()
+      );
+    };
+
+  }
 
   public static Specification<Venta> hasClienteNombre(String nombre) {
     return (root, query, cb) -> {
@@ -22,7 +43,7 @@ public class VentaSpecifications {
       Join<Cliente, Persona> personaJoin = clienteJoin.join("persona", JoinType.INNER);
 
       Expression<String> nombreCompleto = cb.concat(
-              cb.concat(personaJoin.get("nombre"), " "),
+              cb.concat(personaJoin.get("nombres"), " "),
               personaJoin.get("apePaterno")
       );
       return cb.like(
@@ -47,7 +68,7 @@ public class VentaSpecifications {
     return (root, query, cb) -> cb.equal(root.get("numDocumento"), documento);
   }
 
-  public static Specification<Venta> hasSucursal (Sucursal sucursal){
+  public static Specification<Venta> hasSucursal(Sucursal sucursal) {
     return (root, query, cb) -> cb.equal(root.get("sucursal"), sucursal);
   }
 

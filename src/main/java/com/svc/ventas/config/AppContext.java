@@ -1,6 +1,7 @@
 package com.svc.ventas.config;
 
 import com.svc.ventas.models.entity.Empresa;
+import com.svc.ventas.models.entity.Rol;
 import com.svc.ventas.models.entity.Sucursal;
 import com.svc.ventas.models.entity.Usuario;
 import com.svc.ventas.util.SecurityUtils;
@@ -52,6 +53,21 @@ public class AppContext {
 
   public String getUserName() {
     return getUsuario().getUsuario();
+  }
+
+  public boolean isAdmin() {
+    return getUsuario().getRoles().stream()
+            .map(Rol::getDesRol).anyMatch("ROLE_ADMIN"::equals);
+  }
+
+  public boolean isSupervisor() {
+    return getUsuario().getRoles().stream()
+            .map(Rol::getDesRol).anyMatch("ROLE_SUPERVISOR"::equals);
+  }
+
+  public boolean isVendedor() {
+    return getUsuario().getRoles().stream()
+            .map(Rol::getDesRol).anyMatch("ROLE_VENDEDOR"::equals);
   }
 
 }

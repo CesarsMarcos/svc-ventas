@@ -1,5 +1,6 @@
 package com.svc.ventas.service.impl;
 
+import com.svc.ventas.config.AppContext;
 import com.svc.ventas.models.dao.*;
 import com.svc.ventas.models.mapstruct.dto.*;
 import com.svc.ventas.service.IDashboardService;
@@ -19,8 +20,6 @@ import java.util.List;
 @Slf4j
 public class DashboardServiceImpl implements IDashboardService {
 
-  private final CompraRepository compraRepo;
-
   private final VentaRepo ventaRepo;
 
   private final ClienteRepo clienteRepo;
@@ -29,11 +28,15 @@ public class DashboardServiceImpl implements IDashboardService {
 
   private final ProductoVendidoRepository productoRepo;
 
+  private final AppContext appContext;
+
   @Override
   public ChartDTO getDashboard(LocalDate fecInicio, LocalDate fecFin) {
 
     LocalDateTime inicio = null;
     LocalDateTime fin = null;
+
+    Long idSucursal = appContext.getSucursalId();
 
     if (fecInicio != null) {
       inicio = fecInicio.atStartOfDay();
@@ -43,22 +46,20 @@ public class DashboardServiceImpl implements IDashboardService {
       fin = fecFin.atTime(23, 59, 59);
     }
 
-    BigDecimal valorVentas = ventaRepo.obtenerSumaVentasPorRango(inicio, fin)
-            .setScale(2, RoundingMode.HALF_UP);;
+    BigDecimal valorVentas = ventaRepo.obtenerSumaVentasPorRango(inicio, fin, idSucursal)
+            .setScale(2, RoundingMode.HALF_UP);
 
-    Long numVentas = ventaRepo.countVentas(inicio, fin);
+    Long numVentas = ventaRepo.countVentas(inicio, fin, idSucursal);
 
     Long numClientes = clienteRepo.numClientesActivos();
 
-    Long numProveedores = proveedorRepo.findAll()
-            .stream().filter(proveedor -> proveedor.getIndEstado().equals(true))
-            .count();
+    Long numProveedores = proveedorRepo.numProveedoresActivos();
 
-    List<ProductoMasVendidoDTO> productosMasVendidos = productosVendidos(inicio, fin);
+    List<ProductoMasVendidoDTO> productosMasVendidos = productosVendidos(inicio, fin, idSucursal);
 
-    List<BajoStockDTO> productosBajoStock = obtenerProductosBajoStock();
+    List<BajoStockDTO> productosBajoStock = obtenerProductosBajoStock(idSucursal);
 
-    List<UltimasVentasDTO> ultimasVentas = obtenerUltimasVentas();
+    List<UltimasVentasDTO> ultimasVentas = obtenerUltimasVentas(idSucursal);
 
     return ChartDTO.builder()
             .valorVentas(valorVentas)
@@ -72,54 +73,65 @@ public class DashboardServiceImpl implements IDashboardService {
   }
 
   private VariacionVentasDTO obtenerVentasHoy() {
+
+    Long idSucursal = appContext.getSucursalId();
+
     LocalDateTime inicioHoy = LocalDate.now().atStartOfDay();
     LocalDateTime finHoy = inicioHoy.plusDays(1).minusSeconds(1);
 
     LocalDateTime inicioAyer = inicioHoy.minusDays(1);
     LocalDateTime finAyer = inicioHoy.minusSeconds(1);
 
-    BigDecimal ventasHoy = ventaRepo.obtenerSumaVentasPorRango(inicioHoy, finHoy);
-    BigDecimal ventasAyer = ventaRepo.obtenerSumaVentasPorRango(inicioAyer, finAyer);
+    BigDecimal ventasHoy = ventaRepo.obtenerSumaVentasPorRango(inicioHoy, finHoy, idSucursal);
+    BigDecimal ventasAyer = ventaRepo.obtenerSumaVentasPorRango(inicioAyer, finAyer, idSucursal);
 
     return new VariacionVentasDTO(ventasHoy, ventasAyer);
   }
 
   private VariacionVentasDTO obtenerVentasSemana() {
-    LocalDateTime inicioSemana = LocalDate.now().with(TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY)).atStartOfDay();
+
+    Long idSucursal = appContext.getSucursalId();
+
+    LocalDateTime inicioSemana = LocalDate.now()
+            .with(TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY)).atStartOfDay();
     LocalDateTime finSemana = LocalDateTime.now();
 
     LocalDateTime inicioSemanaPasada = inicioSemana.minusWeeks(1);
     LocalDateTime finSemanaPasada = finSemana.minusWeeks(1);
 
-    BigDecimal ventasSemana = ventaRepo.obtenerSumaVentasPorRango(inicioSemana, finSemana);
-    BigDecimal ventasSemanaPasada = ventaRepo.obtenerSumaVentasPorRango(inicioSemanaPasada, finSemanaPasada);
+    BigDecimal ventasSemana = ventaRepo.obtenerSumaVentasPorRango(inicioSemana, finSemana, idSucursal);
+    BigDecimal ventasSemanaPasada = ventaRepo.obtenerSumaVentasPorRango(inicioSemanaPasada, finSemanaPasada, idSucursal);
 
     return new VariacionVentasDTO(ventasSemana, ventasSemanaPasada);
   }
 
   private VariacionVentasDTO obtenerVentasMes() {
-    LocalDateTime inicioMes = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay();
+
+    Long idSucursal = appContext.getSucursalId();
+
+    LocalDateTime inicioMes = LocalDate.now()
+            .with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay();
     LocalDateTime finMes = LocalDateTime.now();
 
     LocalDateTime inicioMesPasado = inicioMes.minusMonths(1);
     LocalDateTime finMesPasado = finMes.minusMonths(1);
 
-    BigDecimal ventasMes = ventaRepo.obtenerSumaVentasPorRango(inicioMes, finMes);
-    BigDecimal ventasMesPasado = ventaRepo.obtenerSumaVentasPorRango(inicioMesPasado, finMesPasado);
+    BigDecimal ventasMes = ventaRepo.obtenerSumaVentasPorRango(inicioMes, finMes, idSucursal);
+    BigDecimal ventasMesPasado = ventaRepo.obtenerSumaVentasPorRango(inicioMesPasado, finMesPasado, idSucursal);
 
     return new VariacionVentasDTO(ventasMes, ventasMesPasado);
   }
 
-  private List<ProductoMasVendidoDTO> productosVendidos(LocalDateTime inicio, LocalDateTime fin) {
-    return productoRepo.obtenerTop10ProductosMasVendidos(inicio, fin);
+  private List<ProductoMasVendidoDTO> productosVendidos(LocalDateTime inicio, LocalDateTime fin, Long idSucursal) {
+    return productoRepo.obtenerTop10ProductosMasVendidos(inicio, fin, idSucursal);
   }
 
-  private List<BajoStockDTO> obtenerProductosBajoStock() {
-    return ventaRepo.obtenerProductosBajoStock();
+  private List<BajoStockDTO> obtenerProductosBajoStock(Long idSucursal) {
+    return ventaRepo.obtenerProductosBajoStock(idSucursal);
   }
 
-  private List<UltimasVentasDTO> obtenerUltimasVentas() {
-    return ventaRepo.obtenerUltimas5Ventas();
+  private List<UltimasVentasDTO> obtenerUltimasVentas(Long idSucursal) {
+    return ventaRepo.obtenerUltimas5Ventas(idSucursal);
   }
 
 }

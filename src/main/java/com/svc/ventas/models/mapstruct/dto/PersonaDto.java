@@ -25,7 +25,7 @@ public class PersonaDto {
 	private String numDocumento;
 
 	@NotBlank
-	private String nombre;
+	private String nombres;
 
 	@NotBlank
 	private String apeMaterno;

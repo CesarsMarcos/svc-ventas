@@ -48,12 +48,13 @@ public class CajaServiceImpl implements ICajaService {
 
     String currentUserName = appContext.getUserName();
     Long idEmpresa = appContext.getEmpresaId();
+    Long idSucursal = appContext.getSucursalId();
 
     LocalDate fecha = LocalDate.now();
     LocalDateTime inicio = fecha.atStartOfDay();
     LocalDateTime fin = fecha.atTime(23, 59, 59);
 
-    return cajaRepo.findByFecha(inicio, fin, currentUserName, idEmpresa)
+    return cajaRepo.findByFecha(inicio, fin, currentUserName, idEmpresa, idSucursal)
             .map(this::construirCajaAbiertaDTO)
             .orElseGet(this::construirCajaCerradaDTO);
   }
@@ -64,10 +65,11 @@ public class CajaServiceImpl implements ICajaService {
     Usuario currentUsuario = appContext.getUsuario();
     Sucursal currentSucursal = appContext.getSucursal();
     Empresa empresa = appContext.getEmpresa();
+    Long idSucursal = appContext.getSucursalId();
 
     LocalDate fecha = LocalDate.now();
 
-    validarCajaExistenteParaUsuario(fecha, currentUsuario.getUsuario(), empresa.getIdEmpresa());
+    validarCajaExistenteParaUsuario(fecha, currentUsuario.getUsuario(), empresa.getIdEmpresa(), idSucursal);
 
     cajaRepo.save(Caja.builder()
             .usuario(currentUsuario)
@@ -102,7 +104,7 @@ public class CajaServiceImpl implements ICajaService {
             .orElseThrow(() -> new EntityNotFoundException(
                     String.format(Constantes.MENSAJE_NOT_FOUND, CajaServiceImpl.class, idCaja)));
 
-    if("CERRADO".equalsIgnoreCase(String.valueOf(caja.getEstado()))){
+    if ("CERRADO".equalsIgnoreCase(String.valueOf(caja.getEstado()))) {
       throw new ConflictException(Constantes.MSJ_CAJA_CERRADA);
     }
 
@@ -135,13 +137,27 @@ public class CajaServiceImpl implements ICajaService {
     return buildResumenCajaDTO(caja, totalesPorPago, totalesPorMovimiento, totales, finales);
   }
 
+  @Override
+  public Boolean validarEstadoCaja(Usuario usuario) {
+
+    String currentUserName = usuario.getUsuario();
+    Long idEmpresa = usuario.getPersona().getEmpresa().getIdEmpresa();
+    Long idSucursal = usuario.getSucursal().getIdSucursal();
+
+    LocalDate fecha = LocalDate.now();
+    LocalDateTime inicio = fecha.atStartOfDay();
+    LocalDateTime fin = fecha.atTime(23, 59, 59);
+
+    return cajaRepo.existeCajaActiva(inicio, fin, currentUserName, idEmpresa, idSucursal);
+  }
+
   private void validarCajaExistenteParaUsuario(LocalDate fecha, String nombreUsuario,
-                                               Long idEmpresa) {
+                                               Long idEmpresa, Long idSucursal) {
 
     LocalDateTime fin = fecha.atTime(23, 59, 59);
 
-    boolean existeCaja = cajaRepo.findByFecha(fecha.atStartOfDay(),fin,
-            nombreUsuario, idEmpresa).isPresent();
+    boolean existeCaja = cajaRepo.findByFecha(fecha.atStartOfDay(), fin,
+            nombreUsuario, idEmpresa, idSucursal).isPresent();
 
     if (existeCaja) {
       String mensaje = String.format(Constantes.MSJ_CAJA_EXISTE, nombreUsuario, fecha);
@@ -229,7 +245,7 @@ public class CajaServiceImpl implements ICajaService {
   }
 
   private BigDecimal calcularTotalCtaBancaria(Map<TipoPago, BigDecimal> totalesPorPago) {
-    return Stream.of(TipoPago.TARJETA, TipoPago.TRANSFERENCIA, TipoPago.YAPE, TipoPago.PLIN)
+    return Stream.of(/*TipoPago.TARJETA, TipoPago.TRANSFERENCIA,*/ TipoPago.YAPE, TipoPago.PLIN)
             .map(tipo -> totalesPorPago.getOrDefault(tipo, BigDecimal.ZERO))
             .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
@@ -249,7 +265,7 @@ public class CajaServiceImpl implements ICajaService {
   }
 
 
-  private CajaDetalleDTO construirCajaAbiertaDTO (Caja caja){
+  private CajaDetalleDTO construirCajaAbiertaDTO(Caja caja) {
 
     Map<TipoPago, BigDecimal> totalesPorPago = inicializarTotalesPorPago();
 
@@ -265,7 +281,7 @@ public class CajaServiceImpl implements ICajaService {
             .build();
   }
 
-  private CajaDetalleDTO construirCajaCerradaDTO(){
+  private CajaDetalleDTO construirCajaCerradaDTO() {
     return CajaDetalleDTO.builder()
             .IdCaja(null)
             .estado(EstadoCaja.CERRADA)

@@ -1,7 +1,7 @@
 package com.svc.ventas.service.impl;
 
-import com.svc.ventas.models.entity.Rol;
 import com.svc.ventas.models.entity.Usuario;
+import com.svc.ventas.models.mapstruct.mappers.AuthorityMapper;
 import com.svc.ventas.service.IJwtService;
 import com.svc.ventas.util.Constantes;
 import io.jsonwebtoken.Claims;
@@ -26,6 +26,8 @@ public class JwtServiceImpl implements IJwtService {
 
   private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60 * 5; // 5 horas
   private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 7; // 7 horas
+
+  private final AuthorityMapper authorityMapper;
 
   @Value("${key.signature}")
   private String keySignature;
@@ -97,10 +99,8 @@ public class JwtServiceImpl implements IJwtService {
     Map<String, Object> claims = new HashMap<>();
     String nombreCompleto = usuario.getPersona().getNombreMostrado();
     claims.put(Constantes.CLAIM_USER, usuario.getUsuario());
-    claims.put(Constantes.CLAIM_ROL, usuario.getRoles().stream().map(Rol::getDesRol).toList());
+    claims.put(Constantes.CLAIM_ROL, authorityMapper.getRoles(usuario));
     claims.put(Constantes.CLAIM_NOMBRE_COMPLETO, nombreCompleto);
-    claims.put(Constantes.CLAIM_IS_USA_EMPLEADO, usuario.getSucursal().getEmpresa().getIsUsaEmpleados());
-    claims.put(Constantes.CLAIM_SUCURSAL, usuario.getSucursal().getRazonSocial());
     return claims;
   }
 }

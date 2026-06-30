@@ -150,13 +150,15 @@ public class CompraServiceImpl implements ICompraService {
 
             });
 
-    String numeroDocumento = compra.getSerie() + "-" + compra.getCorrelativo();
+    String numeroDocumento = compra.getSerie().concat("-").concat(AppUtils.formatearSunat(compra.getCorrelativo()));
+
     log.info("Compra registrada correctamente con número {}", numeroDocumento);
 
     return ResponseTransaccion
             .builder()
             .total(compraEntity.getTotal())
             .tipoDocumento(compraEntity.getTipoDocumento().getDescripcion())
+            .serieCorrelativo(numeroDocumento)
             .tipoPago(compraEntity.getTipoPago().getLabel())
             .mensaje(Constantes.MENSAJE_SAVE)
             .build();
@@ -167,7 +169,6 @@ public class CompraServiceImpl implements ICompraService {
                                            Long documentoCompra, LocalDate inicio,
                                            LocalDate fin, Pageable pageable) {
 
-    log.info("Obtiene usuario en sessión ::");
     Sucursal sucursal = appContext.getSucursal();
 
     Specification<Compra> spec = Specification
@@ -175,7 +176,8 @@ public class CompraServiceImpl implements ICompraService {
             .and(CompraSpecifications.hasProveedor(proveedor))
             .and(CompraSpecifications.hasSucursal(sucursal))
             .and(CompraSpecifications.hasDocumento(documentoCompra))
-            .and(CompraSpecifications.hasFechaBetween(inicio, fin));
+            .and(CompraSpecifications.hasFechaBetween(inicio, fin))
+            .and(CompraSpecifications.filtroSeguridad(appContext));
 
     Page<Compra> pageCompra = compraRepo.findAll(spec, pageable);
 

@@ -35,13 +35,13 @@ public class Persona implements Serializable {
 
   private String numDocumento;
 
-  private String nombre;
-
-  @Column(name = "ape_materno")
-  private String apeMaterno;
+  private String nombres;
 
   @Column(name = "ape_paterno")
   private String apePaterno;
+
+  @Column(name = "ape_materno")
+  private String apeMaterno;
 
   @Column(name = "razon_social")
   private String razonSocial;
@@ -64,9 +64,6 @@ public class Persona implements Serializable {
 
   @Column(name = "ind_estado")
   private Boolean indEstado = true;
-
-  @Column(name = "is_generico")
-  private Boolean isClienteGenerico = false;
 
   @Column(name = "created_by")
   private String createdBy;
@@ -95,7 +92,7 @@ public class Persona implements Serializable {
       return razonSocial.trim();
     }
 
-    return Stream.of(nombre, apePaterno, apeMaterno)
+    return Stream.of(nombres, apePaterno, apeMaterno)
             .filter(Objects::nonNull)
             .map(String::trim)
             .filter(s -> !s.isEmpty())

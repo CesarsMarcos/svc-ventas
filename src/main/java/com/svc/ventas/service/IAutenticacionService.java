@@ -5,7 +5,7 @@ import com.svc.ventas.message.response.AutenticacionResponse;
 
 public interface IAutenticacionService {
 
-    AutenticacionResponse signIn(AutenticacionRequest signInRequest);
+    AutenticacionResponse autenticar(AutenticacionRequest signInRequest);
 
-    AutenticacionResponse getTokenByRefreshToken(String refreshToken) throws IllegalAccessException;
+    AutenticacionResponse refrescarToken(String refreshToken) throws IllegalAccessException;
 }

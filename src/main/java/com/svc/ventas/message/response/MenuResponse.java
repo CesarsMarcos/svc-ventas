@@ -17,6 +17,6 @@ public class MenuResponse {
   private String routeLink;
 
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  private List<MenuResponse> submenus;
+  private List<MenuResponse> subMenus;
 
 }

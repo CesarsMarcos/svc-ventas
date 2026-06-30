@@ -17,12 +17,12 @@ public class AutenticacionController {
     @PostMapping("/signin")
     public ResponseEntity<AutenticacionResponse> signIn(
             @RequestBody AutenticacionRequest autenticacionRequest){
-        return ResponseEntity.ok(autenticacionService.signIn(autenticacionRequest));
+        return ResponseEntity.ok(autenticacionService.autenticar(autenticacionRequest));
     }
 
     @PostMapping("/refreshtoken")
     public ResponseEntity<AutenticacionResponse> refreshToken(
             @RequestParam String refreshToken) throws IllegalAccessException {
-        return ResponseEntity.ok(autenticacionService.getTokenByRefreshToken(refreshToken));
+        return ResponseEntity.ok(autenticacionService.refrescarToken(refreshToken));
     }
 }

@@ -8,15 +8,38 @@ import java.util.Optional;
 
 public interface CajaRepo extends JpaRepository<Caja, Long> {
 
-    @Query("""
-            SELECT c
-            FROM Caja c
-            WHERE c.fechaHoraApertura BETWEEN :inicio AND :fin
-            AND c.usuario.usuario = :usuario
-            AND c.empresa.idEmpresa = :idEmpresa
-            """)
-    Optional<Caja> findByFecha(LocalDateTime inicio,
-                               LocalDateTime fin,
-                               String usuario, Long idEmpresa);
+  @Query("""
+          SELECT c
+          FROM Caja c
+          WHERE c.fechaHoraApertura BETWEEN :inicio AND :fin
+              AND c.usuario.usuario = :usuario
+              AND c.empresa.idEmpresa = :idEmpresa
+              AND c.sucursal.idSucursal = :idSucursal
+          """)
+  Optional<Caja> findByFecha(LocalDateTime inicio,
+                             LocalDateTime fin,
+                             String usuario,
+                             Long idEmpresa,
+                             Long idSucursal);
+
+
+  @Query("""
+              SELECT CASE
+                  WHEN COUNT(c) > 0 THEN true
+                  ELSE false
+              END
+              FROM Caja c
+              WHERE c.fechaHoraApertura BETWEEN :inicio AND :fin
+                  AND c.usuario.usuario = :usuario
+                  AND c.empresa.idEmpresa = :idEmpresa
+                  AND c.sucursal.idSucursal = :idSucursal
+          """)
+  Boolean existeCajaActiva(
+          LocalDateTime inicio,
+          LocalDateTime fin,
+          String usuario,
+          Long idEmpresa,
+          Long idSucursal
+  );
 
 }

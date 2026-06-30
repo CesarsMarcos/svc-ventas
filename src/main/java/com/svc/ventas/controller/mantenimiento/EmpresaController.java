@@ -7,6 +7,7 @@ import com.svc.ventas.service.IEmpresaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,11 +18,13 @@ public class EmpresaController {
   private final IEmpresaService empresaService;
 
   @GetMapping
+  @PreAuthorize("hasAuthority('VER_EMPRESAS')")
   public ResponseEntity<?> listar(){
     return ResponseEntity.ok(empresaService.listar());
   }
 
   @PatchMapping("modificarAplicaImpuesito")
+  @PreAuthorize("hasAuthority('GESTIONAR_EMPRESAS')")
   public ResponseEntity<?> cambiarAplicaImpuesto(
           @RequestParam("idEmpresa") Integer idEmpresa,
           @RequestParam("aplica") Boolean aplica){
@@ -30,6 +33,7 @@ public class EmpresaController {
   }
 
   @PostMapping
+  @PreAuthorize("hasAuthority('GESTIONAR_EMPRESAS')")
   public ResponseEntity<?> guardar(@RequestBody EmpresaPostRequest empresa){
       return ResponseEntity.status(HttpStatus.CREATED).body(empresaService.guardar(empresa));
   }

@@ -7,6 +7,7 @@ import com.svc.ventas.service.IProductoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,18 +23,19 @@ public class KardexController {
   private final IProductoService productoService;
 
   @GetMapping("/{idProducto}")
+  @PreAuthorize("hasAuthority('VER_KARDEX')")
   public ResponseEntity<List<KardexDetalleDTO>> obtenerKardex(@PathVariable Long idProducto) {
     List<KardexDetalleDTO> kardex = kardexService.obtenerKardexPorProducto(idProducto);
     return ResponseEntity.ok(kardex);
   }
 
   @GetMapping("/resumen")
+  @PreAuthorize("hasAuthority('VER_KARDEX')")
   public ResponseEntity<List<KardexResponse>> listarKardexPorFecha(
           @RequestParam(required = false) Long idSucursal,
           @RequestParam(required = false) Long idProducto,
           @RequestParam(required = false) String inicio,
-          @RequestParam(required = false) String fin
-  ) {
+          @RequestParam(required = false) String fin) {
     List<KardexResponse> resumen = kardexService.listarKardexPorFecha(idSucursal, idProducto, inicio, fin);
     return ResponseEntity.ok(resumen);
   }

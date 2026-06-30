@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.svc.ventas.service.IVentaService;
 
@@ -31,11 +32,13 @@ public class VentaController {
   private final DocumentoPdfFactory documentoPdfFactory;
 
   @PostMapping
+  @PreAuthorize("hasAuthority('REGISTRAR_VENTA')")
   public ResponseEntity<?> registrar(@Valid @RequestBody VentaRequest ventarRequest) {
     return ResponseEntity.status(HttpStatus.CREATED).body(ventaService.registrar(ventarRequest));
   }
 
   @GetMapping("searchVentas")
+  @PreAuthorize("hasAuthority('VER_VENTAS')")
   public ResponseEntity<Map<String, Object>> searchVentas(@RequestParam(required = false) String nombre,
                                                           @RequestParam(required = false) String documentoCliente,
                                                           @RequestParam(required = false) String documentoVenta,
@@ -48,8 +51,8 @@ public class VentaController {
 
   }
 
-
   @GetMapping("searchProductosVentas")
+  @PreAuthorize("hasAuthority('VER_VENTAS')")
   public ResponseEntity<?> listProductosPresentacionesParaVenta(
           @RequestParam(required = false) String filtro,
           @RequestParam(required = false) Long idCategoria) {
@@ -57,6 +60,7 @@ public class VentaController {
   }
 
   @GetMapping("searchProductosVentasPos")
+  @PreAuthorize("hasAuthority('VER_VENTAS')")
   public ResponseEntity<Map<String, Object>> searchProductoVenta(
           @RequestParam(required = false) String filtro,
           @RequestParam(required = false) Long categoriaId,
@@ -67,6 +71,7 @@ public class VentaController {
   }
 
   @GetMapping("/printDocumento/{id}/pdf")
+  @PreAuthorize("hasAuthority('VER_VENTAS')")
   public ResponseEntity<byte[]> generarPdf(@PathVariable Long id) {
 
     DetalleImpresionDto venta = iPrintDocumentoService.detailsImpresion(id);
@@ -80,6 +85,7 @@ public class VentaController {
   }
 
   @GetMapping("{id}")
+  @PreAuthorize("hasAuthority('VER_VENTAS')")
   public ResponseEntity<?> details(@PathVariable Long id) {
     return new ResponseEntity<>(ventaService.details(id), HttpStatus.OK);
   }

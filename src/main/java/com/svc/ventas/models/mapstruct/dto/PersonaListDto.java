@@ -13,6 +13,6 @@ public class PersonaListDto {
 
 	private Integer idPersona;
 
-	private String nombre;
+	private String nombres;
 
 }

@@ -4,10 +4,8 @@ import com.svc.ventas.message.request.AutenticacionRequest;
 import com.svc.ventas.message.response.AutenticacionResponse;
 import com.svc.ventas.message.response.MenuResponse;
 import com.svc.ventas.models.entity.Usuario;
-import com.svc.ventas.service.CustomUserDetailsService;
-import com.svc.ventas.service.IAutenticacionService;
-import com.svc.ventas.service.IJwtService;
-import com.svc.ventas.service.IUsuarioService;
+import com.svc.ventas.models.mapstruct.mappers.AuthorityMapper;
+import com.svc.ventas.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,9 +23,11 @@ public class AutenticacionServiceImpl implements IAutenticacionService {
     private final IJwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
     private final IUsuarioService usuarioService;
+    private final ICajaService cajaService;
+    private final AuthorityMapper authorityMapper;
 
     @Override
-    public AutenticacionResponse signIn(AutenticacionRequest signInRequest) {
+    public AutenticacionResponse autenticar(AutenticacionRequest signInRequest) {
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(signInRequest.getUsuario());
 
@@ -40,17 +40,24 @@ public class AutenticacionServiceImpl implements IAutenticacionService {
 
         var refreshToken = jwtService.generateRefreshToken(new HashMap<>(),userDetails);
 
+        Boolean estadoCaja = cajaService.validarEstadoCaja(usuario);
+
         List<MenuResponse> menus = usuarioService.getMenusPorUsuario(usuario);
 
         return AutenticacionResponse.builder()
                 .accessToken(token)
                 .refreshToken(refreshToken)
+                .estadoCaja(estadoCaja)
+                .sucursal(authorityMapper.setSucursal(usuario))
+                .isUsaEmpleado(authorityMapper.setUsaEmpleados(usuario))
+                .aplicaImpuesto(authorityMapper.setAplicaImpuesto(usuario))
+                .permissions(authorityMapper.getPermissions(usuario))
                 .menus(menus)
                 .build();
     }
 
     @Override
-    public AutenticacionResponse getTokenByRefreshToken(String refreshToken) throws IllegalAccessException {
+    public AutenticacionResponse refrescarToken(String refreshToken) throws IllegalAccessException {
         if(!jwtService.isRefreshToken(refreshToken)){
             throw new RuntimeException("Error el token ingresado no es un REFRESH ");
         }
