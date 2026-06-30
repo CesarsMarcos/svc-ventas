@@ -18,14 +18,28 @@ import java.util.List;
 public interface VentaRepo extends JpaRepository<Venta, Long>,
         JpaSpecificationExecutor<Venta>, PagingAndSortingRepository<Venta, Long> {
 
-  @Query("SELECT v FROM Venta v WHERE v.cliente.persona.numDocumento =:documentoCliente")
+  @Query("""
+          SELECT v
+          FROM Venta v
+          WHERE v.cliente.persona.numDocumento =:documentoCliente
+          """)
   List<Venta> ventasPorDocumentoCliente(@Param("documentoCliente") String documentoCliente);
 
-  @Query("SELECT COALESCE(SUM(v.total), 0) FROM Venta v WHERE v.fecAdd BETWEEN :inicio AND :fin")
-  BigDecimal obtenerSumaVentasPorRango(LocalDateTime inicio, LocalDateTime fin);
+  @Query("""
+          SELECT COALESCE(SUM(v.total), 0)
+          FROM Venta v
+          WHERE v.fecAdd BETWEEN :inicio AND :fin
+          AND v.sucursal.idSucursal = :idSucursal
+          """)
+  BigDecimal obtenerSumaVentasPorRango(LocalDateTime inicio, LocalDateTime fin, Long idSucursal);
 
-  @Query("SELECT COUNT(v.idVenta) FROM Venta v WHERE v.fecAdd BETWEEN :inicio AND :fin")
-  Long countVentas(LocalDateTime inicio, LocalDateTime fin);
+  @Query("""
+          SELECT COUNT(v.idVenta)
+          FROM Venta v
+          WHERE v.fecAdd BETWEEN :inicio AND :fin
+          AND v.sucursal.idSucursal = :idSucursal
+          """)
+  Long countVentas(LocalDateTime inicio, LocalDateTime fin, Long idSucursal);
 
   @Query("""
           SELECT new com.svc.ventas.models.mapstruct.dto.VentasPorMesDTO(
@@ -42,27 +56,27 @@ public interface VentaRepo extends JpaRepository<Venta, Long>,
           p.nombre,
           ps.stock)
           FROM ProductoStock ps
-          INNER JOIN Producto p ON ps.producto.idProducto = p.idProducto
+          INNER JOIN Producto p
+          ON ps.producto.idProducto = p.idProducto
           WHERE ps.estado = TRUE
-          AND ps.sucursal.idSucursal = 1
+          AND ps.sucursal.idSucursal =:idSucursal
           AND ps.stock <= 5
           ORDER BY ps.stock desc
           LIMIT 5
           """)
-  List<BajoStockDTO> obtenerProductosBajoStock();
+  List<BajoStockDTO> obtenerProductosBajoStock(Long idSucursal);
 
   @Query("""
           SELECT new com.svc.ventas.models.mapstruct.dto.UltimasVentasDTO(
-          v.idVenta,
-          v.cliente.persona.nombre,
-          v.tipoDocumento.descripcion,
-          v.fecAdd,
+          v.idVenta, v.cliente.persona.nombres,
+          v.tipoDocumento.descripcion, v.fecAdd,
           v.total)
           FROM Venta v
+          WHERE v.sucursal.idSucursal = :idSucursal
           ORDER BY v.total desc
           LIMIT 5
           """)
-  List<UltimasVentasDTO> obtenerUltimas5Ventas();
+  List<UltimasVentasDTO> obtenerUltimas5Ventas(Long idSucursal);
 
 
   @Query("""
@@ -78,7 +92,7 @@ public interface VentaRepo extends JpaRepository<Venta, Long>,
           FROM ProductoStock ps
           JOIN ps.presentaciones psp
           WHERE ps.estado = true
-          AND ps.sucursal.idSucursal = 1
+          AND ps.sucursal.idSucursal = :sucursalId
           AND psp.estado = true
             AND (
                   LOWER(COALESCE(ps.producto.codigo, '')) LIKE LOWER(CONCAT('%', TRIM(:termino), '%'))
@@ -110,17 +124,17 @@ public interface VentaRepo extends JpaRepository<Venta, Long>,
             AND ps.sucursal.idSucursal = :sucursalId
           """,
           countQuery = """
-          SELECT COUNT(ps)
-          FROM ProductoStock ps
-          JOIN ps.presentaciones psp
-          WHERE ps.estado = true AND psp.estado = true
-            AND
-                (:categoriaId IS NULL OR ps.producto.categoria.idCategoria = :categoriaId)
-            AND (
-                  LOWER(COALESCE(ps.producto.codigo, '')) LIKE LOWER(CONCAT('%', TRIM(:termino), '%'))
-               OR LOWER(TRIM(ps.producto.nombre)) LIKE LOWER(CONCAT('%', TRIM(:termino), '%')))
-            AND ps.sucursal.idSucursal = :sucursalId
-          """)
+                  SELECT COUNT(ps)
+                  FROM ProductoStock ps
+                  JOIN ps.presentaciones psp
+                  WHERE ps.estado = true AND psp.estado = true
+                    AND
+                        (:categoriaId IS NULL OR ps.producto.categoria.idCategoria = :categoriaId)
+                    AND (
+                          LOWER(COALESCE(ps.producto.codigo, '')) LIKE LOWER(CONCAT('%', TRIM(:termino), '%'))
+                       OR LOWER(TRIM(ps.producto.nombre)) LIKE LOWER(CONCAT('%', TRIM(:termino), '%')))
+                    AND ps.sucursal.idSucursal = :sucursalId
+                  """)
   Page<ProductoSearchVentaDto> buscarPorNombreOCodigoPresentacionesParaVentaPos(
           @Param("termino") String termino,
           @Param("categoriaId") Long categoriaId,

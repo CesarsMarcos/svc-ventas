@@ -22,7 +22,7 @@ public interface CajaMapper {
 
   CajaMapper INSTANCE = Mappers.getMapper(CajaMapper.class);
 
-  @Mapping(source = "caja.usuario.empleado.persona.nombre", target = "usuario")
+  @Mapping(source = "caja.usuario.empleado.persona.nombres", target = "usuario")
   @Mapping(target = "movimiento.ingresos", expression = "java(filtrarPorTipoMovimiento(caja.getMovimientos(), \"INGRESO\"))")
   @Mapping(target = "movimiento.devoluciones", expression = "java(filtrarPorTipoMovimiento(caja.getMovimientos(), \"DEVOLUCIONES\"))")
   @Mapping(target = "movimiento.salidas", expression = "java(filtrarPorTipoMovimiento(caja.getMovimientos(), \"GASTOS\"))")

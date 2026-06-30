@@ -35,12 +35,12 @@ public interface ProductoStockMapper {
   @Mapping(target = "sucursal", source = "sucursal.razonSocial")
   @Mapping(target = "nombre", source = "producto.nombre")
   @Mapping(target = "stock", source = "producto.stock")
+  @Mapping(target = "uMedida", source = "producto.unidadMedida.prefijo")
   @Mapping(target = "costoPromedio", source = "producto.costoPromedio")
   @Mapping(target = "minCantidad", source = "producto.minCantidad")
   @Mapping(target = "maxCantidad", source = "producto.maxCantidad")
   @Mapping(target = "estado", source = "estado")
   ProductoStockSearchResponse mapProductoSearch(ProductoStock producto);
-
 
   default List<ProductoStockPresentacionDto> getPresentaciones(ProductoStock producto) {
     if (Objects.isNull(producto.getPresentaciones())) {

@@ -35,8 +35,7 @@ public interface IVentaService {
 
   List<ProductoSearchVentaDto> buscarPorNombreOCodigoPresentacionesParaVenta(String termino);
 
-	Map<String, Object> searchProductosVentaPos(String nombre, Long categoriaId,
-                                                        int page, int size);
-
+  Map<String, Object> searchProductosVentaPos(String nombre, Long categoriaId,
+                                              int page, int size);
 
 }

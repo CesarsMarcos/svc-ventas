@@ -61,7 +61,6 @@ public class SerieServiceImpl implements ISerieService {
     Sucursal sucursalBD = sucursalRepo.findById(serieRequest.getIdSucursal())
             .orElseThrow(() -> new EntityNotFoundException("Sucursal no registrada"));
 
-
     if (!Boolean.TRUE.equals(tipoDocumento.getGeneraSerie())) {
       throw new BusinessException("El tipo de documento no permite generar series");
     }

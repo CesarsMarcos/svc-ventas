@@ -5,8 +5,8 @@ import lombok.Getter;
 @Getter
 public enum TipoPago {
   EFECTIVO("EFECTIVO"),
-  TARJETA("TARJETA"),
-  TRANSFERENCIA("TRANSFERENCIA"),
+  //TARJETA("TARJETA"),
+  //TRANSFERENCIA("TRANSFERENCIA"),
   YAPE("YAPE"),
   PLIN("PLIN"),
   MIXTO("MIXTO");

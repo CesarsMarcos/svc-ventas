@@ -30,7 +30,7 @@ public interface ProductoStockRepo extends CrudRepository<ProductoStock, Long>,
   @Query("""
           SELECT ps
           FROM ProductoStock ps
-          WHERE ps.producto.codigo = : termino
+          WHERE ps.producto.codigo = :termino
             OR LOWER(ps.producto.nombre) LIKE LOWER(CONCAT('%', :termino, '%')) AND ps.estado = true
           """)
   Page<ProductoStock> buscarPorNombreOCodigoPage(@Param("termino") String termino, Pageable pageable);
@@ -42,8 +42,8 @@ public interface ProductoStockRepo extends CrudRepository<ProductoStock, Long>,
            ps.equivalencia,
            ps.precioVenta
           )
-          FROM ProductoStockPresentacion   ps
-          WHERE  ps.productoStock.idProductoStock = :idProducto AND ps.estado = true
+          FROM ProductoStockPresentacion ps
+          WHERE ps.productoStock.idProductoStock = :idProducto AND ps.estado = true
           """)
   List<PresentacionesCompraDto> presentacionesPorIdProducto(@Param("idProducto") Long idProducto);
 
@@ -54,7 +54,11 @@ public interface ProductoStockRepo extends CrudRepository<ProductoStock, Long>,
             SUM(CASE WHEN ps.stock < 5 THEN 1 ELSE 0 END),
             COUNT(DISTINCT ps.producto.categoria))
         FROM ProductoStock ps
+        JOIN ps.presentaciones psp
+        WHERE ps.sucursal.idSucursal =:idSucursal
+        AND ps.estado = true
+        AND psp.isPrincipal = true
     """)
-  ResumenProductoResponse obtenerResumen();
+  ResumenProductoResponse obtenerResumen(@Param("idSucursal") Long idSucursal);
 
 }

@@ -1,7 +1,6 @@
 package com.svc.ventas.models.specifications;
 
 import com.svc.ventas.models.entity.ProductoStock;
-import com.svc.ventas.models.entity.Sucursal;
 import org.springframework.data.jpa.domain.Specification;
 
 public class ProductStockSpecifications {
@@ -28,8 +27,8 @@ public class ProductStockSpecifications {
     return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("estado"), status);
   }
 
-  public static Specification<ProductoStock> hasSucursal(Sucursal sucursal) {
-    return (root, query, cb) -> cb.equal(root.get("sucursal"), sucursal);
+  public static Specification<ProductoStock> hasSucursal(Long idSucursal) {
+    return (root, query, cb) -> cb.equal(root.get("sucursal").get("idSucursal"), idSucursal);
   }
 
 }

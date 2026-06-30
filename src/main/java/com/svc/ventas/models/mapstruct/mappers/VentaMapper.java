@@ -42,7 +42,7 @@ public interface VentaMapper {
 
 	default String dataNombreCliente(Venta venta) {
 		Cliente cliente = venta.getCliente();
-		return cliente.getPersona().getNombre().concat(" ")
+		return cliente.getPersona().getNombres().concat(" ")
 										.concat(cliente.getPersona().getApePaterno().concat(" ")
 														.concat(cliente.getPersona().getApeMaterno()));
 	}

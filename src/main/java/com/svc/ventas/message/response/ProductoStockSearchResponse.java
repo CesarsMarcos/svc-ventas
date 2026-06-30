@@ -27,7 +27,9 @@ public class ProductoStockSearchResponse {
 
 	private String nombre;
 
-	private float stock;
+	private BigDecimal stock;
+
+	private String uMedida;
 
 	private Integer maxCantidad;
 

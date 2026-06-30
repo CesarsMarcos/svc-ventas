@@ -44,6 +44,10 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class VentaServiceImpl implements IVentaService {
 
+  private static final String FACTURA = "FACTURA";
+
+  private static final String RUC = "RUC";
+
   private final ClienteRepo clienteRepo;
 
   private final SucursalRepo sucursalRepo;
@@ -76,10 +80,11 @@ public class VentaServiceImpl implements IVentaService {
     String usuario = appContext.getUserName();
     Long idSucursal = appContext.getSucursalId();
     Long idEmpresa = appContext.getEmpresaId();
+    Boolean aplicaImpuesto = appContext.getEmpresa().getAplicaImpuesto();
 
     log.info("Valida montos ::");
     log.info("Valida disponibilidad de stock para producto ::");
-    VentaMontosDto ventaMontosDto = validarStockYCalcularMontos(venta, idSucursal);
+    VentaMontosDto ventaMontosDto = validarStockYCalcularMontos(venta, idSucursal, aplicaImpuesto);
 
     log.info("Obtener caja activa ::");
     CajaDetalleDTO cajaDet = cajaService.findByFechaAndUsuario();
@@ -96,6 +101,10 @@ public class VentaServiceImpl implements IVentaService {
     TipoDocumento tipoDocumento = tipoDocumentoRepo.findById(venta.getIdTipoDocumento())
             .orElseThrow(() -> new EntityNotFoundException(
                     String.format(Constantes.MENSAJE_NOT_FOUND, "Tipo Documento", venta.getIdTipoDocumento())));
+
+    if(FACTURA.equals(tipoDocumento.getDescripcion()) && (!RUC.equals(clienteBD.getPersona().getTipoDocumento().getValue()))) {
+        throw new BusinessException("Debes seleccionar un cliente que tenga RUC para registrar una venta con Factura");
+    }
 
     validarFacturaParaClienteFinal(clienteBD, tipoDocumento);
 
@@ -145,9 +154,9 @@ public class VentaServiceImpl implements IVentaService {
                       .orElseThrow(() -> new EntityNotFoundException(":: No existe producto registrado"));
 
               ProductoStockPresentacion equivalencia = productoStockBD.getPresentaciones()
-                              .stream().filter(presentacion -> presentacion.getIdPresentacion()
+                      .stream().filter(presentacion -> presentacion.getIdPresentacion()
                               .equals(ppv.getIdPresentacion()))
-                              .findFirst().orElse(null);
+                      .findFirst().orElse(null);
 
               productoStockBD.restarStock(ppv.getCantidad().multiply(equivalencia.getEquivalencia()));
 
@@ -202,7 +211,8 @@ public class VentaServiceImpl implements IVentaService {
             .where(VentaSpecifications.hasClienteNombre(nombre))
             .and(VentaSpecifications.hasClienteDNI(documentoCliente))
             .and(VentaSpecifications.hasSucursal(currentSucursal))
-            .and(VentaSpecifications.hasFechaBetween(inicio, fin));
+            .and(VentaSpecifications.hasFechaBetween(inicio, fin))
+            .and(VentaSpecifications.filtroSeguridad(appContext));
 
     Page<Venta> pageVenta = ventaRepo.findAll(spec, pageable);
 
@@ -287,7 +297,7 @@ public class VentaServiceImpl implements IVentaService {
 
   }
 
-  private VentaMontosDto validarStockYCalcularMontos(VentaRequest venta, Long idSucursal) {
+  private VentaMontosDto validarStockYCalcularMontos(VentaRequest venta, Long idSucursal, Boolean aplicaImpuesto) {
 
     BigDecimal subtotalCalculado = BigDecimal.ZERO;
 
@@ -296,53 +306,75 @@ public class VentaServiceImpl implements IVentaService {
       ProductoStock productoStock = productoStockRepo.buscar(p.getIdProducto(), idSucursal)
               .orElseThrow(() -> new EntityNotFoundException(":: No existe producto registrado"));
 
-      //if(BigDecimal.ZERO.compareTo(productoStock.getPrecioVenta()) == 0) {
-      //  throw new BusinessException("Precio no registrado para el producto: " + productoStock.getProducto().getNombre());
-      //}
-
-      if (productoStock.sinStock()) {
-        throw new BusinessException("Stock insuficiente para el producto: " + productoStock.getProducto().getNombre() +
-                ". Disponible: " + productoStock.getStock() + ", Solicitado: " + p.getCantidad());
+      if (productoStock.sinStock() || productoStock.getStock().compareTo(p.getCantidad()) < 0) {
+        throw new BusinessException(
+                "Stock insuficiente para el producto: " + productoStock.getProducto().getNombre() +
+                        ". Disponible: " + productoStock.getStock() +
+                        ", Solicitado: " + p.getCantidad()
+        );
       }
 
-      if (productoStock.getStock().compareTo(p.getCantidad()) < 0) {
-        throw new BusinessException("Stock insuficiente para el producto: " + productoStock.getProducto().getNombre() +
-                ". Disponible: " + productoStock.getStock() + ", Solicitado: " + p.getCantidad());
-      }
-
-      BigDecimal subtotalProducto = productoStock.getPresentaciones()
-              .stream().filter(pre -> Objects.equals(pre.getIdPresentacion(), p.getIdPresentacion()))
+      BigDecimal precioVenta = productoStock.getPresentaciones()
+              .stream()
+              .filter(pre -> Objects.equals(pre.getIdPresentacion(), p.getIdPresentacion()))
               .findFirst()
               .map(ProductoStockPresentacion::getPrecioVenta)
-              .orElse(BigDecimal.ZERO)
-              .multiply(p.getCantidad());
+              .orElseThrow(() -> new ValidationException(
+                      "No se encontró presentación válida para el producto: "
+                              + productoStock.getProducto().getNombre()
+              ));
 
+      BigDecimal subtotalProducto = precioVenta.multiply(p.getCantidad());
       subtotalCalculado = subtotalCalculado.add(subtotalProducto);
     }
 
-    BigDecimal igvCalculado;
-    BigDecimal totalCalculado;
+    subtotalCalculado = subtotalCalculado.setScale(2, RoundingMode.HALF_UP);
 
-    //if (Boolean.TRUE.equals(compra.getAplicarImpuesto())) {
-    igvCalculado = subtotalCalculado.multiply(IGV).setScale(2, RoundingMode.HALF_UP);
-    totalCalculado = subtotalCalculado.add(igvCalculado);
-    //}
+    BigDecimal igvCalculado = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+    BigDecimal totalCalculado = subtotalCalculado;
+
+    if (Boolean.TRUE.equals(aplicaImpuesto)) {
+      igvCalculado = subtotalCalculado.multiply(IGV).setScale(2, RoundingMode.HALF_UP);
+      totalCalculado = subtotalCalculado.add(igvCalculado).setScale(2, RoundingMode.HALF_UP);
+    }
+
 
     if (Objects.isNull(venta.getSubTotal()) ||
-            venta.getSubTotal().setScale(2, RoundingMode.HALF_UP).compareTo(subtotalCalculado) != 0) {
-      log.info("subtotal servidor: {}", subtotalCalculado);
+            venta.getSubTotal().setScale(2, RoundingMode.HALF_UP)
+                    .compareTo(subtotalCalculado) != 0) {
+
+      log.info("Subtotal recibido: {}", venta.getSubTotal());
+      log.info("Subtotal servidor: {}", subtotalCalculado);
+
       throw new ValidationException("El subtotal no coincide con el cálculo del servidor.");
     }
 
-    if (Objects.isNull(venta.getIgv()) ||
-            venta.getIgv().setScale(2, RoundingMode.HALF_UP).compareTo(igvCalculado) != 0) {
-      log.info("IGV servidor: {}", igvCalculado);
-      throw new ValidationException("El IGV no coincide con el cálculo del servidor.");
+    if (Boolean.TRUE.equals(aplicaImpuesto)) {
+      if (Objects.isNull(venta.getIgv()) ||
+              venta.getIgv().setScale(2, RoundingMode.HALF_UP)
+                      .compareTo(igvCalculado) != 0) {
+
+        log.info("IGV recibido: {}", venta.getIgv());
+        log.info("IGV servidor: {}", igvCalculado);
+
+        throw new ValidationException("El IGV no coincide con el cálculo del servidor.");
+      }
+    } else {
+      BigDecimal igvRecibido = Objects.isNull(venta.getIgv()) ? BigDecimal.ZERO
+              : venta.getIgv().setScale(2, RoundingMode.HALF_UP);
+
+      if (igvRecibido.compareTo(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)) != 0) {
+        throw new ValidationException("La venta no debe incluir IGV.");
+      }
     }
 
     if (Objects.isNull(venta.getTotal()) ||
-            venta.getTotal().setScale(2, RoundingMode.HALF_UP).compareTo(totalCalculado) != 0) {
-      log.info("total servidor: {}", totalCalculado);
+            venta.getTotal().setScale(2, RoundingMode.HALF_UP)
+                    .compareTo(totalCalculado) != 0) {
+
+      log.info("Total recibido: {}", venta.getTotal());
+      log.info("Total servidor: {}", totalCalculado);
+
       throw new ValidationException("El total no coincide con el cálculo del servidor.");
     }
 
@@ -353,7 +385,7 @@ public class VentaServiceImpl implements IVentaService {
   }
 
   private static void validarFacturaParaClienteFinal(Cliente clienteBD, TipoDocumento tipoDocumento) {
-    if (clienteBD.getPersona().getIsClienteGenerico() && "01".equalsIgnoreCase(tipoDocumento.getCodigoSunat())) {
+    if (clienteBD.getIsClienteGenerico() && "01".equalsIgnoreCase(tipoDocumento.getCodigoSunat())) {
       throw new BusinessException("No se puede generar una Factura para un cliente final");
     }
   }

@@ -6,6 +6,7 @@ import com.svc.ventas.service.ISerieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class SerieController {
   private final ISerieService serieService;
 
   @GetMapping
+  @PreAuthorize("hasAuthority('VER_SERIES')")
   public ResponseEntity<List<SerieDTO>> listado (){
     List<SerieDTO> series = serieService.series();
     if(series.isEmpty()){
@@ -27,16 +29,20 @@ public class SerieController {
   }
 
   @PostMapping
+  @PreAuthorize("hasAuthority('CREAR_SERIES')")
   public ResponseEntity<?> save(@RequestBody SerieRequest serieRequest){
       return ResponseEntity.status(HttpStatus.CREATED).body(serieService.save(serieRequest));
   }
 
   @GetMapping("tipoDocumentos")
+  @PreAuthorize("hasAuthority('TIPO_DOCUMENTOS_SERIES')")
   public ResponseEntity<?> getByIdDocumentType (){
     return ResponseEntity.ok(serieService.getTipoDocumento());
   }
 
+
   @GetMapping("correlativo")
+  @PreAuthorize("hasAuthority('CORRELATIVO_SERIES')")
   public ResponseEntity<?> getSeriePorTipoDocumento (@RequestParam Long idTipoDocumento){
     return ResponseEntity.ok(serieService.getSeriePorIdIipoDocumento(idTipoDocumento));
   }

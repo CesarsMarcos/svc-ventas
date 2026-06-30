@@ -1,9 +1,6 @@
 package com.svc.ventas.message.request;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,17 +19,16 @@ public class UsuarioCreateRequest {
   @NotEmpty(message = "Debe asignar al menos un rol")
   private List<Integer> roles;
 
+  private Long idSucursal;
+
   @NotBlank(message = "El usuario es obligatorio")
-  @Size(min = 4, max = 10,
-          message = "El usuario debe tener entre 4 y 10 caracteres")
-  @Pattern(
-          regexp = "^[a-zA-Z0-9._-]+$",
+  @Size(min = 4, max = 10, message = "El usuario debe tener entre 4 y 10 caracteres")
+  @Pattern(regexp = "^[a-zA-Z0-9._-]+$",
           message = "El usuario solo puede contener letras, números, punto, guion y guion bajo"
   )
   private String usuario;
 
   @NotBlank(message = "La clave es obligatoria")
-  @Size(min = 8, max = 15,
-          message = "La clave debe tener entre 8 y 15 caracteres")
+  @Size(min = 8, max = 15, message = "La clave debe tener entre 8 y 15 caracteres")
   private String clave;
 }

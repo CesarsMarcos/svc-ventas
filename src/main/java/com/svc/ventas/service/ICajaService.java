@@ -2,6 +2,7 @@ package com.svc.ventas.service;
 
 import com.svc.ventas.message.request.CajaAperturaRequest;
 import com.svc.ventas.message.response.Response;
+import com.svc.ventas.models.entity.Usuario;
 import com.svc.ventas.models.mapstruct.dto.CajaDetalleDTO;
 import com.svc.ventas.models.mapstruct.dto.CajaMovimientosDTO;
 import com.svc.ventas.models.mapstruct.dto.ResumenCajaDTO;
@@ -17,5 +18,7 @@ public interface ICajaService {
     Response agregarMovimiento (Long idCaja, CajaMovimientosDTO movimiento);
 
     ResumenCajaDTO calcularCierreCaja (Long idCaja);
+
+    Boolean validarEstadoCaja(Usuario usuario);
 
 }

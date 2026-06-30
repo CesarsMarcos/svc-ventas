@@ -1,13 +1,11 @@
 package com.svc.ventas.models.dao;
 
 import com.svc.ventas.models.entity.Serie;
-import com.svc.ventas.models.mapstruct.dto.TipoDocumentoDTO;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface SerieRepository extends JpaRepository<Serie, Integer> {
@@ -28,6 +26,7 @@ public interface SerieRepository extends JpaRepository<Serie, Integer> {
               WHERE s.empresa.idEmpresa = :empresaId
                 AND s.sucursal.idSucursal = :sucursalId
                 AND s.tipoDocumento.idTipoDocumento = :tipoDocumentoId
+                AND s.indEstado = true
           """)
   Optional<Serie> getSerie(Long empresaId, Long sucursalId, Long tipoDocumentoId);
 
@@ -38,6 +37,7 @@ public interface SerieRepository extends JpaRepository<Serie, Integer> {
                 AND s.sucursal.idSucursal = :sucursalId
                 AND s.tipoDocumento.idTipoDocumento = :tipoDocumentoId
                 AND s.serie = :serie
+                AND s.indEstado = true
           """)
   Boolean existsBySerie (Long empresaId, Long sucursalId, Long tipoDocumentoId, String serie);
 

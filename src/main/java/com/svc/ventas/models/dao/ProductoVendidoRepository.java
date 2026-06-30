@@ -20,9 +20,10 @@ public interface ProductoVendidoRepository extends JpaRepository<ProductoVendido
           FROM ProductoVendido pv
           INNER JOIN Venta v ON v.idVenta = pv.venta.idVenta
           WHERE v.fecAdd >= :inicio AND v.fecAdd < :fin
+          AND v.sucursal.idSucursal = :idSucursal
           GROUP BY pv.idProducto, pv.nombre
           ORDER BY 2 desc
           """)
-  List<ProductoMasVendidoDTO> obtenerTop10ProductosMasVendidos(LocalDateTime inicio, LocalDateTime fin);
+  List<ProductoMasVendidoDTO> obtenerTop10ProductosMasVendidos(LocalDateTime inicio, LocalDateTime fin, Long idSucursal);
 
 }
