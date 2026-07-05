@@ -47,8 +47,7 @@ public class AlmacenServiceImpl implements IAlmacenService {
 
     Specification<ProductoStock> spec = Specification.where(null);
 
-    log.info("Obtiene usuario en sessión ::");
-    Sucursal sucursal = appContext.getSucursal();
+    Long idSucursal = appContext.getSucursalId();
 
     if (Objects.nonNull(nombre) && !nombre.isEmpty()) {
       spec = spec.and(ProductStockSpecifications.hasName(nombre));
@@ -62,7 +61,8 @@ public class AlmacenServiceImpl implements IAlmacenService {
       spec = spec.and(ProductStockSpecifications.hasStatus(estado));
     }
 
-    spec = spec.and(ProductStockSpecifications.hasSucursal(sucursal));
+    spec = spec.and(ProductStockSpecifications.hasSucursal(idSucursal));
+    spec = spec.and(ProductStockSpecifications.hasSucursal(idSucursal));
 
     Pageable pageable = PageRequest.of(page, size);
 
@@ -73,7 +73,7 @@ public class AlmacenServiceImpl implements IAlmacenService {
             .map(productoStockMapper::mapProductoSearch)
             .toList();
 
-    ResumenProductoResponse resumen = productoStockRepo.obtenerResumen();
+    ResumenProductoResponse resumen = productoStockRepo.obtenerResumen(idSucursal);
 
     return Map.of(
             "resumen", resumen,

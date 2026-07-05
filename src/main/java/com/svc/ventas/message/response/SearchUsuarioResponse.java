@@ -21,6 +21,8 @@ public class SearchUsuarioResponse {
 
   private String usuario;
 
+  private String sucursal;
+
   private String[] roles;
 
   private Boolean estado;

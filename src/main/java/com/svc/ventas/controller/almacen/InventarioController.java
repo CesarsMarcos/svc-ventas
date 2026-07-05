@@ -28,33 +28,33 @@ public class InventarioController {
           @RequestParam(required = false) Boolean estado,
           @RequestParam(defaultValue = "0") int page,
           @RequestParam(defaultValue = "10") int size) {
-    Map<String, Object> response = almacenService.buscarProductos(nombre, categoriaId, estado, page, size);
+    Map<String, Object> response = almacenService.searchProductos(nombre, categoriaId, estado, page, size);
     return ResponseEntity.ok(response);
   }
 
   @GetMapping("details/{id}")
   @PreAuthorize("hasAuthority('VER_INVENTARIO')")
   public ResponseEntity<?> details(@PathVariable Long id) {
-    return new ResponseEntity<>(almacenService.obtenerDetalle(id), HttpStatus.OK);
+    return new ResponseEntity<>(almacenService.details(id), HttpStatus.OK);
   }
 
   @GetMapping("{id}/presentaciones")
   @PreAuthorize("hasAuthority('VER_INVENTARIO')")
   public ResponseEntity<List<ProductoStockPresentacionDto>> presentaciones(@PathVariable Long id) {
-    return new ResponseEntity<>(almacenService.listarPresentaciones(id), HttpStatus.OK);
+    return new ResponseEntity<>(almacenService.presentacionesPorProductoStock(id), HttpStatus.OK);
   }
 
   @PatchMapping("updatePrecioVenta")
   @PreAuthorize("hasAuthority('AJUSTAR_PRECIOS')")
   public ResponseEntity<Void> updatePrecioVenta(@RequestBody List<PresentacionUpdateRequest> presentaciones) {
-    almacenService.actualizarPreciosVenta(presentaciones);
+    almacenService.updatePrecioVentaPresentaciones(presentaciones);
     return ResponseEntity.ok().build();
   }
 
   @PutMapping("{idProducto}/update-estado")
   @PreAuthorize("hasAuthority('EDITAR_ESTADO_INVENTARIO')")
   public ResponseEntity<Void> updateEstado(@PathVariable Long idProducto) {
-    almacenService.actualizarEstado(idProducto);
+    almacenService.updateEstado(idProducto);
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 

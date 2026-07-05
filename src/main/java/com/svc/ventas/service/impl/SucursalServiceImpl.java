@@ -8,6 +8,7 @@ import com.svc.ventas.exception.BusinessException;
 import com.svc.ventas.message.request.SucursalRequest;
 import com.svc.ventas.models.dao.EmpresaRepository;
 import com.svc.ventas.models.entity.Empresa;
+import com.svc.ventas.models.entity.Usuario;
 import com.svc.ventas.models.mapstruct.dto.SucursalDto;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +45,23 @@ public class SucursalServiceImpl implements ISucursalService {
   }
 
   @Override
+  public List<SucursalDto> listKardex() {
+    Long idSucursal = appContext.getSucursalId();
+    Usuario currentUsuario = appContext.getUsuario();
+
+    if (isAdminOSuperAdmin(currentUsuario)) {
+      return sucursalRepo
+              .findSucursalesPorEmpresa(idSucursal)
+              .stream()
+              .map(sucursalMapper::mapToSucursalDTO)
+              .toList();
+    }
+    return List.of(
+            sucursalMapper.mapToSucursalDTO(appContext.getSucursal())
+    );
+  }
+
+  @Override
   public Response agregar(SucursalRequest sucursal) {
 
     Empresa empresa = appContext.getEmpresa();
@@ -75,19 +93,28 @@ public class SucursalServiceImpl implements ISucursalService {
   }
 
   @Override
-  public SucursalDto obtener(Long id) {
+  public Sucursal obtener(Long id) {
     return sucursalRepo.findById(id)
-            .map(sucursalMapper::mapToSucursalDTO)
             .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Sucursal", id)));
   }
 
   @Override
   public void eliminar(Long id) {
     Sucursal sucursalSave = sucursalRepo.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Sucursal", id)));
+            .orElseThrow(() ->
+                    new EntityNotFoundException(String.format(Constantes.MENSAJE_NOT_FOUND, "Sucursal", id)));
 
     sucursalSave.setIndEstado(Constantes.IND_INACTIVO);
     sucursalRepo.save(sucursalSave);
+  }
+
+  private boolean isAdminOSuperAdmin(Usuario usuario) {
+    return usuario.getRoles()
+            .stream()
+            .anyMatch(r ->
+                    "ROLE_ADMIN".equals(r.getDesRol()) ||
+                            "ROLE_SUPER_ADMIN".equals(r.getDesRol())
+            );
   }
 
 }

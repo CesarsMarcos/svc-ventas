@@ -7,12 +7,20 @@ import org.springframework.data.jpa.repository.Query;
 
 import com.svc.ventas.models.entity.Sucursal;
 
-public interface SucursalRepo extends JpaRepository<Sucursal, Long>{
+public interface SucursalRepo extends JpaRepository<Sucursal, Long> {
 
-	@Query("SELECT s FROM Sucursal s WHERE s.empresa.idEmpresa = :idEmpresa AND s.indEstado= true")
-	List<Sucursal> findSucursalesPorEmpresa(Long idEmpresa);
+  @Query("""
+          SELECT s FROM Sucursal s
+          WHERE s.empresa.idEmpresa = :idEmpresa
+          AND s.indEstado= true
+          """)
+  List<Sucursal> findSucursalesPorEmpresa(Long idEmpresa);
 
-	@Query("SELECT COUNT(s) FROM Sucursal s WHERE s.empresa.idEmpresa = :idEmpresa AND s.indEstado= true")
-	Long cantidadSucursal(Long idEmpresa);
+  @Query("""
+          SELECT COUNT(s) FROM Sucursal s
+          WHERE s.empresa.idEmpresa = :idEmpresa 
+          AND s.indEstado= true
+          """)
+  Long cantidadSucursal(Long idEmpresa);
 
 }
